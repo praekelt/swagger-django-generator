@@ -24,9 +24,11 @@ Usage: generator.py [OPTIONS] SPECIFICATION
 Options:
   --verbose / --no-verbose
   --output-dir DIRECTORY
-  --urls-file TEXT
-  --views-file TEXT
-  --schemas-file TEXT
+  --module-name TEXT        The name of the module where the generated code
+                            will be used, e.g. myproject.some_application
+  --urls-file TEXT          Use an alternative filename for the urls.
+  --views-file TEXT         Use an alternative filename for the views.
+  --schemas-file TEXT       Use an alternative filename for the schemas.
   --help                    Show this message and exit.
 ```
 
