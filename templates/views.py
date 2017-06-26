@@ -20,14 +20,14 @@ class {{ class_name }}(View):
     {% if verb in ["post", "put"] %}
     @csrf_exempt
     {% endif %}
-    def {{ verb }}(self, request, {% for ra in info.required_arguments %}{{ ra.name }}, {% endfor %}{% for oa in info.optional_arguments %}{{ oa.name }}=None, {% endfor %}*args, **kwargs):
+    def {{ verb }}(self, request, {% for ra in info.required_args %}{{ ra.name }}, {% endfor %}{% for oa in info.optional_args %}{{ oa.name }}=None, {% endfor %}*args, **kwargs):
         """
         :param self: A {{ class_name }} instance
         :param request: An HttpRequest
-        {% for ra in info.required_arguments %}
+        {% for ra in info.required_args %}
         :param {{ ra.name }}: {{ ra.type }} {{ ra.description }}
         {% endfor %}
-        {% for ra in info.option_arguments %}
+        {% for ra in info.option_args %}
         :param {{ ra.name }} (optional): {{ ra.type }} {{ ra.description }}
         {% endfor %}
         """
@@ -35,7 +35,7 @@ class {{ class_name }}(View):
         body = json.loads(request.body)
         jsonschema.validate(body, {{ info.body.schema }})
         {% endif %}
-        result = stubs.{{ info.operation }}(request, {% if info.body %}body, {% endif %}{% for ra in info.required_arguments %}{{ ra.name }}, {% endfor %}{% for oa in info.optional_arguments %}{{ oa.name }}=None, {% endfor %}*args, **kwargs)
+        result = stubs.{{ info.operation }}(request, {% if info.body %}body, {% endif %}{% for ra in info.required_args %}{{ ra.name }}, {% endfor %}{% for oa in info.optional_args %}{{ oa.name }}=None, {% endfor %}*args, **kwargs)
         return JsonResponse(result, safe=False)
    {% if not loop.last %}
 
