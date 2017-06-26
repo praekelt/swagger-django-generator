@@ -59,17 +59,17 @@ import generated.views as views
 
 urlpatterns = [
     url(r"^/claims$", views.Claims.as_view()),
-    url(r"^/models$", views.Models.as_view()),
-    url(r"^/user$", views.User.as_view()),
-    url(r"^/feersum/channels/(?P<channel_id>.+)/$", views.FeersumChannelsChannelId.as_view()),
-    url(r"^/notifications$", views.Notifications.as_view()),
-    url(r"^/feersum/channels/(?P<channel_id>.+)/messages/$", views.FeersumChannelsChannelIdMessages.as_view()),
-    url(r"^/manufacturers$", views.Manufacturers.as_view()),
     url(r"^/feersum/channels/$", views.FeersumChannels.as_view()),
+    url(r"^/feersum/channels/(?P<channel_id>.+)/$", views.FeersumChannelsChannelId.as_view()),
+    url(r"^/feersum/channels/(?P<channel_id>.+)/messages/$", views.FeersumChannelsChannelIdMessages.as_view()),
     url(r"^/feersum/channels/(?P<channel_id>.+)/userinfo/(?P<recipient_id>.+)/$", views.FeersumChannelsChannelIdUserinfoRecipientId.as_view()),
-    url(r"^/policies$", views.Policies.as_view()),
-    url(r"^/manufacturer/(?P<manufacturer_id>.+)/models$", views.ManufacturerManufacturerIdModels.as_view()),
     url(r"^/feersum/hello$", views.FeersumHello.as_view()),
+    url(r"^/manufacturer/(?P<manufacturer_id>.+)/models$", views.ManufacturerManufacturerIdModels.as_view()),
+    url(r"^/manufacturers$", views.Manufacturers.as_view()),
+    url(r"^/models$", views.Models.as_view()),
+    url(r"^/notifications$", views.Notifications.as_view()),
+    url(r"^/policies$", views.Policies.as_view()),
+    url(r"^/user$", views.User.as_view()),
 ]
 ```
 
