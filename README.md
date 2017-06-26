@@ -9,6 +9,7 @@ In particular, the following files are currently generated:
 * `views.py`, for handling requests, performing validation, etc., and
 * `schemas.py`, containing the JSONSchema definitions of parameters and
   request body arguments.
+* `utils.py`, containing utility functions that can be tweaked, if necessary.
 
 ## Getting started
 A virtual environment can be set up by running
@@ -29,6 +30,7 @@ Options:
   --urls-file TEXT          Use an alternative filename for the urls.
   --views-file TEXT         Use an alternative filename for the views.
   --schemas-file TEXT       Use an alternative filename for the schemas.
+  --utils-file TEXT         Use an alternative filename for the utilities.
   --help                    Show this message and exit.
 ```
 

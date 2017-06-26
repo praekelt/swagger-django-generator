@@ -199,8 +199,10 @@ def generate_views(parser, module_name):
               help="Use an alternative filename for the views.")
 @click.option("--schemas-file", type=str,  default="schemas.py",
               help="Use an alternative filename for the schemas.")
+@click.option("--utils-file", type=str,  default="utils.py",
+              help="Use an alternative filename for the utilities.")
 def main(specification, verbose, output_dir, module_name, urls_file, views_file,
-         schemas_file):
+         schemas_file, utils_file):
     global PATH_VERB_OPERATION_MAP
     parser = SwaggerParser(swagger_yaml=specification)
 
@@ -224,6 +226,12 @@ def main(specification, verbose, output_dir, module_name, urls_file, views_file,
 
     with open(os.path.join(output_dir, schemas_file), "w") as f:
         data = generate_schemas(parser, module_name)
+        f.write(data)
+        if verbose:
+            print(data)
+
+    with open(os.path.join(output_dir, utils_file), "w") as f:
+        data = render_to_string("templates/utils.py", {})
         f.write(data)
         if verbose:
             print(data)

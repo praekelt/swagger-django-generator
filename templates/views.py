@@ -5,12 +5,13 @@ Do not modify this file. It is generated from the Swagger specification.
 import json
 import jsonschema
 
-from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 from django.views import View
 
 import {{ module }}.stubs as stubs
 import {{ module }}.schemas as schemas
+import {{ module }}.utils as utils
 
 
 {% for class_name, verbs in classes|dictsort(true) %}
@@ -32,8 +33,7 @@ class {{ class_name }}(View):
         {% endfor %}
         """
         {% if info.body %}
-        body = json.loads(request.body)
-        jsonschema.validate(body, {{ info.body.schema }})
+        body = utils.body_to_dict(request.body, {{ info.body.schema }})
         {% endif %}
         result = stubs.{{ info.operation }}(request, {% if info.body %}body, {% endif %}{% for ra in info.required_args %}{{ ra.name }}, {% endfor %}{% for oa in info.optional_args %}{{ oa.name }}=None, {% endfor %}*args, **kwargs)
         return JsonResponse(result, safe=False)
