@@ -13,10 +13,10 @@ import {{ module }}.stubs as stubs
 import {{ module }}.schemas as schemas
 
 
-{% for class_name, verbs in classes.items() %}
+{% for class_name, verbs in classes|dictsort(true) %}
 class {{ class_name }}(View):
 
-    {% for verb, info in verbs.items() %}
+    {% for verb, info in verbs|dictsort(true) %}
     {% if verb in ["post", "put"] %}
     @csrf_exempt
     {% endif %}

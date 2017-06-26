@@ -9,7 +9,7 @@ what is provided by pformat, hence the use of json.loads().
 """
 import json
 
-{% for name, definition in schemas.items() %}
+{% for name, definition in schemas|dictsort(true) %}
 {{ name }} = json.loads("""
 {{ definition }}
 """)
