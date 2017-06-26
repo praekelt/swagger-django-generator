@@ -44,4 +44,149 @@ it is provided by the `swagger-parser` library.
 * We can look at using the `swagger-tester` library.
 * At this stage there are **no tests**. This should be remedied as soon as possible.
 
+## Examples
+Here are some examples of the files that are generated.
 
+### `urls.py`
+```python
+"""
+Do not modify this file. It is generated from the Swagger specification.
+
+Routing module.
+"""
+from django.conf.urls import url
+import generated.views as views
+
+urlpatterns = [
+    url(r"^/claims$", views.Claims.as_view()),
+    url(r"^/models$", views.Models.as_view()),
+    url(r"^/user$", views.User.as_view()),
+    url(r"^/feersum/channels/(?P<channel_id>.+)/$", views.FeersumChannelsChannelId.as_view()),
+    url(r"^/notifications$", views.Notifications.as_view()),
+    url(r"^/feersum/channels/(?P<channel_id>.+)/messages/$", views.FeersumChannelsChannelIdMessages.as_view()),
+    url(r"^/manufacturers$", views.Manufacturers.as_view()),
+    url(r"^/feersum/channels/$", views.FeersumChannels.as_view()),
+    url(r"^/feersum/channels/(?P<channel_id>.+)/userinfo/(?P<recipient_id>.+)/$", views.FeersumChannelsChannelIdUserinfoRecipientId.as_view()),
+    url(r"^/policies$", views.Policies.as_view()),
+    url(r"^/manufacturer/(?P<manufacturer_id>.+)/models$", views.ManufacturerManufacturerIdModels.as_view()),
+    url(r"^/feersum/hello$", views.FeersumHello.as_view()),
+]
+```
+
+### `schemas.py`
+```python
+"""
+Do not modify this file. It is generated from the Swagger specification.
+
+Container module for JSONSchema definitions.
+This does not include inlined definitions.
+
+The pretty-printing functionality provided by the json module is superior to
+what is provided by pformat, hence the use of json.loads().
+"""
+import json
+
+claim = json.loads("""
+{
+    "properties": {
+        "created_date": {
+            "format": "date-time",
+            "type": "string"
+        },
+        "description": {
+            "type": "string"
+        },
+        "id": {
+            "type": "integer"
+        },
+        "risk_item_id": {
+            "type": "integer"
+        }
+    },
+    "type": "object"
+}
+""")
+
+create_policy = json.loads("""
+{
+    "properties": {
+        "IMEI": {
+            "description": "The IMEI of the insured device",
+            "pattern": "[0-9]{15, 17}",
+            "type": "string"
+        },
+        "model_id": {
+            "description": "The model ID. The manufacturer is implied.",
+            "type": "integer"
+        },
+        "send_email": {
+            "default": false,
+            "description": "A flag indicating whether an email should be sent to the user",
+            "type": "boolean"
+        }
+    },
+    "type": "object"
+}
+""")
+```
+
+### `views.py`
+```python
+"""
+Do not modify this file. It is generated from the Swagger specification.
+
+"""
+import json
+import jsonschema
+
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from django.views import View
+
+import generated.stubs as stubs
+import generated.schemas as schemas
+
+
+class Manufacturers(View):
+
+    def get(self, request, *args, **kwargs):
+        """
+        :param self: A Manufacturers instance
+        :param request: An HttpRequest
+        """
+        result = stubs.list_manufacturers(request, *args, **kwargs)
+        return JsonResponse(result, safe=False)
+
+
+class FeersumChannelsChannelIdUserinfoRecipientId(View):
+
+    def get(self, request, *args, **kwargs):
+        """
+        :param self: A FeersumChannelsChannelIdUserinfoRecipientId instance
+        :param request: An HttpRequest
+        """
+        result = stubs.get_user_info(request, *args, **kwargs)
+        return JsonResponse(result, safe=False)
+
+
+class Policies(View):
+
+    @csrf_exempt
+    def post(self, request, *args, **kwargs):
+        """
+        :param self: A Policies instance
+        :param request: An HttpRequest
+        """
+        body = json.loads(request.body)
+        jsonschema.validate(body, schemas.create_policy)
+        result = stubs.createUserPolicy(request, body, *args, **kwargs)
+        return JsonResponse(result, safe=False)
+
+    def get(self, request, *args, **kwargs):
+        """
+        :param self: A Policies instance
+        :param request: An HttpRequest
+        """
+        result = stubs.get_user_policies(request, *args, **kwargs)
+        return JsonResponse(result, safe=False)
+```
