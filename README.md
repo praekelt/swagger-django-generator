@@ -158,14 +158,18 @@ class Manufacturers(View):
         return JsonResponse(result, safe=False)
 
 
-class FeersumChannelsChannelIdUserinfoRecipientId(View):
+class FeersumChannelsChannelIdMessages(View):
 
-    def get(self, request, *args, **kwargs):
+    @csrf_exempt
+    def post(self, request, channel_id, *args, **kwargs):
         """
-        :param self: A FeersumChannelsChannelIdUserinfoRecipientId instance
+        :param self: A FeersumChannelsChannelIdMessages instance
         :param request: An HttpRequest
+        :param channel_id: string The channel id
         """
-        result = stubs.get_user_info(request, *args, **kwargs)
+        body = json.loads(request.body)
+        jsonschema.validate(body, schemas.message)
+        result = stubs.receive_message(request, body, channel_id, *args, **kwargs)
         return JsonResponse(result, safe=False)
 
 
