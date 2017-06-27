@@ -152,17 +152,23 @@ def generate_views(parser, module_name):
         class_name = path_to_class_name(relative_url)
         classes[class_name] = {}
         for verb, io in verbs.iteritems():  # io => input/output options
+            operation = PATH_VERB_OPERATION_MAP[(path, verb)]
             payload = {
-                "operation": PATH_VERB_OPERATION_MAP[(path, verb)],
+                "operation": operation,
                 "required_args": [],
                 "optional_args": [],
             }
             for name, detail in io["parameters"].iteritems():
-                if detail["in"] == "path":
+                location = detail["in"]
+                if location == "path":
                     section = "required_args" if detail["required"] else \
                         "optional_args"
                     payload[section].append(detail)
-                elif detail["in"] == "body":
+                elif location == "query":
+                    section = "required_args" if detail["required"] else \
+                        "optional_args"
+                    payload[section].append(detail)
+                elif location == "body":
                     # There cannot be more than one body parameter
                     payload["body"] = detail
                     schema_reference = detail["schema"].get("$ref", None)
@@ -175,6 +181,11 @@ def generate_views(parser, module_name):
                     else:
                         # Inline schema definition
                         detail["schema"] = json.dumps(detail["schema"])
+                else:
+                    msg = "Code generation for parameter type '{}' not " \
+                          "implemented yet. Operation '{}' parameter '{" \
+                          "}'".format(location, operation, name)
+                    click.secho(msg, fg="red")
 
             classes[class_name][verb] = payload
 
@@ -212,29 +223,35 @@ def main(specification, verbose, output_dir, module_name, urls_file, views_file,
         for operation, (path, http_verb, tag) in parser.operation.iteritems()
     }
 
+    click.secho("Generating URLs file...", fg="green")
     with open(os.path.join(output_dir, urls_file), "w") as f:
         data = generate_urls(parser, module_name)
         f.write(data)
         if verbose:
             print(data)
 
+    click.secho("Generating views file...", fg="green")
     with open(os.path.join(output_dir, views_file), "w") as f:
         data = generate_views(parser, module_name)
         f.write(data)
         if verbose:
             print(data)
 
+    click.secho("Generating schemas file...", fg="green")
     with open(os.path.join(output_dir, schemas_file), "w") as f:
         data = generate_schemas(parser, module_name)
         f.write(data)
         if verbose:
             print(data)
 
+    click.secho("Generating utils file...", fg="green")
     with open(os.path.join(output_dir, utils_file), "w") as f:
         data = render_to_string("templates/utils.py", {})
         f.write(data)
         if verbose:
             print(data)
+
+    click.secho("Done.", fg="green")
 
 
 if __name__ == "__main__":
