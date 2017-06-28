@@ -282,10 +282,11 @@ def main(specification_path, spec_format, verbose, output_dir, module_name,
                         "--spec-format to specify it explicitly.")
             exit(0)
 
-    argname = "swagger_yaml" if spec_format == SPEC_YAML else "swagger_json"
-    with open(specification_path, "r") as f:
-        kwargs = {argname: f}
-        parser = SwaggerParser(**kwargs)
+    if spec_format == SPEC_YAML:
+        with open(specification_path, "r") as f:
+            parser = SwaggerParser(swagger_yaml=f)
+    else:
+        parser = SwaggerParser(swagger_path=specification_path)
 
     # Build (path, http_verb) => operation mapping
     PATH_VERB_OPERATION_MAP = {
