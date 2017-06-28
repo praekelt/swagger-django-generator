@@ -164,7 +164,9 @@ def generate_schemas(parser, module_name):
     schemas = {
         name: json.dumps(definition, indent=4, sort_keys=True)
         # name: pformat(definition, indent=1, width=76)
-        for name, definition in parser.specification["definitions"].iteritems()
+        for name, definition in parser.specification.get(
+            "definitions", {}
+        ).iteritems()
     }
     return render_to_string("templates/schemas.py", {
         "schemas": schemas,
