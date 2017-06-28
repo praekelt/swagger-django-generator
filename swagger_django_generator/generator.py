@@ -234,7 +234,7 @@ def generate_views(parser, module_name):
 
 
 @click.command()
-@click.argument("specification", type=click.File("r"))
+@click.argument("specification", type=click.Path(dir_okay=False, exists=True))
 @click.option("--verbose/--no-verbose", default=False)
 @click.option("--output-dir", type=click.Path(file_okay=False, exists=True,
                                               writable=True),
@@ -253,7 +253,7 @@ def generate_views(parser, module_name):
 def main(specification, verbose, output_dir, module_name, urls_file, views_file,
          schemas_file, utils_file):
     global PATH_VERB_OPERATION_MAP
-    parser = SwaggerParser(swagger_yaml=specification)
+    parser = SwaggerParser(swagger_path=specification)
 
     # Build (path, http_verb) => operation mapping
     PATH_VERB_OPERATION_MAP = {

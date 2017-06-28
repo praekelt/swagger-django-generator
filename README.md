@@ -36,12 +36,12 @@ Options:
 
 At the time of writing the ulity expects you to implement your logic in a `stubs.py` file.
 The name of this module will be made configurable in future releases.
+Both `yaml` and `json` specifications are supported.
 
 ## Todo
 * Currently `PUT` and `POST` request handlers are generated with a `@csrf_exempt` decorator.
 This can be made a command line option.
 * Currently the generated code expects logic to be implemented in a file called `stubs.py`. This needs to be made configurable.
-* Only `yaml` defintions are currenlty parsed. It should be trivial to support JSON as well, since
 it is provided by the `swagger-parser` library.
 * We can look at using the `swagger-tester` library.
 * At this stage there are **no tests**. This should be remedied as soon as possible.
