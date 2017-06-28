@@ -7,6 +7,11 @@ from swagger_parser import SwaggerParser
 
 DEFAULT_OUTPUT_DIR = "./generated"
 DEFAULT_MODULE = "generated"
+
+# Defaults used when the path is "/".
+ROOT_CLASS_NAME = u"Root"
+ROOT_OPERATION = u"root"
+
 global PATH_VERB_OPERATION_MAP
 
 # from swagger_tester import swagger_test
@@ -75,7 +80,8 @@ def path_to_class_name(path):
     # type: (unicode) -> unicode
     """
     We map paths (typically only the relative part) to a canonical
-    class name.
+    class name. In the event that the path is "/", ROOT_CLASS_NAME will be
+    returned.
     :param path: A path of the form "/some/path/{id}/foo/{bar}/"
     :return: A class name of the form "SomePathIdFooBar"
     """
@@ -85,7 +91,35 @@ def path_to_class_name(path):
         ord("_"): u"/"
     }
     sanitised = path.translate(character_map)
-    return u"".join(p.capitalize() for p in sanitised.split("/"))
+    class_name = u"".join(p.capitalize() for p in sanitised.split("/"))
+    return class_name or ROOT_CLASS_NAME
+
+
+def path_to_operation(path, verb):
+    # type: (unicode, unicode) -> unicode
+    """
+    We map paths (typically only the relative part) to a canonical
+    operation name. The operation name is used as the name of the function
+    that must provide the server-side logic.
+    Typically the operation name is provided in the Swagger space via the
+    `operationId` field. This function is used as a fallback mechanism when
+    it is not defined explicitly.
+    :param path: A path of the form "/some/path/{id}/foo/{bar}/"
+    :param verb: The HTTP verb, e.g. "get"
+    :return: An operation name of the form "get_some_path_id_foo_bar"
+    """
+    character_map = {
+        ord("{"): None,
+        ord("}"): None,
+        ord("_"): u"/"
+    }
+    if path == u"/":
+        operation = ROOT_OPERATION
+    else:
+        sanitised = path.translate(character_map)
+        operation = u"_".join(p for p in sanitised.split("/"))
+
+    return "{}_{}".format(verb, operation)
 
 
 def fixup_parameters(url):
@@ -146,13 +180,17 @@ def generate_views(parser, module_name):
     :param module_name: The module name used in the generated code.
     :return: str
     """
+    global PATH_VERB_OPERATION_MAP
     classes = {}
     for path, verbs in parser.paths.iteritems():
         relative_url = path.replace(parser.base_path, "")
         class_name = path_to_class_name(relative_url)
         classes[class_name] = {}
         for verb, io in verbs.iteritems():  # io => input/output options
-            operation = PATH_VERB_OPERATION_MAP[(path, verb)]
+            # Look up the name of the operation and construct one if not found
+            operation = PATH_VERB_OPERATION_MAP.get(
+                (path, verb), path_to_operation(path, verb)
+            )
             payload = {
                 "operation": operation,
                 "required_args": [],
