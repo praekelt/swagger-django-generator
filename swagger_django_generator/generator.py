@@ -12,6 +12,16 @@ DEFAULT_MODULE = "generated"
 ROOT_CLASS_NAME = u"Root"
 ROOT_OPERATION = u"root"
 
+# Known extensions in lowercase
+YAML_EXTENSIONS = ["yaml", "yml"]
+JSON_EXTENSIONS = ["json"]
+
+# Choices provided when specifying the specification format
+SPEC_JSON = "json"
+SPEC_YAML = "yaml"
+SPEC_CHOICES = [SPEC_JSON, SPEC_YAML]
+
+
 global PATH_VERB_OPERATION_MAP
 
 # from swagger_tester import swagger_test
@@ -236,7 +246,9 @@ def generate_views(parser, module_name):
 
 
 @click.command()
-@click.argument("specification", type=click.Path(dir_okay=False, exists=True))
+@click.argument("specification_path", type=click.Path(dir_okay=False,
+                                                    exists=True))
+@click.option("--spec-format", type=click.Choice(SPEC_CHOICES))
 @click.option("--verbose/--no-verbose", default=False)
 @click.option("--output-dir", type=click.Path(file_okay=False, exists=True,
                                               writable=True),
@@ -252,10 +264,28 @@ def generate_views(parser, module_name):
               help="Use an alternative filename for the schemas.")
 @click.option("--utils-file", type=str,  default="utils.py",
               help="Use an alternative filename for the utilities.")
-def main(specification, verbose, output_dir, module_name, urls_file, views_file,
+def main(specification_path, spec_format, verbose, output_dir, module_name,
+         urls_file, views_file,
          schemas_file, utils_file):
     global PATH_VERB_OPERATION_MAP
-    parser = SwaggerParser(swagger_path=specification)
+    # If the swagger spec format is not specified explicitly, we try to
+    # derive it from the specification path
+    if not spec_format:
+        filename = os.path.basename(specification_path)
+        extension = filename.rsplit(".", 1)[-1]
+        if extension in YAML_EXTENSIONS:
+            spec_format = SPEC_YAML
+        elif extension in JSON_EXTENSIONS:
+            spec_format = SPEC_JSON
+        else:
+            click.secho("Could not infer specification format. Use "
+                        "--spec-format to specify it explicitly.")
+            exit(0)
+
+    argname = "swagger_yaml" if spec_format == SPEC_YAML else "swagger_json"
+    with open(specification_path, "r") as f:
+        kwargs = {argname: f}
+        parser = SwaggerParser(**kwargs)
 
     # Build (path, http_verb) => operation mapping
     PATH_VERB_OPERATION_MAP = {
