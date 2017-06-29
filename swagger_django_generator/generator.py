@@ -172,7 +172,7 @@ class Generator(object):
         self.PATH_VERB_OPERATION_MAP = {
             (path, http_verb): operation
             for operation, (path, http_verb, tag) in
-            self.parser.operation.iteritems()
+            self.parser.operation.items()
         }
 
     def resolve_schema_references(self, definition):
@@ -192,12 +192,12 @@ class Generator(object):
             referenced_definition = self.parser.specification[section][name]
             definition.update(referenced_definition)
 
-        for value in definition.itervalues():
+        for value in definition.values():
             if isinstance(value, dict):
                 self.resolve_schema_references(value)
 
         # TODO: This function also strips "x-scope" elements, which is a bit sneaky.
-        definition.pop("x-scope", None)
+        # definition.pop("x-scope", None)
 
         return definition
 
@@ -230,7 +230,7 @@ class Generator(object):
                              indent=4, sort_keys=True)
             for name, definition in self.parser.specification.get(
                 "definitions", {}
-            ).iteritems()
+            ).items()
         }
         return render_to_string("templates/schemas.py", {
             "schemas": schemas,
@@ -244,11 +244,11 @@ class Generator(object):
         :return: str
         """
         classes = {}
-        for path, verbs in self.parser.paths.iteritems():
+        for path, verbs in self.parser.paths.items():
             relative_url = path.replace(self.parser.base_path, "")
             class_name = path_to_class_name(relative_url)
             classes[class_name] = {}
-            for verb, io in verbs.iteritems():  # io => input/output options
+            for verb, io in verbs.items():  # io => input/output options
                 # Look up the name of the operation and construct one if not found
                 operation = self.PATH_VERB_OPERATION_MAP.get(
                     (path, verb), path_to_operation(path, verb)
@@ -258,7 +258,7 @@ class Generator(object):
                     "required_args": [],
                     "optional_args": [],
                 }
-                for name, detail in io["parameters"].iteritems():
+                for name, detail in io["parameters"].items():
                     location = detail["in"]
                     if location == "path":
                         section = "required_args" if detail["required"] else \

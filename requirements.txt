@@ -1,2 +1,4 @@
 swagger-parser
 click
+nose
+parameterized
