@@ -22,7 +22,6 @@ SPEC_YAML = "yaml"
 SPEC_CHOICES = [SPEC_JSON, SPEC_YAML]
 
 
-global PATH_VERB_OPERATION_MAP
 
 # from swagger_tester import swagger_test
 
@@ -68,7 +67,6 @@ global PATH_VERB_OPERATION_MAP
 #
 # * Paths map to class based views.
 # * (path, http_verb) combinations map to operations.
-
 
 def render_to_string(filename, context, path=None):
     # type: (str, Dict, str) -> str
@@ -143,143 +141,168 @@ def fixup_parameters(url):
     return url.replace("{", "(?P<").replace("}", ">.+)")
 
 
-def resolve_schema_references(parser, definition):
-    # type: (Dict, Dict) -> Dict
-    """
-    JSONSchema definitions may contain references.
-    This function replaces all references with their full definitions.
-    Note that the changes are made in-place. The return value is simply
-    referencing the definition that was passed in.
+class Generator(object):
+    PATH_VERB_OPERATION_MAP = {}
 
-    :param parser: The parsed specification
-    :param definition: A JSONSchema definition
-    :return: The modified definition.
-    """
-    if "$ref" in definition:
-        schema_reference = definition.pop("$ref")
-        section, name = schema_reference.split("/")[-2:]
-        referenced_definition = parser.specification[section][name]
-        definition.update(referenced_definition)
+    def __init__(self, module_name=DEFAULT_MODULE):
+        self.parser = None
+        self.module_name = module_name
 
-    for value in definition.itervalues():
-        if isinstance(value, dict):
-            resolve_schema_references(parser, value)
+    def load_specification(self, specification_path, spec_format=None):
+        # If the swagger spec format is not specified explicitly, we try to
+        # derive it from the specification path
+        if not spec_format:
+            filename = os.path.basename(specification_path)
+            extension = filename.rsplit(".", 1)[-1]
+            if extension in YAML_EXTENSIONS:
+                spec_format = SPEC_YAML
+            elif extension in JSON_EXTENSIONS:
+                spec_format = SPEC_JSON
+            else:
+                raise RuntimeError("Could not infer specification format. Use "
+                                   "--spec-format to specify it explicitly.")
 
-    # TODO: This function also strips "x-scope" elements, which is a bit sneaky.
-    definition.pop("x-scope", None)
+        if spec_format == SPEC_YAML:
+            with open(specification_path, "r") as f:
+                self.parser = SwaggerParser(swagger_yaml=f)
+        else:
+            self.parser = SwaggerParser(swagger_path=specification_path)
 
-    return definition
+        # Build (path, http_verb) => operation mapping
+        self.PATH_VERB_OPERATION_MAP = {
+            (path, http_verb): operation
+            for operation, (path, http_verb, tag) in
+            self.parser.operation.iteritems()
+        }
 
+    def resolve_schema_references(self, definition):
+        # type: (Generator, Dict) -> Dict
+        """
+        JSONSchema definitions may contain references.
+        This function replaces all references with their full definitions.
+        Note that the changes are made in-place. The return value is simply
+        referencing the definition that was passed in.
 
-def generate_urls(parser, module_name):
-    # type: (SwaggerParser, str) -> str
-    """
-    Generate a `urls.py` file from the given specification.
-    :param parser: The parsed specification
-    :param module_name: The module name used in the generated code.
-    :return: str
-    """
-    relative_urls = [path.replace(parser.base_path, "")
-                     for path in parser.paths]
-    entries = {
-        fixup_parameters(relative_url): path_to_class_name(relative_url)
-        for relative_url in relative_urls
-    }
-    return render_to_string("templates/urls.py", {
-        "entries": entries,
-        "module": module_name
-    })
+        :param definition: A JSONSchema definition
+        :return: The modified definition.
+        """
+        if "$ref" in definition:
+            schema_reference = definition.pop("$ref")
+            section, name = schema_reference.split("/")[-2:]
+            referenced_definition = self.parser.specification[section][name]
+            definition.update(referenced_definition)
 
-def generate_schemas(parser, module_name):
-    # type: (SwaggerParser, str) -> str
-    """
-    Generate a `schemas.py` file from the given specification.
-    :param parser: The parsed specification
-    :param module_name: The module name used in the generated code.
-    :return: str
-    """
-    schemas = {
-        name: json.dumps(resolve_schema_references(parser, definition),
-                         indent=4, sort_keys=True)
-        for name, definition in parser.specification.get(
-            "definitions", {}
-        ).iteritems()
-    }
-    return render_to_string("templates/schemas.py", {
-        "schemas": schemas,
-        "module": module_name
-    })
+        for value in definition.itervalues():
+            if isinstance(value, dict):
+                self.resolve_schema_references(value)
+
+        # TODO: This function also strips "x-scope" elements, which is a bit sneaky.
+        definition.pop("x-scope", None)
+
+        return definition
 
 
-def generate_views(parser, module_name):
-    # type: (SwaggerParser, str) -> str
-    """
-    Generate a `views.py` file from the given specification.
-    :param parser: The parsed specification
-    :param module_name: The module name used in the generated code.
-    :return: str
-    """
-    global PATH_VERB_OPERATION_MAP
-    classes = {}
-    for path, verbs in parser.paths.iteritems():
-        relative_url = path.replace(parser.base_path, "")
-        class_name = path_to_class_name(relative_url)
-        classes[class_name] = {}
-        for verb, io in verbs.iteritems():  # io => input/output options
-            # Look up the name of the operation and construct one if not found
-            operation = PATH_VERB_OPERATION_MAP.get(
-                (path, verb), path_to_operation(path, verb)
-            )
-            payload = {
-                "operation": operation,
-                "required_args": [],
-                "optional_args": [],
-            }
-            for name, detail in io["parameters"].iteritems():
-                location = detail["in"]
-                if location == "path":
-                    section = "required_args" if detail["required"] else \
-                        "optional_args"
-                    payload[section].append(detail)
-                elif location == "query":
-                    section = "required_args" if detail["required"] else \
-                        "optional_args"
-                    payload[section].append(detail)
-                elif location == "body":
-                    # There cannot be more than one body parameter
-                    payload["body"] = detail
-                    schema_reference = detail["schema"].get("$ref", None)
-                    if schema_reference:
-                        # TODO: Fix this crude lookup code
-                        # It expects a reference to have the form
-                        # "#/definitions/name"
-                        lookup = schema_reference.split("/")[-1]
-                        detail["schema"] = "schemas.{}".format(lookup)
+    def generate_urls(self):
+        # type: (Generator) -> str
+        """
+        Generate a `urls.py` file from the given specification.
+        :return: str
+        """
+        relative_urls = [path.replace(self.parser.base_path, "")
+                         for path in self.parser.paths]
+        entries = {
+            fixup_parameters(relative_url): path_to_class_name(relative_url)
+            for relative_url in relative_urls
+        }
+        return render_to_string("templates/urls.py", {
+            "entries": entries,
+            "module": self.module_name
+        })
+
+    def generate_schemas(self):
+        # type: (Generator) -> str
+        """
+        Generate a `schemas.py` file from the given specification.
+        :return: str
+        """
+        schemas = {
+            name: json.dumps(self.resolve_schema_references(definition),
+                             indent=4, sort_keys=True)
+            for name, definition in self.parser.specification.get(
+                "definitions", {}
+            ).iteritems()
+        }
+        return render_to_string("templates/schemas.py", {
+            "schemas": schemas,
+            "module": self.module_name
+        })
+
+    def generate_views(self):
+        # type: (Generator) -> str
+        """
+        Generate a `views.py` file from the given specification.
+        :return: str
+        """
+        classes = {}
+        for path, verbs in self.parser.paths.iteritems():
+            relative_url = path.replace(self.parser.base_path, "")
+            class_name = path_to_class_name(relative_url)
+            classes[class_name] = {}
+            for verb, io in verbs.iteritems():  # io => input/output options
+                # Look up the name of the operation and construct one if not found
+                operation = self.PATH_VERB_OPERATION_MAP.get(
+                    (path, verb), path_to_operation(path, verb)
+                )
+                payload = {
+                    "operation": operation,
+                    "required_args": [],
+                    "optional_args": [],
+                }
+                for name, detail in io["parameters"].iteritems():
+                    location = detail["in"]
+                    if location == "path":
+                        section = "required_args" if detail["required"] else \
+                            "optional_args"
+                        payload[section].append(detail)
+                    elif location == "query":
+                        section = "required_args" if detail["required"] else \
+                            "optional_args"
+                        payload[section].append(detail)
+                    elif location == "body":
+                        # There cannot be more than one body parameter
+                        payload["body"] = detail
+                        schema_reference = detail["schema"].get("$ref", None)
+                        if schema_reference:
+                            # TODO: Fix this crude lookup code
+                            # It expects a reference to have the form
+                            # "#/definitions/name"
+                            lookup = schema_reference.split("/")[-1]
+                            detail["schema"] = "schemas.{}".format(lookup)
+                        else:
+                            # Inline schema definitions do not reference the
+                            # schema module. For now the definitions are
+                            # (inefficiently) inlined in the generated
+                            # view. TODO: Optimise by loading these schemas
+                            # on initialisation and referencing it thereafter.
+                            # Also, we it would be nice to be able to reference
+                            # the definitions in schemas.py...will significantly
+                            # reduce size of the generated code in views.py.
+                            detail["schema"] = 'json.loads("""{}""")'.format(
+                                json.dumps(self.resolve_schema_references(
+                                    detail["schema"]),
+                                    indent=4, sort_keys=True))
                     else:
-                        # Inline schema definitions do not reference the
-                        # schema module. For now the definitions are
-                        # (inefficiently) inlined in the generated
-                        # view. TODO: Optimise by loading these schemas
-                        # on initialisation and referencing it thereafter.
-                        # Also, we it would be nice to be able to reference
-                        # the definitions in schemas.py...will significantly
-                        # reduce size of the generated code in views.py.
-                        detail["schema"] = 'json.loads("""{}""")'.format(
-                            json.dumps(resolve_schema_references(
-                                parser, detail["schema"]),
-                                indent=4, sort_keys=True))
-                else:
-                    msg = "Code generation for parameter type '{}' not " \
-                          "implemented yet. Operation '{}' parameter '{" \
-                          "}'".format(location, operation, name)
-                    click.secho(msg, fg="red")
+                        msg = "Code generation for parameter type '{}' not " \
+                              "implemented yet. Operation '{}' parameter '{" \
+                              "}'".format(location, operation, name)
+                        click.secho(msg, fg="red")
 
-            classes[class_name][verb] = payload
+                classes[class_name][verb] = payload
 
-    return render_to_string("templates/views.py", {
-        "classes": classes,
-        "module": module_name
-    })
+        return render_to_string("templates/views.py", {
+            "classes": classes,
+            "module": self.module_name
+        })
 
 
 @click.command()
@@ -304,62 +327,43 @@ def generate_views(parser, module_name):
 def main(specification_path, spec_format, verbose, output_dir, module_name,
          urls_file, views_file,
          schemas_file, utils_file):
-    global PATH_VERB_OPERATION_MAP
-    # If the swagger spec format is not specified explicitly, we try to
-    # derive it from the specification path
-    if not spec_format:
-        filename = os.path.basename(specification_path)
-        extension = filename.rsplit(".", 1)[-1]
-        if extension in YAML_EXTENSIONS:
-            spec_format = SPEC_YAML
-        elif extension in JSON_EXTENSIONS:
-            spec_format = SPEC_JSON
-        else:
-            click.secho("Could not infer specification format. Use "
-                        "--spec-format to specify it explicitly.")
-            exit(0)
 
-    if spec_format == SPEC_YAML:
-        with open(specification_path, "r") as f:
-            parser = SwaggerParser(swagger_yaml=f)
-    else:
-        parser = SwaggerParser(swagger_path=specification_path)
+    generator = Generator(module_name=module_name)
+    try:
+        click.secho("Loading specification file...", fg="green")
+        generator.load_specification(specification_path, spec_format)
 
-    # Build (path, http_verb) => operation mapping
-    PATH_VERB_OPERATION_MAP = {
-        (path, http_verb): operation
-        for operation, (path, http_verb, tag) in parser.operation.iteritems()
-    }
+        click.secho("Generating URLs file...", fg="green")
+        with open(os.path.join(output_dir, urls_file), "w") as f:
+            data = generator.generate_urls()
+            f.write(data)
+            if verbose:
+                print(data)
 
-    click.secho("Generating URLs file...", fg="green")
-    with open(os.path.join(output_dir, urls_file), "w") as f:
-        data = generate_urls(parser, module_name)
-        f.write(data)
-        if verbose:
-            print(data)
+        click.secho("Generating views file...", fg="green")
+        with open(os.path.join(output_dir, views_file), "w") as f:
+            data = generator.generate_views()
+            f.write(data)
+            if verbose:
+                print(data)
 
-    click.secho("Generating views file...", fg="green")
-    with open(os.path.join(output_dir, views_file), "w") as f:
-        data = generate_views(parser, module_name)
-        f.write(data)
-        if verbose:
-            print(data)
+        click.secho("Generating schemas file...", fg="green")
+        with open(os.path.join(output_dir, schemas_file), "w") as f:
+            data = generator.generate_schemas()
+            f.write(data)
+            if verbose:
+                print(data)
 
-    click.secho("Generating schemas file...", fg="green")
-    with open(os.path.join(output_dir, schemas_file), "w") as f:
-        data = generate_schemas(parser, module_name)
-        f.write(data)
-        if verbose:
-            print(data)
+        click.secho("Generating utils file...", fg="green")
+        with open(os.path.join(output_dir, utils_file), "w") as f:
+            data = render_to_string("templates/utils.py", {})
+            f.write(data)
+            if verbose:
+                print(data)
 
-    click.secho("Generating utils file...", fg="green")
-    with open(os.path.join(output_dir, utils_file), "w") as f:
-        data = render_to_string("templates/utils.py", {})
-        f.write(data)
-        if verbose:
-            print(data)
-
-    click.secho("Done.", fg="green")
+        click.secho("Done.", fg="green")
+    except Exception as e:
+        click.secho(e.message, fg="red")
 
 
 if __name__ == "__main__":
