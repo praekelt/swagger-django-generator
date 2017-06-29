@@ -2,9 +2,8 @@
 Do not modify this file. It is generated from the Swagger specification.
 
 """
-import json
-
 from django.http import JsonResponse
+from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views import View
 
@@ -14,12 +13,10 @@ import {{ module }}.utils as utils
 
 
 {% for class_name, verbs in classes|dictsort(true) %}
+@method_decorator(csrf_exempt, name="dispatch")
 class {{ class_name }}(View):
 
     {% for verb, info in verbs|dictsort(true) %}
-    {% if verb in ["post", "put"] %}
-    @csrf_exempt
-    {% endif %}
     def {{ verb }}(self, request, {% for ra in info.required_args %}{{ ra.name }}, {% endfor %}{% for oa in info.optional_args %}{{ oa.name }}=None, {% endfor %}*args, **kwargs):
         """
         :param self: A {{ class_name }} instance
