@@ -2,3 +2,4 @@ swagger-parser
 click
 nose
 parameterized
+django
