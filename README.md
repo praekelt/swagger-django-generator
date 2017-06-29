@@ -27,17 +27,19 @@ Usage: generator.py [OPTIONS] SPECIFICATION
 Options:
   --verbose / --no-verbose
   --output-dir DIRECTORY
-  --module-name TEXT        The name of the module where the generated code
-                            will be used, e.g. myproject.some_application
-  --urls-file TEXT          Use an alternative filename for the urls.
-  --views-file TEXT         Use an alternative filename for the views.
-  --schemas-file TEXT       Use an alternative filename for the schemas.
-  --utils-file TEXT         Use an alternative filename for the utilities.
-  --help                    Show this message and exit.
+  --module-name TEXT         The name of the module where the generated code
+                             will be used, e.g. myproject.some_application
+  --urls-file TEXT           Use an alternative filename for the urls.
+  --views-file TEXT          Use an alternative filename for the views.
+  --schemas-file TEXT        Use an alternative filename for the schemas.
+  --utils-file TEXT          Use an alternative filename for the utilities.
+  --stubs / --no-stubs       Generate a stub file as well.
+  --stubs-file TEXT          Use an alternative filename for the utilities.
+  --help                     Show this message and exit.
 ```
 
 At the time of writing the ulity expects you to implement your logic in a `stubs.py` file.
-The name of this module will be made configurable in future releases.
+The name of this file will be made configurable in future releases.
 Both `yaml` and `json` specifications are supported.
 
 ## Todo
@@ -46,7 +48,7 @@ This can be made a command line option.
 * Currently the generated code expects logic to be implemented in a file called `stubs.py`. This needs to be made configurable.
 it is provided by the `swagger-parser` library.
 * We can look at using the `swagger-tester` library.
-* At this stage there are **no tests**. This should be remedied as soon as possible.
+* At this stage there are **limited tests**. This should be remedied as soon as possible.
 
 ## Examples
 Here are some examples of the files that are generated.

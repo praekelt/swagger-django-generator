@@ -58,12 +58,12 @@ class GeneratorTests(TestCase):
         for func in [
             self.generator.generate_urls,
             self.generator.generate_schemas,
-            self.generator.generate_views
+            self.generator.generate_views,
+            self.generator.generate_stubs,
             ]:
             generated_code = func()
             self.assertIsInstance(compile(generated_code,
-                                          os.path.basename(
-                                              spec_path).replace("-", "_"),
+                                          os.path.basename(spec_path),
                                           "exec"),
                                   types.CodeType)
 

@@ -147,6 +147,7 @@ class Generator(object):
     def __init__(self, module_name=DEFAULT_MODULE):
         self.parser = None
         self.module_name = module_name
+        self._classes = None
 
     def load_specification(self, specification_path, spec_format=None):
         # If the swagger spec format is not specified explicitly, we try to
@@ -175,6 +176,8 @@ class Generator(object):
             self.parser.operation.items()
         }
 
+        self._make_class_definitions()
+
     def resolve_schema_references(self, definition):
         # type: (Generator, Dict) -> Dict
         """
@@ -196,58 +199,14 @@ class Generator(object):
             if isinstance(value, dict):
                 self.resolve_schema_references(value)
 
-        # TODO: This function also strips "x-scope" elements, which is a bit sneaky.
-        # definition.pop("x-scope", None)
-
         return definition
 
-
-    def generate_urls(self):
-        # type: (Generator) -> str
-        """
-        Generate a `urls.py` file from the given specification.
-        :return: str
-        """
-        relative_urls = [path.replace(self.parser.base_path, "")
-                         for path in self.parser.paths]
-        entries = {
-            fixup_parameters(relative_url): path_to_class_name(relative_url)
-            for relative_url in relative_urls
-        }
-        return render_to_string("templates/urls.py", {
-            "entries": entries,
-            "module": self.module_name
-        })
-
-    def generate_schemas(self):
-        # type: (Generator) -> str
-        """
-        Generate a `schemas.py` file from the given specification.
-        :return: str
-        """
-        schemas = {
-            name: json.dumps(self.resolve_schema_references(definition),
-                             indent=4, sort_keys=True)
-            for name, definition in self.parser.specification.get(
-                "definitions", {}
-            ).items()
-        }
-        return render_to_string("templates/schemas.py", {
-            "schemas": schemas,
-            "module": self.module_name
-        })
-
-    def generate_views(self):
-        # type: (Generator) -> str
-        """
-        Generate a `views.py` file from the given specification.
-        :return: str
-        """
-        classes = {}
+    def _make_class_definitions(self):
+        self._classes = {}
         for path, verbs in self.parser.paths.items():
             relative_url = path.replace(self.parser.base_path, "")
             class_name = path_to_class_name(relative_url)
-            classes[class_name] = {}
+            self._classes[class_name] = {}
             for verb, io in verbs.items():  # io => input/output options
                 # Look up the name of the operation and construct one if not found
                 operation = self.PATH_VERB_OPERATION_MAP.get(
@@ -297,13 +256,64 @@ class Generator(object):
                               "}'".format(location, operation, name)
                         click.secho(msg, fg="red")
 
-                classes[class_name][verb] = payload
+                self._classes[class_name][verb] = payload
 
-        return render_to_string("templates/views.py", {
-            "classes": classes,
+    def generate_urls(self):
+        # type: (Generator) -> str
+        """
+        Generate a `urls.py` file from the given specification.
+        :return: str
+        """
+        relative_urls = [path.replace(self.parser.base_path + "/", "")
+                         for path in self.parser.paths]
+        entries = {
+            fixup_parameters(relative_url): path_to_class_name(relative_url)
+            for relative_url in relative_urls
+        }
+        return render_to_string("templates/urls.py", {
+            "entries": entries,
             "module": self.module_name
         })
 
+    def generate_schemas(self):
+        # type: (Generator) -> str
+        """
+        Generate a `schemas.py` file from the given specification.
+        :return: str
+        """
+        schemas = {
+            name: json.dumps(self.resolve_schema_references(definition),
+                             indent=4, sort_keys=True)
+            for name, definition in self.parser.specification.get(
+            "definitions", {}
+        ).items()
+        }
+        return render_to_string("templates/schemas.py", {
+            "schemas": schemas,
+            "module": self.module_name
+        })
+
+    def generate_views(self):
+        # type: (Generator) -> str
+        """
+        Generate a `views.py` file from the given specification.
+        :return: str
+        """
+        return render_to_string("templates/views.py", {
+            "classes": self._classes,
+            "module": self.module_name
+        })
+
+    def generate_stubs(self):
+        # type: (Generator) -> str
+        """
+        Generate a `stubs.py` file from the given specification.
+        :return: str
+        """
+        return render_to_string("templates/stubs.py", {
+            "classes": self._classes,
+            "module": self.module_name
+        })
 
 @click.command()
 @click.argument("specification_path", type=click.Path(dir_okay=False,
@@ -324,9 +334,12 @@ class Generator(object):
               help="Use an alternative filename for the schemas.")
 @click.option("--utils-file", type=str,  default="utils.py",
               help="Use an alternative filename for the utilities.")
+@click.option("--stubs/--no-stubs", default=False,
+              help="Generate a stub file as well.")
+@click.option("--stubs-file", type=str,  default="stubs.py",
+              help="Use an alternative filename for the utilities.")
 def main(specification_path, spec_format, verbose, output_dir, module_name,
-         urls_file, views_file,
-         schemas_file, utils_file):
+         urls_file, views_file, schemas_file, utils_file, stubs, stubs_file):
 
     generator = Generator(module_name=module_name)
     try:
@@ -360,6 +373,14 @@ def main(specification_path, spec_format, verbose, output_dir, module_name,
             f.write(data)
             if verbose:
                 print(data)
+
+        if stubs:
+            click.secho("Generating stubs file...", fg="green")
+            with open(os.path.join(output_dir, stubs_file), "w") as f:
+                data = generator.generate_stubs()
+                f.write(data)
+                if verbose:
+                    print(data)
 
         click.secho("Done.", fg="green")
     except Exception as e:
