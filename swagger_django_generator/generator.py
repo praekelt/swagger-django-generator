@@ -2,7 +2,7 @@ import click
 import jinja2
 import json
 import os
-from pprint import pprint
+from pprint import pprint, pformat
 from swagger_parser import SwaggerParser
 
 DEFAULT_OUTPUT_DIR = "./generated"
@@ -143,6 +143,34 @@ def fixup_parameters(url):
     return url.replace("{", "(?P<").replace("}", ">.+)")
 
 
+def resolve_schema_references(parser, definition):
+    # type: (Dict, Dict) -> Dict
+    """
+    JSONSchema definitions may contain references.
+    This function replaces all references with their full definitions.
+    Note that the changes are made in-place. The return value is simply
+    referencing the definition that was passed in.
+
+    :param parser: The parsed specification
+    :param definition: A JSONSchema definition
+    :return: The modified definition.
+    """
+    if "$ref" in definition:
+        schema_reference = definition.pop("$ref")
+        section, name = schema_reference.split("/")[-2:]
+        referenced_definition = parser.specification[section][name]
+        definition.update(referenced_definition)
+
+    for value in definition.itervalues():
+        if isinstance(value, dict):
+            resolve_schema_references(parser, value)
+
+    # TODO: This function also strips "x-scope" elements, which is a bit sneaky.
+    definition.pop("x-scope", None)
+
+    return definition
+
+
 def generate_urls(parser, module_name):
     # type: (SwaggerParser, str) -> str
     """
@@ -162,7 +190,6 @@ def generate_urls(parser, module_name):
         "module": module_name
     })
 
-
 def generate_schemas(parser, module_name):
     # type: (SwaggerParser, str) -> str
     """
@@ -172,8 +199,8 @@ def generate_schemas(parser, module_name):
     :return: str
     """
     schemas = {
-        name: json.dumps(definition, indent=4, sort_keys=True)
-        # name: pformat(definition, indent=1, width=76)
+        name: json.dumps(resolve_schema_references(parser, definition),
+                         indent=4, sort_keys=True)
         for name, definition in parser.specification.get(
             "definitions", {}
         ).iteritems()
@@ -229,8 +256,18 @@ def generate_views(parser, module_name):
                         lookup = schema_reference.split("/")[-1]
                         detail["schema"] = "schemas.{}".format(lookup)
                     else:
-                        # Inline schema definition
-                        detail["schema"] = json.dumps(detail["schema"])
+                        # Inline schema definitions do not reference the
+                        # schema module. For now the definitions are
+                        # (inefficiently) inlined in the generated
+                        # view. TODO: Optimise by loading these schemas
+                        # on initialisation and referencing it thereafter.
+                        # Also, we it would be nice to be able to reference
+                        # the definitions in schemas.py...will significantly
+                        # reduce size of the generated code in views.py.
+                        detail["schema"] = 'json.loads("""{}""")'.format(
+                            json.dumps(resolve_schema_references(
+                                parser, detail["schema"]),
+                                indent=4, sort_keys=True))
                 else:
                     msg = "Code generation for parameter type '{}' not " \
                           "implemented yet. Operation '{}' parameter '{" \

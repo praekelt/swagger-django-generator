@@ -3,7 +3,6 @@ Do not modify this file. It is generated from the Swagger specification.
 
 """
 import json
-import jsonschema
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
