@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/praekelt/swagger-django-generator.svg?branch=master)](https://travis-ci.org/praekelt/swagger-django-generator)
+
 # swagger-django-generator
 Convert Swagger specifications into Django code
 
