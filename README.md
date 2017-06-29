@@ -223,11 +223,12 @@ class Policies(View):
         return JsonResponse(result, safe=False)
 ```
 
+## Notes
+* All generated API calls are CSRF exempt
+* At this stage there are **limited tests**.
+
 ## Todo
-* Currently `PUT` and `POST` request handlers are generated with a `@csrf_exempt` decorator.
-This can be made a command line option.
 * Currently the generated code expects logic to be implemented in a file called `stubs.py`. This needs to be made configurable.
 it is provided by the `swagger-parser` library.
 * We can look at using the `swagger-tester` library.
-* At this stage there are **limited tests**. This should be remedied as soon as possible.
 
