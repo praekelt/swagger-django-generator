@@ -6,7 +6,7 @@ FLAKE8=$(VENV)/bin/flake8
 PROJECT=swagger_django_generator
 
 
-.PHONY: check coverage test venv demo
+.PHONY: check coverage test venv demo clean-demo
 
 help:
 	@echo  "usage: make <target>"
@@ -52,6 +52,8 @@ clean-virtualenv:
 	rm -rf $(VENV)
 
 demo:
-	rm -rf demo/
-	$(VENV)/bin/django-admin startproject demo
+	[ -d "demo" ] || $(VENV)/bin/django-admin startproject demo
 	$(PYTHON) swagger_django_generator/generator.py tests/resources/petstore.json --output-dir demo/demo/ --module-name demo --stubs
+
+clean-demo:
+	rm -rf demo
