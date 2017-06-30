@@ -220,7 +220,7 @@ class Generator(object):
                     "operation": operation,
                     "required_args": [],
                     "optional_args": [],
-                    "response_schema": {}
+                    "response_schema": "schemas.__UNSPECIFIED__"
                 }
 
                 # Add arguments

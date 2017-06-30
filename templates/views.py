@@ -29,6 +29,14 @@ LOGGER.info("Swagger API response validation is {}".format(
 ))
 
 
+def maybe_validate_result(result, schema):
+    if VALIDATE_RESPONSES:
+        try:
+            jsonschema.validate(result, schema)
+        except ValidationError as e:
+            LOGGER.error(e.message)
+
+
 {% for class_name, verbs in classes|dictsort(true) %}
 @method_decorator(csrf_exempt, name="dispatch")
 class {{ class_name }}(View):
@@ -56,11 +64,7 @@ class {{ class_name }}(View):
         body = utils.body_to_dict(request.body, self.{{ verb|upper}}_BODY_SCHEMA)
         {% endif %}
         result = stubs.{{ info.operation }}(request, {% if info.body %}body, {% endif %}{% for ra in info.required_args %}{{ ra.name }}, {% endfor %}{% for oa in info.optional_args %}{{ oa.name }}=None, {% endfor %}*args, **kwargs)
-        if VALIDATE_RESPONSES:
-            try:
-                jsonschema.validate(result, self.{{ verb|upper }}_RESPONSE_SCHEMA)
-            except ValidationError as e:
-                LOGGER.error(e.message)
+        maybe_validate_result(result, self.{{ verb|upper }}_RESPONSE_SCHEMA)
 
         return JsonResponse(result, safe=False)
    {% if not loop.last %}
