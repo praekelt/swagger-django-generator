@@ -229,6 +229,5 @@ class Policies(View):
 
 ## Todo
 * Currently the generated code expects logic to be implemented in a file called `stubs.py`. This needs to be made configurable.
-it is provided by the `swagger-parser` library.
 * We can look at using the `swagger-tester` library.
 * Investigate using [warlock](https://github.com/bcwaldon/warlock) or [python-jsonschema-objects](https://github.com/cwacek/python-jsonschema-objects) to generate models for ease of use.
