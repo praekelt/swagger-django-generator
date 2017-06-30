@@ -90,8 +90,8 @@ def path_to_class_name(path):
     We map paths (typically only the relative part) to a canonical
     class name. In the event that the path is "/", ROOT_CLASS_NAME will be
     returned.
-    :param path: A path of the form "/some/path/{id}/foo/{bar}/"
-    :return: A class name of the form "SomePathIdFooBar"
+    :param path: A path of the form "/some/path/{foo_id}/bar/{barId}/"
+    :return: A class name of the form "SomePathFooIdBarBarId"
     """
     character_map = {
         ord("{"): None,
@@ -99,7 +99,11 @@ def path_to_class_name(path):
         ord("_"): u"/"
     }
     sanitised = path.translate(character_map)
-    class_name = u"".join(p.capitalize() for p in sanitised.split("/"))
+    class_name = u"".join(
+        # Uppercase the first letter of each non-empty word, while
+        # preserving the case of the letters thereafter.
+        p[0].upper() + p[1:] for p in sanitised.split("/") if p
+    )
     return class_name or ROOT_CLASS_NAME
 
 
@@ -216,7 +220,10 @@ class Generator(object):
                     "operation": operation,
                     "required_args": [],
                     "optional_args": [],
+                    "response_schema": {}
                 }
+
+                # Add arguments
                 for name, detail in io["parameters"].items():
                     location = detail["in"]
                     if location == "path":
@@ -255,6 +262,36 @@ class Generator(object):
                               "implemented yet. Operation '{}' parameter '{" \
                               "}'".format(location, operation, name)
                         click.secho(msg, fg="red")
+
+                # Added response
+                for name, detail in io["responses"].items():
+                    if name == "default":
+                        continue
+                    elif 200 <= int(name) < 300 and "schema" in detail:
+                        # There should only be one response code defined in
+                        # the 200 to 299 range.
+                        schema_reference = detail["schema"].get("$ref", None)
+                        if schema_reference:
+                            # TODO: Fix this crude lookup code
+                            # It expects a reference to have the form
+                            # "#/definitions/name"
+                            lookup = schema_reference.split("/")[-1]
+                            detail["schema"] = "schemas.{}".format(lookup)
+                        else:
+                            # Inline schema definitions do not reference the
+                            # schema module. For now the definitions are
+                            # (inefficiently) inlined in the generated
+                            # view. TODO: Optimise by loading these schemas
+                            # on initialisation and referencing it thereafter.
+                            # Also, we it would be nice to be able to reference
+                            # the definitions in schemas.py...will significantly
+                            # reduce size of the generated code in views.py.
+                            detail["schema"] = 'json.loads("""{}""")'.format(
+                                json.dumps(self.resolve_schema_references(
+                                    detail["schema"]),
+                                    indent=4, sort_keys=True))
+
+                        payload["response"] = detail["schema"]
 
                 self._classes[class_name][verb] = payload
 
