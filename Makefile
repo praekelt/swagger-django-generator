@@ -37,7 +37,7 @@ $(COVERAGE):
 	$(PIP) install coverage
 
 test:
-	$(PYTHON) manage.py test
+	$(VENV)/bin/nosetests
 
 $(VENV):
 	virtualenv $(VENV)
