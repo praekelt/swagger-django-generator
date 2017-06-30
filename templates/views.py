@@ -74,3 +74,12 @@ class {{ class_name }}(View):
 
 
 {% endfor %}
+class __SWAGGER_SPEC__(View):
+
+    def get(self, request, *args, **kwargs):
+        spec = json.loads("""{{ specification }}""")
+        # Mod spec to point to demo application
+        spec["basePath"] = "/"
+        spec["host"] = "localhost:8000"
+        return JsonResponse(spec)
+

@@ -54,6 +54,7 @@ clean-virtualenv:
 demo:
 	[ -d "demo" ] || $(VENV)/bin/django-admin startproject demo
 	$(PYTHON) swagger_django_generator/generator.py tests/resources/petstore.json --output-dir demo/demo/ --module-name demo --stubs
+	cp -r ui demo/
 
 clean-demo:
 	rm -rf demo

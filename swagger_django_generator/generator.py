@@ -1,3 +1,5 @@
+import copy
+
 import click
 import jinja2
 import json
@@ -183,15 +185,14 @@ class Generator(object):
         self._make_class_definitions()
 
     def resolve_schema_references(self, definition):
-        # type: (Generator, Dict) -> Dict
+        # type: (Generator, Dict) -> None
         """
         JSONSchema definitions may contain references.
         This function replaces all references with their full definitions.
-        Note that the changes are made in-place. The return value is simply
-        referencing the definition that was passed in.
+        In-place mods are made.
 
         :param definition: A JSONSchema definition
-        :return: The modified definition.
+        :return: The expended definition.
         """
         if "$ref" in definition:
             schema_reference = definition.pop("$ref")
@@ -202,8 +203,6 @@ class Generator(object):
         for value in definition.values():
             if isinstance(value, dict):
                 self.resolve_schema_references(value)
-
-        return definition
 
     def _make_class_definitions(self):
         self._classes = {}
@@ -236,14 +235,16 @@ class Generator(object):
                         payload[section].append(detail)
                     elif location == "body":
                         # There cannot be more than one body parameter
-                        payload["body"] = detail
-                        schema_reference = detail["schema"].get("$ref", None)
+                        payload["body"] = copy.deepcopy(detail)
+                        schema = payload["body"]["schema"]
+                        schema_reference = schema.get("$ref", None)
                         if schema_reference:
                             # TODO: Fix this crude lookup code
                             # It expects a reference to have the form
                             # "#/definitions/name"
                             lookup = schema_reference.split("/")[-1]
-                            detail["schema"] = "schemas.{}".format(lookup)
+                            payload["body"]["schema"] = "schemas.{}".format(
+                                lookup)
                         else:
                             # Inline schema definitions do not reference the
                             # schema module. For now the definitions are
@@ -253,10 +254,11 @@ class Generator(object):
                             # Also, we it would be nice to be able to reference
                             # the definitions in schemas.py...will significantly
                             # reduce size of the generated code in views.py.
-                            detail["schema"] = 'json.loads("""{}""")'.format(
-                                json.dumps(self.resolve_schema_references(
-                                    detail["schema"]),
-                                    indent=4, sort_keys=True))
+                            self.resolve_schema_references(schema)
+                            payload["body"]["schema"] = \
+                                'json.loads("""{}""")'.format(
+                                    json.dumps(schema, indent=4, sort_keys=True)
+                                )
                     else:
                         msg = "Code generation for parameter type '{}' not " \
                               "implemented yet. Operation '{}' parameter '{" \
@@ -270,13 +272,14 @@ class Generator(object):
                     elif 200 <= int(name) < 300 and "schema" in detail:
                         # There should only be one response code defined in
                         # the 200 to 299 range.
-                        schema_reference = detail["schema"].get("$ref", None)
+                        schema = copy.deepcopy(detail["schema"])
+                        schema_reference = schema.get("$ref", None)
                         if schema_reference:
                             # TODO: Fix this crude lookup code
                             # It expects a reference to have the form
                             # "#/definitions/name"
                             lookup = schema_reference.split("/")[-1]
-                            detail["schema"] = "schemas.{}".format(lookup)
+                            payload["response_schema"] = "schemas.{}".format(lookup)
                         else:
                             # Inline schema definitions do not reference the
                             # schema module. For now the definitions are
@@ -286,12 +289,11 @@ class Generator(object):
                             # Also, we it would be nice to be able to reference
                             # the definitions in schemas.py...will significantly
                             # reduce size of the generated code in views.py.
-                            detail["schema"] = 'json.loads("""{}""")'.format(
-                                json.dumps(self.resolve_schema_references(
-                                    detail["schema"]),
-                                    indent=4, sort_keys=True))
-
-                        payload["response"] = detail["schema"]
+                            self.resolve_schema_references(schema)
+                            payload["response_schema"] = \
+                                'json.loads("""{}""")'.format(
+                                    json.dumps(schema, indent=4, sort_keys=True)
+                                )
 
                 self._classes[class_name][verb] = payload
 
@@ -318,13 +320,13 @@ class Generator(object):
         Generate a `schemas.py` file from the given specification.
         :return: str
         """
-        schemas = {
-            name: json.dumps(self.resolve_schema_references(definition),
-                             indent=4, sort_keys=True)
-            for name, definition in self.parser.specification.get(
-            "definitions", {}
-        ).items()
-        }
+        schemas = {}
+        for name, definition in self.parser.specification.get("definitions",
+                                                              {}).items():
+            schema = copy.deepcopy(definition)
+            self.resolve_schema_references(schema)
+            schemas[name] = json.dumps(schema, indent=4, sort_keys=True)
+
         return render_to_string("templates/schemas.py", {
             "schemas": schemas,
             "module": self.module_name
@@ -338,7 +340,9 @@ class Generator(object):
         """
         return render_to_string("templates/views.py", {
             "classes": self._classes,
-            "module": self.module_name
+            "module": self.module_name,
+            "specification": json.dumps(self.parser.specification, indent=4,
+                                        sort_keys=True).replace("\\", "\\\\")
         })
 
     def generate_stubs(self):
