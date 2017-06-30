@@ -13,10 +13,10 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views import View
 
-
 import {{ module }}.stubs as stubs
 import {{ module }}.schemas as schemas
 import {{ module }}.utils as utils
+
 
 logging.basicConfig(level=logging.DEBUG)
 LOGGER = logging.getLogger(__name__)
@@ -34,6 +34,13 @@ LOGGER.info("Swagger API response validation is {}".format(
 class {{ class_name }}(View):
 
     {% for verb, info in verbs|dictsort(true) %}
+    {{ verb|upper }}_RESPONSE_SCHEMA = {{ info.response_schema }}
+    {% endfor %}
+    {% for verb, info in verbs|dictsort(true) if info.body %}
+    {{ verb|upper }}_BODY_SCHEMA = {{ info.body.schema }}
+    {% endfor %}
+
+    {% for verb, info in verbs|dictsort(true) %}
     def {{ verb }}(self, request, {% for ra in info.required_args %}{{ ra.name }}, {% endfor %}{% for oa in info.optional_args %}{{ oa.name }}=None, {% endfor %}*args, **kwargs):
         """
         :param self: A {{ class_name }} instance
@@ -46,12 +53,12 @@ class {{ class_name }}(View):
         {% endfor %}
         """
         {% if info.body %}
-        body = utils.body_to_dict(request.body, {{ info.body.schema }})
+        body = utils.body_to_dict(request.body, self.{{ verb|upper}}_BODY_SCHEMA)
         {% endif %}
         result = stubs.{{ info.operation }}(request, {% if info.body %}body, {% endif %}{% for ra in info.required_args %}{{ ra.name }}, {% endfor %}{% for oa in info.optional_args %}{{ oa.name }}=None, {% endfor %}*args, **kwargs)
         if VALIDATE_RESPONSES:
             try:
-                jsonschema.validate(result, {{ info.response_schema }})
+                jsonschema.validate(result, self.{{ verb|upper }}_RESPONSE_SCHEMA)
             except ValidationError as e:
                 LOGGER.error(e.message)
 
