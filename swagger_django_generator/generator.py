@@ -80,7 +80,8 @@ def render_to_string(filename, context, path=None):
     :return: The rendered template as a string
     """
     return jinja2.Environment(
-        loader=jinja2.FileSystemLoader(path or './'),
+        # loader=jinja2.FileSystemLoader(path or './'),
+        loader=jinja2.PackageLoader("swagger_django_generator", "templates"),
         trim_blocks=True,
         lstrip_blocks=True
     ).get_template(filename).render(context)
@@ -309,7 +310,7 @@ class Generator(object):
             fixup_parameters(relative_url): path_to_class_name(relative_url)
             for relative_url in relative_urls
         }
-        return render_to_string("templates/urls.py", {
+        return render_to_string("urls.py", {
             "entries": entries,
             "module": self.module_name
         })
@@ -327,7 +328,7 @@ class Generator(object):
             self.resolve_schema_references(schema)
             schemas[name] = json.dumps(schema, indent=4, sort_keys=True)
 
-        return render_to_string("templates/schemas.py", {
+        return render_to_string("schemas.py", {
             "schemas": schemas,
             "module": self.module_name
         })
@@ -338,7 +339,7 @@ class Generator(object):
         Generate a `views.py` file from the given specification.
         :return: str
         """
-        return render_to_string("templates/views.py", {
+        return render_to_string("views.py", {
             "classes": self._classes,
             "module": self.module_name,
             "specification": json.dumps(self.parser.specification, indent=4,
@@ -351,7 +352,7 @@ class Generator(object):
         Generate a `stubs.py` file from the given specification.
         :return: str
         """
-        return render_to_string("templates/stubs.py", {
+        return render_to_string("stubs.py", {
             "classes": self._classes,
             "module": self.module_name
         })
@@ -410,7 +411,7 @@ def main(specification_path, spec_format, verbose, output_dir, module_name,
 
         click.secho("Generating utils file...", fg="green")
         with open(os.path.join(output_dir, utils_file), "w") as f:
-            data = render_to_string("templates/utils.py", {})
+            data = render_to_string("utils.py", {})
             f.write(data)
             if verbose:
                 print(data)

@@ -6,7 +6,7 @@ setup(
     description="Generate Django code from a Swagger specification",
     long_description="""
     This utility parses Swagger specifications and creates `urls.py`, `views.py`
-    and `schemas.py` files that can be dropped into any existing Django 
+    and `schemas.py` files that can be dropped into any existing Django
     application.
     """,
     author="Praekelt Consulting",
@@ -15,7 +15,9 @@ setup(
     url="",
     packages=find_packages(),
     install_requires=[],
-    include_package_data=True,
+    package_data={
+        "templates": ["*.py"]
+    },
     tests_require=[],
     classifiers=[
         "Programming Language :: Python",
