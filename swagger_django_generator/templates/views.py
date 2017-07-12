@@ -39,6 +39,11 @@ def maybe_validate_result(result, schema):
 
 {% for class_name, verbs in classes|dictsort(true) %}
 @method_decorator(csrf_exempt, name="dispatch")
+{% for verb, info in verbs|dictsort(true) %}
+{% if info.secure %}
+@method_decorator(utils.login_required_no_redirect, name="{{ verb }}")
+{% endif %}
+{% endfor %}
 class {{ class_name }}(View):
 
     {% for verb, info in verbs|dictsort(true) %}

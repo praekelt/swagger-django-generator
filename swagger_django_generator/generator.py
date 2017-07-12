@@ -4,7 +4,6 @@ import click
 import jinja2
 import json
 import os
-from pprint import pprint, pformat
 from swagger_parser import SwaggerParser
 
 DEFAULT_OUTPUT_DIR = "./generated"
@@ -220,7 +219,8 @@ class Generator(object):
                     "operation": operation,
                     "required_args": [],
                     "optional_args": [],
-                    "response_schema": "schemas.__UNSPECIFIED__"
+                    "response_schema": "schemas.__UNSPECIFIED__",
+                    "secure": False,
                 }
 
                 # Add arguments
@@ -295,6 +295,15 @@ class Generator(object):
                                 'json.loads("""{}""")'.format(
                                     json.dumps(schema, indent=4, sort_keys=True)
                                 )
+
+                # TODO: At this stage we do not look at the type of security, we
+                # simply flag that it should be secured.
+                # Also, the parser does not contain the security info,
+                # so we have to refer back to the original spec.
+                specref = self.parser.specification["paths"].get(
+                    relative_url, {}
+                ).get(verb, {})
+                payload["secure"] = "security" in specref
 
                 self._classes[class_name][verb] = payload
 
