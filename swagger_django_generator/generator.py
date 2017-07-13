@@ -300,10 +300,15 @@ class Generator(object):
                 # simply flag that it should be secured.
                 # Also, the parser does not contain the security info,
                 # so we have to refer back to the original spec.
-                specref = self.parser.specification["paths"].get(
-                    relative_url, {}
-                ).get(verb, {})
-                payload["secure"] = "security" in specref
+                if "security" in self.parser.specification:
+                    # Global security indicator
+                    payload["secure"] = True
+                else:
+                    # Path and verb specific indicator
+                    specref = self.parser.specification["paths"].get(
+                        relative_url, {}
+                    ).get(verb, {})
+                    payload["secure"] = "security" in specref
 
                 self._classes[class_name][verb] = payload
 
