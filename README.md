@@ -11,11 +11,10 @@ Convert Swagger specifications into Django code
 - [Getting started](#getting-started)
 - [Examples](#examples)
   - [A demo application](#a-demo-application)
-  - [Examples of the files that are generated](#examples-of-the-files-that-are-generated)
-    - [`urls.py`](#urlspy)
-    - [`schemas.py`](#schemaspy)
-    - [`views.py`](#viewspy)
+  - [Generated files](#generated-files)
+- [Notes](#notes)
 - [Todo](#todo)
+- [Why?](#why)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -74,6 +73,16 @@ You can then start the server:
 ./ve/bin/python demo/manage.py runserver
 ```
 
+### Generated files
+
+The following links references files that were generated using this utility based on the popular `PetStore` Swagger definition.
+
+* the [schemas](generated/schemas.py) file contains global schema definitions
+* the [stubs](generated/stubs.py) file is where you will add your own code (this will be replaced in future with a base class definition)
+* the [urls](generated/urls.py) file is where the routing takes place
+* the [utils](generated/utils.py) file contains utility functions
+* the [views](generated/views.py) handles security and validation
+
 ## Notes
 * All generated API calls are CSRF exempt
 * API calls that have any form of security defined on them will require a logged in user or basic HTTP auth.
@@ -84,3 +93,19 @@ You can then start the server:
 * Currently the generated code expects logic to be implemented in a file called `stubs.py`. This needs to be made configurable.
 * We can look at using the `swagger-tester` library.
 * Investigate using [warlock](https://github.com/bcwaldon/warlock) or [python-jsonschema-objects](https://github.com/cwacek/python-jsonschema-objects) to generate models for ease of use.
+* Look at using some of the Python libs [here](https://swagger.io/open-source-integrations/)
+
+## Why?
+Using the [Swagger/OpenAPI](https://swagger.io/) specification enables the use of a tremendous amount of tooling:
+
+* the generation of documentation
+* creating a UI to play around with the API
+* [importing into Runscope](https://blog.runscope.com/posts/new-import-feature-support-for-swagger-postman) for automated test creation
+* client code generation for various languages
+* server code generation for various application servers
+
+When we have to write applications that provide APIs, it will typically have to form part of a Django application. Unfortunately the "official" code generation tool only supports code generation for Tornado and Flask when it comes to the Python language.
+
+This tool is intended to plug the gap for Django. We can focus on getting the spec right, quickly generate server code and integrate with testing frameworks like Runscope. The generated code takes care of the routing, input and output validation and common error handling.
+
+At a minimum it allows us to get some working code up and running in very little time.
