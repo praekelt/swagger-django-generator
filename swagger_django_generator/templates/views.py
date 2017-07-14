@@ -13,7 +13,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views import View
 
-import {{ module }}.stubs as stubs
+from {{ module }}.stubs import MockedStubClass as Stubs
 import {{ module }}.schemas as schemas
 import {{ module }}.utils as utils
 
@@ -68,7 +68,7 @@ class {{ class_name }}(View):
         {% if info.body %}
         body = utils.body_to_dict(request.body, self.{{ verb|upper}}_BODY_SCHEMA)
         {% endif %}
-        result = stubs.{{ info.operation }}(request, {% if info.body %}body, {% endif %}{% for ra in info.required_args %}{{ ra.name }}, {% endfor %}{% for oa in info.optional_args %}{{ oa.name }}=None, {% endfor %}*args, **kwargs)
+        result = Stubs.{{ info.operation }}(request, {% if info.body %}body, {% endif %}{% for ra in info.required_args %}{{ ra.name }}, {% endfor %}{% for oa in info.optional_args %}{{ oa.name }}=None, {% endfor %}*args, **kwargs)
         maybe_validate_result(result, self.{{ verb|upper }}_RESPONSE_SCHEMA)
 
         return JsonResponse(result, safe=False)
@@ -86,5 +86,9 @@ class __SWAGGER_SPEC__(View):
         # Mod spec to point to demo application
         spec["basePath"] = "/"
         spec["host"] = "localhost:8000"
+        # Add basic auth as a security definition
+        security_definitions = spec.get("securityDefinitions", {})
+        security_definitions["basic_auth"] = {"type": "basic"}
+        spec["securityDefinitions"] = security_definitions
         return JsonResponse(spec)
 
