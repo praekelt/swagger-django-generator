@@ -2,6 +2,7 @@
 Do not modify this file. It is generated from the Swagger specification.
 
 """
+import importlib
 import logging
 import json
 import jsonschema
@@ -13,13 +14,13 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views import View
 
-import {{ module }}.stubs as stubs
 import {{ module }}.schemas as schemas
 import {{ module }}.utils as utils
 
-
+# Set up logging
 logging.basicConfig(level=logging.DEBUG)
 LOGGER = logging.getLogger(__name__)
+
 try:
     VALIDATE_RESPONSES = settings.SWAGGER_API_VALIDATE_RESPONSES
 except AttributeError:
@@ -27,6 +28,17 @@ except AttributeError:
 LOGGER.info("Swagger API response validation is {}".format(
     "on" if VALIDATE_RESPONSES else "off"
 ))
+
+# Set up the stub class. If it is not explicitly configured in the settings.py
+# file of the project, we default to a mocked class.
+try:
+    stub_class_path = settings.STUBS_CLASS
+except AttributeError:
+    stub_class_path = "{{ module }}.stubs.MockedStubClass"
+
+module_name, class_name = stub_class_path.rsplit(".", 1)
+Module = importlib.import_module(module_name)
+Stubs = getattr(Module, class_name)
 
 
 def maybe_validate_result(result, schema):
@@ -68,7 +80,7 @@ class {{ class_name }}(View):
         {% if info.body %}
         body = utils.body_to_dict(request.body, self.{{ verb|upper}}_BODY_SCHEMA)
         {% endif %}
-        result = stubs.{{ info.operation }}(request, {% if info.body %}body, {% endif %}{% for ra in info.required_args %}{{ ra.name }}, {% endfor %}{% for oa in info.optional_args %}{{ oa.name }}=None, {% endfor %}*args, **kwargs)
+        result = Stubs.{{ info.operation }}(request, {% if info.body %}body, {% endif %}{% for ra in info.required_args %}{{ ra.name }}, {% endfor %}{% for oa in info.optional_args %}{{ oa.name }}=None, {% endfor %}*args, **kwargs)
         maybe_validate_result(result, self.{{ verb|upper }}_RESPONSE_SCHEMA)
 
         return JsonResponse(result, safe=False)
@@ -86,5 +98,9 @@ class __SWAGGER_SPEC__(View):
         # Mod spec to point to demo application
         spec["basePath"] = "/"
         spec["host"] = "localhost:8000"
+        # Add basic auth as a security definition
+        security_definitions = spec.get("securityDefinitions", {})
+        security_definitions["basic_auth"] = {"type": "basic"}
+        spec["securityDefinitions"] = security_definitions
         return JsonResponse(spec)
 
