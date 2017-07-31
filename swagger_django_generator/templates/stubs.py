@@ -1,8 +1,5 @@
 """
-This file is was generated from the Swagger specification, but may have been
-updated with implementation specific code.
-Use a tool like meld to pull in new definitions as opposed to overwriting
-this file.
+Do not modify this file. It is generated from the Swagger specification.
 """
 import json
 from apitools.datagenerator import DataGenerator
