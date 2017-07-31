@@ -390,12 +390,10 @@ class Generator(object):
               help="Use an alternative filename for the schemas.")
 @click.option("--utils-file", type=str,  default="utils.py",
               help="Use an alternative filename for the utilities.")
-@click.option("--stubs/--no-stubs", default=False,
-              help="Generate a stub file as well.")
 @click.option("--stubs-file", type=str,  default="stubs.py",
               help="Use an alternative filename for the utilities.")
 def main(specification_path, spec_format, verbose, output_dir, module_name,
-         urls_file, views_file, schemas_file, utils_file, stubs, stubs_file):
+         urls_file, views_file, schemas_file, utils_file, stubs_file):
 
     generator = Generator(module_name=module_name)
     try:
@@ -430,13 +428,12 @@ def main(specification_path, spec_format, verbose, output_dir, module_name,
             if verbose:
                 print(data)
 
-        if stubs:
-            click.secho("Generating stubs file...", fg="green")
-            with open(os.path.join(output_dir, stubs_file), "w") as f:
-                data = generator.generate_stubs()
-                f.write(data)
-                if verbose:
-                    print(data)
+        click.secho("Generating stubs file...", fg="green")
+        with open(os.path.join(output_dir, stubs_file), "w") as f:
+            data = generator.generate_stubs()
+            f.write(data)
+            if verbose:
+                print(data)
 
         click.secho("Done.", fg="green")
     except Exception as e:

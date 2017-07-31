@@ -78,7 +78,7 @@ You can then start the server:
 The following links references files that were generated using this utility based on the popular `PetStore` Swagger definition.
 
 * the [schemas](generated/schemas.py) file contains global schema definitions
-* the [stubs](generated/stubs.py) file is where you will add your own code (this will be replaced in future with a base class definition)
+* the [stubs](generated/stubs.py) file is where the abstract base class for your code will live, along with a mocked implementation
 * the [urls](generated/urls.py) file is where the routing takes place
 * the [utils](generated/utils.py) file contains utility functions
 * the [views](generated/views.py) handles security and validation
@@ -89,8 +89,6 @@ The following links references files that were generated using this utility base
 * At this stage there are **limited tests**.
 
 ## Todo
-* Mocking using `apitools`!
-* Currently the generated code expects logic to be implemented in a file called `stubs.py`. This needs to be made configurable.
 * We can look at using the `swagger-tester` library.
 * Investigate using [warlock](https://github.com/bcwaldon/warlock) or [python-jsonschema-objects](https://github.com/cwacek/python-jsonschema-objects) to generate models for ease of use.
 * Look at using some of the Python libs [here](https://swagger.io/open-source-integrations/)
