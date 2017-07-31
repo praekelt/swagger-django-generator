@@ -2,6 +2,7 @@
 Do not modify this file. It is generated from the Swagger specification.
 
 """
+import importlib
 import logging
 import json
 import jsonschema
@@ -13,13 +14,13 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views import View
 
-from {{ module }}.stubs import MockedStubClass as Stubs
 import {{ module }}.schemas as schemas
 import {{ module }}.utils as utils
 
-
+# Set up logging
 logging.basicConfig(level=logging.DEBUG)
 LOGGER = logging.getLogger(__name__)
+
 try:
     VALIDATE_RESPONSES = settings.SWAGGER_API_VALIDATE_RESPONSES
 except AttributeError:
@@ -27,6 +28,17 @@ except AttributeError:
 LOGGER.info("Swagger API response validation is {}".format(
     "on" if VALIDATE_RESPONSES else "off"
 ))
+
+# Set up the stub class. If it is not explicitly configured in the settings.py
+# file of the project, we default to a mocked class.
+try:
+    stub_class_path = settings.STUBS_CLASS
+except AttributeError:
+    stub_class_path = "{{ module }}.stubs.MockedStubClass"
+
+module_name, class_name = stub_class_path.rsplit(".", 1)
+Module = importlib.import_module(module_name)
+Stubs = getattr(Module, class_name)
 
 
 def maybe_validate_result(result, schema):
