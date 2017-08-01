@@ -23,10 +23,11 @@ This utility parses a Swagger specification and generates Django-specific
 definitions, which allows for easy integration into Django projects.
 In particular, the following files are currently generated:
 * `urls.py`, for routing requests,
-* `views.py`, for handling requests, performing validation, etc., and
+* `views.py`, for handling requests, performing validation, etc.,
 * `schemas.py`, containing the JSONSchema definitions of parameters and
-  request body arguments.
-* `utils.py`, containing utility functions that can be tweaked, if necessary.
+  request body arguments,
+* `utils.py`, containing utility functions that can be tweaked, if necessary, and
+* `stubs.py`, containing the abstract base class for the API functions, as well as a class containing mocked implementations of the functions.
 
 ## Getting started
 A virtual environment can be set up by running
@@ -49,7 +50,6 @@ Options:
   --views-file TEXT          Use an alternative filename for the views.
   --schemas-file TEXT        Use an alternative filename for the schemas.
   --utils-file TEXT          Use an alternative filename for the utilities.
-  --stubs / --no-stubs       Generate a stub file as well.
   --stubs-file TEXT          Use an alternative filename for the utilities.
   --help                     Show this message and exit.
 ```
@@ -82,6 +82,7 @@ The following links references files that were generated using this utility base
 * the [urls](generated/urls.py) file is where the routing takes place
 * the [utils](generated/utils.py) file contains utility functions
 * the [views](generated/views.py) handles security and validation
+* the [stubs](generated/stubs.py) contains the abstract base class with the API functions, as well as a class containing mocked implentations.
 
 ## Notes
 * All generated API calls are CSRF exempt
