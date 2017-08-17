@@ -9,7 +9,7 @@ import jsonschema
 from jsonschema import ValidationError
 
 from django.conf import settings
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseBadRequest
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views import View
@@ -79,6 +79,9 @@ class {{ class_name }}(View):
         """
         {% if info.body %}
         body = utils.body_to_dict(request.body, self.{{ verb|upper}}_BODY_SCHEMA)
+        if not body:
+            return HttpResponseBadRequest("Body required")
+
         {% endif %}
         result = Stubs.{{ info.operation }}(request, {% if info.body %}body, {% endif %}{% for ra in info.required_args %}{{ ra.name }}, {% endfor %}{% for oa in info.optional_args %}{{ oa.name }}=None, {% endfor %}*args, **kwargs)
         maybe_validate_result(result, self.{{ verb|upper }}_RESPONSE_SCHEMA)
