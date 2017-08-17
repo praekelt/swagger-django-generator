@@ -27,6 +27,7 @@ def body_to_dict(body, schema):
     try:
         data = json.loads(body)
         jsonschema.validate(data, schema=schema)
+        return data
     except Exception as e:
         # The SuspiciousOperation exception will result in an
         # HttpResponseBadRequest response.
