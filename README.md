@@ -54,9 +54,10 @@ Options:
   --help                     Show this message and exit.
 ```
 
-At the time of writing the ulity expects you to implement your logic in a `stubs.py` file.
-The name of this file will be made configurable in future releases.
-Both `yaml` and `json` specifications are supported.
+By default the generated `views.py` will call a generated mock implementation, which is defined in `stubs.py` along with the abstract base class. You have create your own class derived from `AbstractStubClass`. Typically you can define this class in a file called `implementation.py` and then edit your `settings.py` to contain the following definition:
+```
+STUBS_CLASS = "myproject.implementation.Implementation"
+```
 
 ## Examples
 
