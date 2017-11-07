@@ -15,7 +15,7 @@ class AbstractStubClass(object):
     {% for verb, info in verbs|dictsort(true) %}
 
     @staticmethod
-    def {{ info.operation }}(request, {% if info.body %}body, {% endif %}{% for ra in info.required_args %}{{ ra.name }}, {% endfor %}{% for oa in info.optional_args %}{{ oa.name }}=None, {% endfor %}*args, **kwargs):
+    def {{ info.operation }}(request, {% if info.body %}body, {% endif %}{% if info.formdata %}formdata, {% endif %}{% for ra in info.required_args %}{{ ra.name }}, {% endfor %}{% for oa in info.optional_args %}{{ oa.name }}=None, {% endfor %}*args, **kwargs):
         """
         :param request: An HttpRequest
         {% for ra in info.required_args %}
@@ -39,7 +39,7 @@ class MockedStubClass(AbstractStubClass):
     {% for verb, info in verbs|dictsort(true) %}
 
     @staticmethod
-    def {{ info.operation }}(request, {% if info.body %}body, {% endif %}{% for ra in info.required_args %}{{ ra.name }}, {% endfor %}{% for oa in info.optional_args %}{{ oa.name }}=None, {% endfor %}*args, **kwargs):
+    def {{ info.operation }}(request, {% if info.body %}body, {% endif %}{% if info.formdata %}formData, {% endif %}{% for ra in info.required_args %}{{ ra.name }}, {% endfor %}{% for oa in info.optional_args %}{{ oa.name }}=None, {% endfor %}*args, **kwargs):
         """
         :param request: An HttpRequest
         {% for ra in info.required_args %}
