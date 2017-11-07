@@ -83,9 +83,9 @@ class {{ class_name }}(View):
             return HttpResponseBadRequest("Body required")
 
         {% endif %}
-        {% if info.formdata %}
-        formData = {}
-        {% for data in info.formdata %}
+        {% if info.form_data %}
+        form_data = {}
+        {% for data in info.form_data %}
         {% if data.type == "file" %}
         {{ data.name }} = request.FILES.get("{{ data.name }}", None)
         {% else %}
@@ -95,11 +95,11 @@ class {{ class_name }}(View):
         if not {{ data.name }}:
             return HttpResponseBadRequest("Formdata field '{{ data.name }}' required.")
         {% endif %}
-        formData["{{ data.name }}"] = {{ data.name }}
+        form_data["{{ data.name }}"] = {{ data.name }}
 
         {% endfor %}
         {% endif %}
-        result = Stubs.{{ info.operation }}(request, {% if info.body %}body, {% endif %}{% if info.formdata %}formData, {% endif %}{% for ra in info.required_args %}{{ ra.name }}, {% endfor %}{% for oa in info.optional_args %}{{ oa.name }}=None, {% endfor %}*args, **kwargs)
+        result = Stubs.{{ info.operation }}(request, {% if info.body %}body, {% endif %}{% if info.form_data %}form_data, {% endif %}{% for ra in info.required_args %}{{ ra.name }}, {% endfor %}{% for oa in info.optional_args %}{{ oa.name }}=None, {% endfor %}*args, **kwargs)
         maybe_validate_result(result, self.{{ verb|upper }}_RESPONSE_SCHEMA)
 
         return JsonResponse(result, safe=False)
