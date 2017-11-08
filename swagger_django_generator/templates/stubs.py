@@ -15,9 +15,15 @@ class AbstractStubClass(object):
     {% for verb, info in verbs|dictsort(true) %}
 
     @staticmethod
-    def {{ info.operation }}(request, {% if info.body %}body, {% endif %}{% for ra in info.required_args %}{{ ra.name }}, {% endfor %}{% for oa in info.optional_args %}{{ oa.name }}=None, {% endfor %}*args, **kwargs):
+    def {{ info.operation }}(request, {% if info.body %}body, {% endif %}{% if info.form_data %}form_data, {% endif %}{% for ra in info.required_args %}{{ ra.name }}, {% endfor %}{% for oa in info.optional_args %}{{ oa.name }}=None, {% endfor %}*args, **kwargs):
         """
         :param request: An HttpRequest
+        {% if info.body %}
+        :param body: dict A dictionary containing the parsed and validated body
+        {% endif %}
+        {% if info.form_data %}
+        :param form_data: dict A dictionary containing form fields and their values. In the case where the form fields refer to uploaded files, the values will be instances of `django.core.files.uploadedfile.UploadedFile`
+        {% endif %}
         {% for ra in info.required_args %}
         :param {{ ra.name }}: {{ ra.type }} {{ ra.description }}
         {% endfor %}
@@ -39,9 +45,15 @@ class MockedStubClass(AbstractStubClass):
     {% for verb, info in verbs|dictsort(true) %}
 
     @staticmethod
-    def {{ info.operation }}(request, {% if info.body %}body, {% endif %}{% for ra in info.required_args %}{{ ra.name }}, {% endfor %}{% for oa in info.optional_args %}{{ oa.name }}=None, {% endfor %}*args, **kwargs):
+    def {{ info.operation }}(request, {% if info.body %}body, {% endif %}{% if info.form_data %}form_data, {% endif %}{% for ra in info.required_args %}{{ ra.name }}, {% endfor %}{% for oa in info.optional_args %}{{ oa.name }}=None, {% endfor %}*args, **kwargs):
         """
         :param request: An HttpRequest
+        {% if info.body %}
+        :param body: dict A dictionary containing the parsed and validated body
+        {% endif %}
+        {% if info.form_data %}
+        :param form_data: dict A dictionary containing form fields and their values. In the case where the form fields refer to uploaded files, the values will be instances of `django.core.files.uploadedfile.UploadedFile`
+        {% endif %}
         {% for ra in info.required_args %}
         :param {{ ra.name }}: {{ ra.type }} {{ ra.description }}
         {% endfor %}

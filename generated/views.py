@@ -2,24 +2,25 @@
 Do not modify this file. It is generated from the Swagger specification.
 
 """
+import importlib
 import logging
 import json
 import jsonschema
 from jsonschema import ValidationError
 
 from django.conf import settings
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseBadRequest
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views import View
 
-import generated.stubs as stubs
 import generated.schemas as schemas
 import generated.utils as utils
 
-
+# Set up logging
 logging.basicConfig(level=logging.DEBUG)
 LOGGER = logging.getLogger(__name__)
+
 try:
     VALIDATE_RESPONSES = settings.SWAGGER_API_VALIDATE_RESPONSES
 except AttributeError:
@@ -27,6 +28,17 @@ except AttributeError:
 LOGGER.info("Swagger API response validation is {}".format(
     "on" if VALIDATE_RESPONSES else "off"
 ))
+
+# Set up the stub class. If it is not explicitly configured in the settings.py
+# file of the project, we default to a mocked class.
+try:
+    stub_class_path = settings.STUBS_CLASS
+except AttributeError:
+    stub_class_path = "demo.stubs.MockedStubClass"
+
+module_name, class_name = stub_class_path.rsplit(".", 1)
+Module = importlib.import_module(module_name)
+Stubs = getattr(Module, class_name)
 
 
 def maybe_validate_result(result, schema):
@@ -53,7 +65,10 @@ class Pet(View):
         :param request: An HttpRequest
         """
         body = utils.body_to_dict(request.body, self.POST_BODY_SCHEMA)
-        result = stubs.addPet(request, body, *args, **kwargs)
+        if not body:
+            return HttpResponseBadRequest("Body required")
+
+        result = Stubs.addPet(request, body, *args, **kwargs)
         maybe_validate_result(result, self.POST_RESPONSE_SCHEMA)
 
         return JsonResponse(result, safe=False)
@@ -64,7 +79,10 @@ class Pet(View):
         :param request: An HttpRequest
         """
         body = utils.body_to_dict(request.body, self.PUT_BODY_SCHEMA)
-        result = stubs.updatePet(request, body, *args, **kwargs)
+        if not body:
+            return HttpResponseBadRequest("Body required")
+
+        result = Stubs.updatePet(request, body, *args, **kwargs)
         maybe_validate_result(result, self.PUT_RESPONSE_SCHEMA)
 
         return JsonResponse(result, safe=False)
@@ -167,7 +185,7 @@ class PetFindByStatus(View):
         :param self: A PetFindByStatus instance
         :param request: An HttpRequest
         """
-        result = stubs.findPetsByStatus(request, status=None, *args, **kwargs)
+        result = Stubs.findPetsByStatus(request, status=None, *args, **kwargs)
         maybe_validate_result(result, self.GET_RESPONSE_SCHEMA)
 
         return JsonResponse(result, safe=False)
@@ -270,7 +288,7 @@ class PetFindByTags(View):
         :param self: A PetFindByTags instance
         :param request: An HttpRequest
         """
-        result = stubs.findPetsByTags(request, tags=None, *args, **kwargs)
+        result = Stubs.findPetsByTags(request, tags=None, *args, **kwargs)
         maybe_validate_result(result, self.GET_RESPONSE_SCHEMA)
 
         return JsonResponse(result, safe=False)
@@ -292,7 +310,7 @@ class PetPetId(View):
         :param request: An HttpRequest
         :param petId: integer Pet id to delete
         """
-        result = stubs.deletePet(request, petId, *args, **kwargs)
+        result = Stubs.deletePet(request, petId, *args, **kwargs)
         maybe_validate_result(result, self.DELETE_RESPONSE_SCHEMA)
 
         return JsonResponse(result, safe=False)
@@ -303,7 +321,7 @@ class PetPetId(View):
         :param request: An HttpRequest
         :param petId: integer ID of pet that needs to be fetched
         """
-        result = stubs.getPetById(request, petId, *args, **kwargs)
+        result = Stubs.getPetById(request, petId, *args, **kwargs)
         maybe_validate_result(result, self.GET_RESPONSE_SCHEMA)
 
         return JsonResponse(result, safe=False)
@@ -314,7 +332,14 @@ class PetPetId(View):
         :param request: An HttpRequest
         :param petId: string ID of pet that needs to be updated
         """
-        result = stubs.updatePetWithForm(request, petId, *args, **kwargs)
+        form_data = {}
+        status = request.POST.get("status", None)
+        form_data["status"] = status
+
+        name = request.POST.get("name", None)
+        form_data["name"] = name
+
+        result = Stubs.updatePetWithForm(request, form_data, petId, *args, **kwargs)
         maybe_validate_result(result, self.POST_RESPONSE_SCHEMA)
 
         return JsonResponse(result, safe=False)
@@ -332,7 +357,14 @@ class PetPetIdUploadImage(View):
         :param request: An HttpRequest
         :param petId: integer ID of pet to update
         """
-        result = stubs.uploadFile(request, petId, *args, **kwargs)
+        form_data = {}
+        additionalMetadata = request.POST.get("additionalMetadata", None)
+        form_data["additionalMetadata"] = additionalMetadata
+
+        file = request.FILES.get("file", None)
+        form_data["file"] = file
+
+        result = Stubs.uploadFile(request, form_data, petId, *args, **kwargs)
         maybe_validate_result(result, self.POST_RESPONSE_SCHEMA)
 
         return JsonResponse(result, safe=False)
@@ -355,7 +387,7 @@ class StoreInventory(View):
         :param self: A StoreInventory instance
         :param request: An HttpRequest
         """
-        result = stubs.getInventory(request, *args, **kwargs)
+        result = Stubs.getInventory(request, *args, **kwargs)
         maybe_validate_result(result, self.GET_RESPONSE_SCHEMA)
 
         return JsonResponse(result, safe=False)
@@ -373,7 +405,10 @@ class StoreOrder(View):
         :param request: An HttpRequest
         """
         body = utils.body_to_dict(request.body, self.POST_BODY_SCHEMA)
-        result = stubs.placeOrder(request, body, *args, **kwargs)
+        if not body:
+            return HttpResponseBadRequest("Body required")
+
+        result = Stubs.placeOrder(request, body, *args, **kwargs)
         maybe_validate_result(result, self.POST_RESPONSE_SCHEMA)
 
         return JsonResponse(result, safe=False)
@@ -391,7 +426,7 @@ class StoreOrderOrderId(View):
         :param request: An HttpRequest
         :param orderId: string ID of the order that needs to be deleted
         """
-        result = stubs.deleteOrder(request, orderId, *args, **kwargs)
+        result = Stubs.deleteOrder(request, orderId, *args, **kwargs)
         maybe_validate_result(result, self.DELETE_RESPONSE_SCHEMA)
 
         return JsonResponse(result, safe=False)
@@ -402,7 +437,7 @@ class StoreOrderOrderId(View):
         :param request: An HttpRequest
         :param orderId: string ID of pet that needs to be fetched
         """
-        result = stubs.getOrderById(request, orderId, *args, **kwargs)
+        result = Stubs.getOrderById(request, orderId, *args, **kwargs)
         maybe_validate_result(result, self.GET_RESPONSE_SCHEMA)
 
         return JsonResponse(result, safe=False)
@@ -420,7 +455,10 @@ class User(View):
         :param request: An HttpRequest
         """
         body = utils.body_to_dict(request.body, self.POST_BODY_SCHEMA)
-        result = stubs.createUser(request, body, *args, **kwargs)
+        if not body:
+            return HttpResponseBadRequest("Body required")
+
+        result = Stubs.createUser(request, body, *args, **kwargs)
         maybe_validate_result(result, self.POST_RESPONSE_SCHEMA)
 
         return JsonResponse(result, safe=False)
@@ -477,7 +515,10 @@ class UserCreateWithArray(View):
         :param request: An HttpRequest
         """
         body = utils.body_to_dict(request.body, self.POST_BODY_SCHEMA)
-        result = stubs.createUsersWithArrayInput(request, body, *args, **kwargs)
+        if not body:
+            return HttpResponseBadRequest("Body required")
+
+        result = Stubs.createUsersWithArrayInput(request, body, *args, **kwargs)
         maybe_validate_result(result, self.POST_RESPONSE_SCHEMA)
 
         return JsonResponse(result, safe=False)
@@ -534,7 +575,10 @@ class UserCreateWithList(View):
         :param request: An HttpRequest
         """
         body = utils.body_to_dict(request.body, self.POST_BODY_SCHEMA)
-        result = stubs.createUsersWithListInput(request, body, *args, **kwargs)
+        if not body:
+            return HttpResponseBadRequest("Body required")
+
+        result = Stubs.createUsersWithListInput(request, body, *args, **kwargs)
         maybe_validate_result(result, self.POST_RESPONSE_SCHEMA)
 
         return JsonResponse(result, safe=False)
@@ -552,7 +596,7 @@ class UserLogin(View):
         :param self: A UserLogin instance
         :param request: An HttpRequest
         """
-        result = stubs.loginUser(request, username=None, password=None, *args, **kwargs)
+        result = Stubs.loginUser(request, username=None, password=None, *args, **kwargs)
         maybe_validate_result(result, self.GET_RESPONSE_SCHEMA)
 
         return JsonResponse(result, safe=False)
@@ -568,7 +612,7 @@ class UserLogout(View):
         :param self: A UserLogout instance
         :param request: An HttpRequest
         """
-        result = stubs.logoutUser(request, *args, **kwargs)
+        result = Stubs.logoutUser(request, *args, **kwargs)
         maybe_validate_result(result, self.GET_RESPONSE_SCHEMA)
 
         return JsonResponse(result, safe=False)
@@ -588,7 +632,7 @@ class UserUsername(View):
         :param request: An HttpRequest
         :param username: string The name that needs to be deleted
         """
-        result = stubs.deleteUser(request, username, *args, **kwargs)
+        result = Stubs.deleteUser(request, username, *args, **kwargs)
         maybe_validate_result(result, self.DELETE_RESPONSE_SCHEMA)
 
         return JsonResponse(result, safe=False)
@@ -599,7 +643,7 @@ class UserUsername(View):
         :param request: An HttpRequest
         :param username: string The name that needs to be fetched. Use user1 for testing. 
         """
-        result = stubs.getUserByName(request, username, *args, **kwargs)
+        result = Stubs.getUserByName(request, username, *args, **kwargs)
         maybe_validate_result(result, self.GET_RESPONSE_SCHEMA)
 
         return JsonResponse(result, safe=False)
@@ -611,7 +655,10 @@ class UserUsername(View):
         :param username: string name that need to be deleted
         """
         body = utils.body_to_dict(request.body, self.PUT_BODY_SCHEMA)
-        result = stubs.updateUser(request, body, username, *args, **kwargs)
+        if not body:
+            return HttpResponseBadRequest("Body required")
+
+        result = Stubs.updateUser(request, body, username, *args, **kwargs)
         maybe_validate_result(result, self.PUT_RESPONSE_SCHEMA)
 
         return JsonResponse(result, safe=False)
@@ -1671,4 +1718,8 @@ class __SWAGGER_SPEC__(View):
         # Mod spec to point to demo application
         spec["basePath"] = "/"
         spec["host"] = "localhost:8000"
+        # Add basic auth as a security definition
+        security_definitions = spec.get("securityDefinitions", {})
+        security_definitions["basic_auth"] = {"type": "basic"}
+        spec["securityDefinitions"] = security_definitions
         return JsonResponse(spec)

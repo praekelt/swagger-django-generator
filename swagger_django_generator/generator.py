@@ -79,7 +79,7 @@ def render_to_string(filename, context, path=None):
     :return: The rendered template as a string
     """
     return jinja2.Environment(
-        # loader=jinja2.FileSystemLoader(path or './'),
+        # loader=jinja2.FileSystemLoader(path or './swagger_django_generator/templates'),
         loader=jinja2.PackageLoader("swagger_django_generator", "templates"),
         trim_blocks=True,
         lstrip_blocks=True
@@ -219,6 +219,7 @@ class Generator(object):
                     "operation": operation,
                     "required_args": [],
                     "optional_args": [],
+                    "form_data": [],
                     "response_schema": "schemas.__UNSPECIFIED__",
                     "secure": False,
                 }
@@ -260,6 +261,8 @@ class Generator(object):
                                 'json.loads("""{}""")'.format(
                                     json.dumps(schema, indent=4, sort_keys=True)
                                 )
+                    elif location == "formData":
+                        payload["form_data"].append(detail)
                     else:
                         msg = "Code generation for parameter type '{}' not " \
                               "implemented yet. Operation '{}' parameter '{" \
