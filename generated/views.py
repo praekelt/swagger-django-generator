@@ -14,8 +14,8 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views import View
 
-import demo.schemas as schemas
-import demo.utils as utils
+import generated.schemas as schemas
+import generated.utils as utils
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
