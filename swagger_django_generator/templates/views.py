@@ -106,8 +106,7 @@ class {{ class_name }}(View):
 
         {% endfor %}
         {% endif %}
-        result = Stubs.{{ info.operation }}(
-            request, {% if info.body %}body, {% endif %}{% if info.form_data %}form_data, {% endif %}
+        result = Stubs.{{ info.operation }}(request, {% if info.body %}body, {% endif %}{% if info.form_data %}form_data, {% endif %}
             {% for ra in info.required_args %}{{ ra.name }}, {% endfor %}
             {% for oa in info.optional_args if oa.in == "query" %}{{ oa.name }}, {% endfor %}*args, **kwargs)
         maybe_validate_result(result, self.{{ verb|upper }}_RESPONSE_SCHEMA)
