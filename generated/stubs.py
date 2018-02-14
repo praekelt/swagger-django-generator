@@ -29,7 +29,7 @@ class AbstractStubClass(object):
         raise NotImplementedError()
 
     @staticmethod
-    def findPetsByStatus(request, status, *args, **kwargs):
+    def findPetsByStatus(request, status=None, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param status (optional): array Status values that need to be considered for filter
@@ -37,7 +37,7 @@ class AbstractStubClass(object):
         raise NotImplementedError()
 
     @staticmethod
-    def findPetsByTags(request, tags, *args, **kwargs):
+    def findPetsByTags(request, tags=None, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param tags (optional): array Tags to filter by
@@ -134,7 +134,7 @@ class AbstractStubClass(object):
         raise NotImplementedError()
 
     @staticmethod
-    def loginUser(request, username, password, *args, **kwargs):
+    def loginUser(request, username=None, password=None, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param username (optional): string The user name for login
@@ -213,7 +213,7 @@ class MockedStubClass(AbstractStubClass):
         return MockedStubClass.GENERATOR.random_value(response_schema)
 
     @staticmethod
-    def findPetsByStatus(request, status, *args, **kwargs):
+    def findPetsByStatus(request, status=None, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param status (optional): array Status values that need to be considered for filter
@@ -314,7 +314,7 @@ class MockedStubClass(AbstractStubClass):
         return MockedStubClass.GENERATOR.random_value(response_schema)
 
     @staticmethod
-    def findPetsByTags(request, tags, *args, **kwargs):
+    def findPetsByTags(request, tags=None, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param tags (optional): array Tags to filter by
@@ -587,7 +587,7 @@ class MockedStubClass(AbstractStubClass):
         return MockedStubClass.GENERATOR.random_value(response_schema)
 
     @staticmethod
-    def loginUser(request, username, password, *args, **kwargs):
+    def loginUser(request, username=None, password=None, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param username (optional): string The user name for login

@@ -17,7 +17,7 @@ class AbstractStubClass(object):
     @staticmethod
     def {{ info.operation }}(request, {% if info.body %}body, {% endif %}{% if info.form_data %}form_data, {% endif %}
         {% for ra in info.required_args %}{{ ra.name }}, {% endfor %}
-        {% for oa in info.optional_args if oa.in == "query" %}{{ oa.name }}, {% endfor %}*args, **kwargs):
+        {% for oa in info.optional_args if oa.in == "query" %}{{ oa.name }}=None, {% endfor %}*args, **kwargs):
         """
         :param request: An HttpRequest
         {% if info.body %}
@@ -50,7 +50,7 @@ class MockedStubClass(AbstractStubClass):
     @staticmethod
     def {{ info.operation }}(request, {% if info.body %}body, {% endif %}{% if info.form_data %}form_data, {% endif %}
         {% for ra in info.required_args %}{{ ra.name }}, {% endfor %}
-        {% for oa in info.optional_args if oa.in == "query" %}{{ oa.name }}, {% endfor %}*args, **kwargs):
+        {% for oa in info.optional_args if oa.in == "query" %}{{ oa.name }}=None, {% endfor %}*args, **kwargs):
         """
         :param request: An HttpRequest
         {% if info.body %}
