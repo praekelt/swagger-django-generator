@@ -13,8 +13,7 @@ class AbstractStubClass(object):
     """
 
     @staticmethod
-    def addPet(
-        request, body, *args, **kwargs):
+    def addPet(request, body, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param body: dict A dictionary containing the parsed and validated body
@@ -22,8 +21,7 @@ class AbstractStubClass(object):
         raise NotImplementedError()
 
     @staticmethod
-    def updatePet(
-        request, body, *args, **kwargs):
+    def updatePet(request, body, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param body: dict A dictionary containing the parsed and validated body
@@ -31,8 +29,7 @@ class AbstractStubClass(object):
         raise NotImplementedError()
 
     @staticmethod
-    def findPetsByStatus(
-        request, status, *args, **kwargs):
+    def findPetsByStatus(request, status, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param status (optional): array Status values that need to be considered for filter
@@ -40,8 +37,7 @@ class AbstractStubClass(object):
         raise NotImplementedError()
 
     @staticmethod
-    def findPetsByTags(
-        request, tags, *args, **kwargs):
+    def findPetsByTags(request, tags, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param tags (optional): array Tags to filter by
@@ -49,8 +45,7 @@ class AbstractStubClass(object):
         raise NotImplementedError()
 
     @staticmethod
-    def deletePet(
-        request, petId, *args, **kwargs):
+    def deletePet(request, petId, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param petId: integer Pet id to delete
@@ -58,8 +53,7 @@ class AbstractStubClass(object):
         raise NotImplementedError()
 
     @staticmethod
-    def getPetById(
-        request, petId, *args, **kwargs):
+    def getPetById(request, petId, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param petId: integer ID of pet that needs to be fetched
@@ -67,8 +61,7 @@ class AbstractStubClass(object):
         raise NotImplementedError()
 
     @staticmethod
-    def updatePetWithForm(
-        request, form_data, petId, *args, **kwargs):
+    def updatePetWithForm(request, form_data, petId, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param form_data: dict A dictionary containing form fields and their values. In the case where the form fields refer to uploaded files, the values will be instances of `django.core.files.uploadedfile.UploadedFile`
@@ -77,8 +70,7 @@ class AbstractStubClass(object):
         raise NotImplementedError()
 
     @staticmethod
-    def uploadFile(
-        request, form_data, petId, *args, **kwargs):
+    def uploadFile(request, form_data, petId, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param form_data: dict A dictionary containing form fields and their values. In the case where the form fields refer to uploaded files, the values will be instances of `django.core.files.uploadedfile.UploadedFile`
@@ -87,16 +79,14 @@ class AbstractStubClass(object):
         raise NotImplementedError()
 
     @staticmethod
-    def getInventory(
-        request, *args, **kwargs):
+    def getInventory(request, *args, **kwargs):
         """
         :param request: An HttpRequest
         """
         raise NotImplementedError()
 
     @staticmethod
-    def placeOrder(
-        request, body, *args, **kwargs):
+    def placeOrder(request, body, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param body: dict A dictionary containing the parsed and validated body
@@ -104,8 +94,7 @@ class AbstractStubClass(object):
         raise NotImplementedError()
 
     @staticmethod
-    def deleteOrder(
-        request, orderId, *args, **kwargs):
+    def deleteOrder(request, orderId, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param orderId: string ID of the order that needs to be deleted
@@ -113,8 +102,7 @@ class AbstractStubClass(object):
         raise NotImplementedError()
 
     @staticmethod
-    def getOrderById(
-        request, orderId, *args, **kwargs):
+    def getOrderById(request, orderId, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param orderId: string ID of pet that needs to be fetched
@@ -122,8 +110,7 @@ class AbstractStubClass(object):
         raise NotImplementedError()
 
     @staticmethod
-    def createUser(
-        request, body, *args, **kwargs):
+    def createUser(request, body, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param body: dict A dictionary containing the parsed and validated body
@@ -131,8 +118,7 @@ class AbstractStubClass(object):
         raise NotImplementedError()
 
     @staticmethod
-    def createUsersWithArrayInput(
-        request, body, *args, **kwargs):
+    def createUsersWithArrayInput(request, body, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param body: dict A dictionary containing the parsed and validated body
@@ -140,8 +126,7 @@ class AbstractStubClass(object):
         raise NotImplementedError()
 
     @staticmethod
-    def createUsersWithListInput(
-        request, body, *args, **kwargs):
+    def createUsersWithListInput(request, body, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param body: dict A dictionary containing the parsed and validated body
@@ -149,8 +134,7 @@ class AbstractStubClass(object):
         raise NotImplementedError()
 
     @staticmethod
-    def loginUser(
-        request, username, password, *args, **kwargs):
+    def loginUser(request, username, password, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param username (optional): string The user name for login
@@ -159,16 +143,14 @@ class AbstractStubClass(object):
         raise NotImplementedError()
 
     @staticmethod
-    def logoutUser(
-        request, *args, **kwargs):
+    def logoutUser(request, *args, **kwargs):
         """
         :param request: An HttpRequest
         """
         raise NotImplementedError()
 
     @staticmethod
-    def deleteUser(
-        request, username, *args, **kwargs):
+    def deleteUser(request, username, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param username: string The name that needs to be deleted
@@ -176,8 +158,7 @@ class AbstractStubClass(object):
         raise NotImplementedError()
 
     @staticmethod
-    def getUserByName(
-        request, username, *args, **kwargs):
+    def getUserByName(request, username, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param username: string The name that needs to be fetched. Use user1 for testing. 
@@ -185,8 +166,7 @@ class AbstractStubClass(object):
         raise NotImplementedError()
 
     @staticmethod
-    def updateUser(
-        request, body, username, *args, **kwargs):
+    def updateUser(request, body, username, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param body: dict A dictionary containing the parsed and validated body
@@ -203,8 +183,7 @@ class MockedStubClass(AbstractStubClass):
 
 
     @staticmethod
-    def addPet(
-        request, body, *args, **kwargs):
+    def addPet(request, body, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param body: dict A dictionary containing the parsed and validated body
@@ -219,8 +198,7 @@ class MockedStubClass(AbstractStubClass):
         return MockedStubClass.GENERATOR.random_value(response_schema)
 
     @staticmethod
-    def updatePet(
-        request, body, *args, **kwargs):
+    def updatePet(request, body, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param body: dict A dictionary containing the parsed and validated body
@@ -235,8 +213,7 @@ class MockedStubClass(AbstractStubClass):
         return MockedStubClass.GENERATOR.random_value(response_schema)
 
     @staticmethod
-    def findPetsByStatus(
-        request, status, *args, **kwargs):
+    def findPetsByStatus(request, status, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param status (optional): array Status values that need to be considered for filter
@@ -337,8 +314,7 @@ class MockedStubClass(AbstractStubClass):
         return MockedStubClass.GENERATOR.random_value(response_schema)
 
     @staticmethod
-    def findPetsByTags(
-        request, tags, *args, **kwargs):
+    def findPetsByTags(request, tags, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param tags (optional): array Tags to filter by
@@ -439,8 +415,7 @@ class MockedStubClass(AbstractStubClass):
         return MockedStubClass.GENERATOR.random_value(response_schema)
 
     @staticmethod
-    def deletePet(
-        request, petId, *args, **kwargs):
+    def deletePet(request, petId, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param petId: integer Pet id to delete
@@ -455,8 +430,7 @@ class MockedStubClass(AbstractStubClass):
         return MockedStubClass.GENERATOR.random_value(response_schema)
 
     @staticmethod
-    def getPetById(
-        request, petId, *args, **kwargs):
+    def getPetById(request, petId, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param petId: integer ID of pet that needs to be fetched
@@ -471,8 +445,7 @@ class MockedStubClass(AbstractStubClass):
         return MockedStubClass.GENERATOR.random_value(response_schema)
 
     @staticmethod
-    def updatePetWithForm(
-        request, form_data, petId, *args, **kwargs):
+    def updatePetWithForm(request, form_data, petId, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param form_data: dict A dictionary containing form fields and their values. In the case where the form fields refer to uploaded files, the values will be instances of `django.core.files.uploadedfile.UploadedFile`
@@ -488,8 +461,7 @@ class MockedStubClass(AbstractStubClass):
         return MockedStubClass.GENERATOR.random_value(response_schema)
 
     @staticmethod
-    def uploadFile(
-        request, form_data, petId, *args, **kwargs):
+    def uploadFile(request, form_data, petId, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param form_data: dict A dictionary containing form fields and their values. In the case where the form fields refer to uploaded files, the values will be instances of `django.core.files.uploadedfile.UploadedFile`
@@ -505,8 +477,7 @@ class MockedStubClass(AbstractStubClass):
         return MockedStubClass.GENERATOR.random_value(response_schema)
 
     @staticmethod
-    def getInventory(
-        request, *args, **kwargs):
+    def getInventory(request, *args, **kwargs):
         """
         :param request: An HttpRequest
         """
@@ -526,8 +497,7 @@ class MockedStubClass(AbstractStubClass):
         return MockedStubClass.GENERATOR.random_value(response_schema)
 
     @staticmethod
-    def placeOrder(
-        request, body, *args, **kwargs):
+    def placeOrder(request, body, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param body: dict A dictionary containing the parsed and validated body
@@ -542,8 +512,7 @@ class MockedStubClass(AbstractStubClass):
         return MockedStubClass.GENERATOR.random_value(response_schema)
 
     @staticmethod
-    def deleteOrder(
-        request, orderId, *args, **kwargs):
+    def deleteOrder(request, orderId, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param orderId: string ID of the order that needs to be deleted
@@ -558,8 +527,7 @@ class MockedStubClass(AbstractStubClass):
         return MockedStubClass.GENERATOR.random_value(response_schema)
 
     @staticmethod
-    def getOrderById(
-        request, orderId, *args, **kwargs):
+    def getOrderById(request, orderId, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param orderId: string ID of pet that needs to be fetched
@@ -574,8 +542,7 @@ class MockedStubClass(AbstractStubClass):
         return MockedStubClass.GENERATOR.random_value(response_schema)
 
     @staticmethod
-    def createUser(
-        request, body, *args, **kwargs):
+    def createUser(request, body, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param body: dict A dictionary containing the parsed and validated body
@@ -590,8 +557,7 @@ class MockedStubClass(AbstractStubClass):
         return MockedStubClass.GENERATOR.random_value(response_schema)
 
     @staticmethod
-    def createUsersWithArrayInput(
-        request, body, *args, **kwargs):
+    def createUsersWithArrayInput(request, body, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param body: dict A dictionary containing the parsed and validated body
@@ -606,8 +572,7 @@ class MockedStubClass(AbstractStubClass):
         return MockedStubClass.GENERATOR.random_value(response_schema)
 
     @staticmethod
-    def createUsersWithListInput(
-        request, body, *args, **kwargs):
+    def createUsersWithListInput(request, body, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param body: dict A dictionary containing the parsed and validated body
@@ -622,8 +587,7 @@ class MockedStubClass(AbstractStubClass):
         return MockedStubClass.GENERATOR.random_value(response_schema)
 
     @staticmethod
-    def loginUser(
-        request, username, password, *args, **kwargs):
+    def loginUser(request, username, password, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param username (optional): string The user name for login
@@ -641,8 +605,7 @@ class MockedStubClass(AbstractStubClass):
         return MockedStubClass.GENERATOR.random_value(response_schema)
 
     @staticmethod
-    def logoutUser(
-        request, *args, **kwargs):
+    def logoutUser(request, *args, **kwargs):
         """
         :param request: An HttpRequest
         """
@@ -656,8 +619,7 @@ class MockedStubClass(AbstractStubClass):
         return MockedStubClass.GENERATOR.random_value(response_schema)
 
     @staticmethod
-    def deleteUser(
-        request, username, *args, **kwargs):
+    def deleteUser(request, username, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param username: string The name that needs to be deleted
@@ -672,8 +634,7 @@ class MockedStubClass(AbstractStubClass):
         return MockedStubClass.GENERATOR.random_value(response_schema)
 
     @staticmethod
-    def getUserByName(
-        request, username, *args, **kwargs):
+    def getUserByName(request, username, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param username: string The name that needs to be fetched. Use user1 for testing. 
@@ -688,8 +649,7 @@ class MockedStubClass(AbstractStubClass):
         return MockedStubClass.GENERATOR.random_value(response_schema)
 
     @staticmethod
-    def updateUser(
-        request, body, username, *args, **kwargs):
+    def updateUser(request, body, username, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param body: dict A dictionary containing the parsed and validated body
