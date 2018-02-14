@@ -32,6 +32,7 @@ class AbstractStubClass(object):
     def findPetsByStatus(request, status=None, *args, **kwargs):
         """
         :param request: An HttpRequest
+        :param status (optional): array Status values that need to be considered for filter
         """
         raise NotImplementedError()
 
@@ -39,6 +40,7 @@ class AbstractStubClass(object):
     def findPetsByTags(request, tags=None, *args, **kwargs):
         """
         :param request: An HttpRequest
+        :param tags (optional): array Tags to filter by
         """
         raise NotImplementedError()
 
@@ -135,6 +137,8 @@ class AbstractStubClass(object):
     def loginUser(request, username=None, password=None, *args, **kwargs):
         """
         :param request: An HttpRequest
+        :param username (optional): string The user name for login
+        :param password (optional): string The password for login in clear text
         """
         raise NotImplementedError()
 
@@ -177,6 +181,7 @@ class MockedStubClass(AbstractStubClass):
     """
     GENERATOR = DataGenerator()
 
+
     @staticmethod
     def addPet(request, body, *args, **kwargs):
         """
@@ -211,6 +216,7 @@ class MockedStubClass(AbstractStubClass):
     def findPetsByStatus(request, status=None, *args, **kwargs):
         """
         :param request: An HttpRequest
+        :param status (optional): array Status values that need to be considered for filter
         """
         response_schema = json.loads("""{
     "items": {
@@ -218,85 +224,85 @@ class MockedStubClass(AbstractStubClass):
             "category": {
                 "properties": {
                     "id": {
-                        "format": "int64", 
+                        "format": "int64",
                         "type": "integer"
-                    }, 
+                    },
                     "name": {
                         "type": "string"
                     }
-                }, 
+                },
                 "x-scope": [
-                    "", 
+                    "",
                     "#/definitions/Pet"
-                ], 
+                ],
                 "xml": {
                     "name": "Category"
                 }
-            }, 
+            },
             "id": {
-                "format": "int64", 
+                "format": "int64",
                 "type": "integer"
-            }, 
+            },
             "name": {
-                "example": "doggie", 
+                "example": "doggie",
                 "type": "string"
-            }, 
+            },
             "photoUrls": {
                 "items": {
                     "type": "string"
-                }, 
-                "type": "array", 
+                },
+                "type": "array",
                 "xml": {
-                    "name": "photoUrl", 
+                    "name": "photoUrl",
                     "wrapped": true
                 }
-            }, 
+            },
             "status": {
-                "description": "pet status in the store", 
+                "description": "pet status in the store",
                 "enum": [
-                    "available", 
-                    "pending", 
+                    "available",
+                    "pending",
                     "sold"
-                ], 
+                ],
                 "type": "string"
-            }, 
+            },
             "tags": {
                 "items": {
                     "properties": {
                         "id": {
-                            "format": "int64", 
+                            "format": "int64",
                             "type": "integer"
-                        }, 
+                        },
                         "name": {
                             "type": "string"
                         }
-                    }, 
+                    },
                     "x-scope": [
-                        "", 
+                        "",
                         "#/definitions/Pet"
-                    ], 
+                    ],
                     "xml": {
                         "name": "Tag"
                     }
-                }, 
-                "type": "array", 
+                },
+                "type": "array",
                 "xml": {
-                    "name": "tag", 
+                    "name": "tag",
                     "wrapped": true
                 }
             }
-        }, 
+        },
         "required": [
-            "name", 
+            "name",
             "photoUrls"
-        ], 
+        ],
         "x-scope": [
             ""
-        ], 
+        ],
         "xml": {
             "name": "Pet"
         }
-    }, 
+    },
     "type": "array"
 }""")
         if "type" not in response_schema:
@@ -311,6 +317,7 @@ class MockedStubClass(AbstractStubClass):
     def findPetsByTags(request, tags=None, *args, **kwargs):
         """
         :param request: An HttpRequest
+        :param tags (optional): array Tags to filter by
         """
         response_schema = json.loads("""{
     "items": {
@@ -318,85 +325,85 @@ class MockedStubClass(AbstractStubClass):
             "category": {
                 "properties": {
                     "id": {
-                        "format": "int64", 
+                        "format": "int64",
                         "type": "integer"
-                    }, 
+                    },
                     "name": {
                         "type": "string"
                     }
-                }, 
+                },
                 "x-scope": [
-                    "", 
+                    "",
                     "#/definitions/Pet"
-                ], 
+                ],
                 "xml": {
                     "name": "Category"
                 }
-            }, 
+            },
             "id": {
-                "format": "int64", 
+                "format": "int64",
                 "type": "integer"
-            }, 
+            },
             "name": {
-                "example": "doggie", 
+                "example": "doggie",
                 "type": "string"
-            }, 
+            },
             "photoUrls": {
                 "items": {
                     "type": "string"
-                }, 
-                "type": "array", 
+                },
+                "type": "array",
                 "xml": {
-                    "name": "photoUrl", 
+                    "name": "photoUrl",
                     "wrapped": true
                 }
-            }, 
+            },
             "status": {
-                "description": "pet status in the store", 
+                "description": "pet status in the store",
                 "enum": [
-                    "available", 
-                    "pending", 
+                    "available",
+                    "pending",
                     "sold"
-                ], 
+                ],
                 "type": "string"
-            }, 
+            },
             "tags": {
                 "items": {
                     "properties": {
                         "id": {
-                            "format": "int64", 
+                            "format": "int64",
                             "type": "integer"
-                        }, 
+                        },
                         "name": {
                             "type": "string"
                         }
-                    }, 
+                    },
                     "x-scope": [
-                        "", 
+                        "",
                         "#/definitions/Pet"
-                    ], 
+                    ],
                     "xml": {
                         "name": "Tag"
                     }
-                }, 
-                "type": "array", 
+                },
+                "type": "array",
                 "xml": {
-                    "name": "tag", 
+                    "name": "tag",
                     "wrapped": true
                 }
             }
-        }, 
+        },
         "required": [
-            "name", 
+            "name",
             "photoUrls"
-        ], 
+        ],
         "x-scope": [
             ""
-        ], 
+        ],
         "xml": {
             "name": "Pet"
         }
-    }, 
+    },
     "type": "array"
 }""")
         if "type" not in response_schema:
@@ -476,9 +483,9 @@ class MockedStubClass(AbstractStubClass):
         """
         response_schema = json.loads("""{
     "additionalProperties": {
-        "format": "int32", 
+        "format": "int32",
         "type": "integer"
-    }, 
+    },
     "type": "object"
 }""")
         if "type" not in response_schema:
@@ -583,6 +590,8 @@ class MockedStubClass(AbstractStubClass):
     def loginUser(request, username=None, password=None, *args, **kwargs):
         """
         :param request: An HttpRequest
+        :param username (optional): string The user name for login
+        :param password (optional): string The password for login in clear text
         """
         response_schema = json.loads("""{
     "type": "string"

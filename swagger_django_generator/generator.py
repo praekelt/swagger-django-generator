@@ -79,8 +79,8 @@ def render_to_string(filename, context, path=None):
     :return: The rendered template as a string
     """
     return jinja2.Environment(
-        # loader=jinja2.FileSystemLoader(path or './swagger_django_generator/templates'),
-        loader=jinja2.PackageLoader("swagger_django_generator", "templates"),
+        loader=jinja2.FileSystemLoader(path or './swagger_django_generator/templates'),
+        # loader=jinja2.PackageLoader("swagger_django_generator", "templates"),
         trim_blocks=True,
         lstrip_blocks=True
     ).get_template(filename).render(context)
@@ -371,7 +371,7 @@ class Generator(object):
         """
         return render_to_string("stubs.py", {
             "classes": self._classes,
-            "module": self.module_name
+            "module": self.module_name,
         })
 
 @click.command()

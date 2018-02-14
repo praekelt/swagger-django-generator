@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="swagger-django-generator",
-    version="0.0.2",
+    version="0.0.3",
     description="Generate Django code from a Swagger specification",
     long_description="""
     This utility parses Swagger specifications and creates `urls.py`, `views.py`
