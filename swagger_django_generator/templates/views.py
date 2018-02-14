@@ -66,23 +66,31 @@ class {{ class_name }}(View):
     {% endfor %}
 
     {% for verb, info in verbs|dictsort(true) %}
-    def {{ verb }}(self, request, {% for ra in info.required_args %}{{ ra.name }}, {% endfor %}{% for oa in info.optional_args %}{{ oa.name }}=None, {% endfor %}*args, **kwargs):
+    def {{ verb }}(self, request, {% for ra in info.required_args if ra.in == "path" %}{{ ra.name }}, {% endfor %}*args, **kwargs):
         """
         :param self: A {{ class_name }} instance
         :param request: An HttpRequest
-        {% for ra in info.required_args %}
+        {% for ra in info.required_args if ra.in == "path" %}
         :param {{ ra.name }}: {{ ra.type }} {{ ra.description }}
-        {% endfor %}
-        {% for ra in info.option_args %}
-        :param {{ ra.name }} (optional): {{ ra.type }} {{ ra.description }}
         {% endfor %}
         """
         {% if info.body %}
         body = utils.body_to_dict(request.body, self.{{ verb|upper}}_BODY_SCHEMA)
         if not body:
             return HttpResponseBadRequest("Body required")
-
         {% endif %}
+
+        {% for ra in info.required_args if ra.in == "query" %}
+        try:
+            {{ ra.name }} = request.GET["{{ ra.name }}"]
+        except KeyError:
+            return HttpResponseBadRequest("{{ ra.name }} required")
+
+        {% endfor %}
+        {% for oa in info.optional_args if oa.in == "query" %}
+        {{ oa.name }} = request.GET.get("{{ oa.name }}", None)
+        {% endfor %}
+
         {% if info.form_data %}
         form_data = {}
         {% for data in info.form_data %}
@@ -99,7 +107,10 @@ class {{ class_name }}(View):
 
         {% endfor %}
         {% endif %}
-        result = Stubs.{{ info.operation }}(request, {% if info.body %}body, {% endif %}{% if info.form_data %}form_data, {% endif %}{% for ra in info.required_args %}{{ ra.name }}, {% endfor %}{% for oa in info.optional_args %}{{ oa.name }}=None, {% endfor %}*args, **kwargs)
+        result = Stubs.{{ info.operation }}(
+            request, {% if info.body %}body, {% endif %}{% if info.form_data %}form_data, {% endif %}
+            {% for ra in info.required_args %}{{ ra.name }}, {% endfor %}
+            {% for oa in info.optional_args if oa.in == "query" %}{{ oa.name }}, {% endfor %}*args, **kwargs)
         maybe_validate_result(result, self.{{ verb|upper }}_RESPONSE_SCHEMA)
 
         return JsonResponse(result, safe=False)

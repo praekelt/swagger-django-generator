@@ -16,13 +16,13 @@ Category = json.loads("""
 {
     "properties": {
         "id": {
-            "format": "int64", 
+            "format": "int64",
             "type": "integer"
-        }, 
+        },
         "name": {
             "type": "string"
         }
-    }, 
+    },
     "xml": {
         "name": "Category"
     }
@@ -34,33 +34,33 @@ Order = json.loads("""
     "properties": {
         "complete": {
             "type": "boolean"
-        }, 
+        },
         "id": {
-            "format": "int64", 
+            "format": "int64",
             "type": "integer"
-        }, 
+        },
         "petId": {
-            "format": "int64", 
+            "format": "int64",
             "type": "integer"
-        }, 
+        },
         "quantity": {
-            "format": "int32", 
+            "format": "int32",
             "type": "integer"
-        }, 
+        },
         "shipDate": {
-            "format": "date-time", 
+            "format": "date-time",
             "type": "string"
-        }, 
+        },
         "status": {
-            "description": "Order Status", 
+            "description": "Order Status",
             "enum": [
-                "placed", 
-                "approved", 
+                "placed",
+                "approved",
                 "delivered"
-            ], 
+            ],
             "type": "string"
         }
-    }, 
+    },
     "xml": {
         "name": "Order"
     }
@@ -73,78 +73,78 @@ Pet = json.loads("""
         "category": {
             "properties": {
                 "id": {
-                    "format": "int64", 
+                    "format": "int64",
                     "type": "integer"
-                }, 
+                },
                 "name": {
                     "type": "string"
                 }
-            }, 
+            },
             "x-scope": [
-                "", 
+                "",
                 "#/definitions/Pet"
-            ], 
+            ],
             "xml": {
                 "name": "Category"
             }
-        }, 
+        },
         "id": {
-            "format": "int64", 
+            "format": "int64",
             "type": "integer"
-        }, 
+        },
         "name": {
-            "example": "doggie", 
+            "example": "doggie",
             "type": "string"
-        }, 
+        },
         "photoUrls": {
             "items": {
                 "type": "string"
-            }, 
-            "type": "array", 
+            },
+            "type": "array",
             "xml": {
-                "name": "photoUrl", 
+                "name": "photoUrl",
                 "wrapped": true
             }
-        }, 
+        },
         "status": {
-            "description": "pet status in the store", 
+            "description": "pet status in the store",
             "enum": [
-                "available", 
-                "pending", 
+                "available",
+                "pending",
                 "sold"
-            ], 
+            ],
             "type": "string"
-        }, 
+        },
         "tags": {
             "items": {
                 "properties": {
                     "id": {
-                        "format": "int64", 
+                        "format": "int64",
                         "type": "integer"
-                    }, 
+                    },
                     "name": {
                         "type": "string"
                     }
-                }, 
+                },
                 "x-scope": [
-                    "", 
+                    "",
                     "#/definitions/Pet"
-                ], 
+                ],
                 "xml": {
                     "name": "Tag"
                 }
-            }, 
-            "type": "array", 
+            },
+            "type": "array",
             "xml": {
-                "name": "tag", 
+                "name": "tag",
                 "wrapped": true
             }
         }
-    }, 
+    },
     "required": [
-        "name", 
+        "name",
         "photoUrls"
-    ], 
+    ],
     "xml": {
         "name": "Pet"
     }
@@ -155,13 +155,13 @@ Tag = json.loads("""
 {
     "properties": {
         "id": {
-            "format": "int64", 
+            "format": "int64",
             "type": "integer"
-        }, 
+        },
         "name": {
             "type": "string"
         }
-    }, 
+    },
     "xml": {
         "name": "Tag"
     }
@@ -173,32 +173,32 @@ User = json.loads("""
     "properties": {
         "email": {
             "type": "string"
-        }, 
+        },
         "firstName": {
             "type": "string"
-        }, 
+        },
         "id": {
-            "format": "int64", 
+            "format": "int64",
             "type": "integer"
-        }, 
+        },
         "lastName": {
             "type": "string"
-        }, 
+        },
         "password": {
             "type": "string"
-        }, 
+        },
         "phone": {
             "type": "string"
-        }, 
+        },
         "userStatus": {
-            "description": "User Status", 
-            "format": "int32", 
+            "description": "User Status",
+            "format": "int32",
             "type": "integer"
-        }, 
+        },
         "username": {
             "type": "string"
         }
-    }, 
+    },
     "xml": {
         "name": "User"
     }
