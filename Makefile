@@ -10,7 +10,7 @@ test:
 	$(VENV)/bin/nosetests
 
 $(VENV):
-	virtualenv $(VENV)
+	virtualenv $(VENV) --python=python3
 
 ipython:
 	$(PIP) install ipython
@@ -25,6 +25,11 @@ demo:
 	[ -d "demo" ] || $(VENV)/bin/django-admin startproject demo
 	$(PYTHON) swagger_django_generator/generator.py tests/resources/petstore.json --output-dir demo/demo/ --module-name demo
 	cp -r ui demo/
+
+aiohttpdemo:
+	mkdir -p aiohttp-demo/demo
+	$(PYTHON) swagger_django_generator/generator.py tests/resources/petstore.json --output-dir aiohttp-demo/demo --module-name demo --backend=aiohttp
+	cp -r ui aiohttp-demo/
 
 clean-demo:
 	rm -rf demo

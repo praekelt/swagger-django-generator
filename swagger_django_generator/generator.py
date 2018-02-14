@@ -22,6 +22,7 @@ SPEC_JSON = "json"
 SPEC_YAML = "yaml"
 SPEC_CHOICES = [SPEC_JSON, SPEC_YAML]
 
+BACKEND_CHOICES = ["django", "aiohttp"]
 
 
 # from swagger_tester import swagger_test
@@ -69,18 +70,20 @@ SPEC_CHOICES = [SPEC_JSON, SPEC_YAML]
 # * Paths map to class based views.
 # * (path, http_verb) combinations map to operations.
 
-def render_to_string(filename, context, path=None):
-    # type: (str, Dict, str) -> str
+def render_to_string(backend, filename, context):
+    # type: (str, str, Dict) -> str
     """
     Render a template using the specified context
+    :param backend: The backend for which the template is rendered
     :param filename: The template name
     :param context: The data to use when rendering the template
-    :param path: An optional path to load the template from
     :return: The rendered template as a string
     """
+    template_directory = "./swagger_django_generator/templates/{}/".format(backend)
     return jinja2.Environment(
-        loader=jinja2.FileSystemLoader(path or './swagger_django_generator/templates'),
-        # loader=jinja2.PackageLoader("swagger_django_generator", "templates"),
+        loader=jinja2.FileSystemLoader(template_directory),
+        #loader=jinja2.PackageLoader("swagger_django_generator",
+        #                            "templates/{}/".format(template_module)),
         trim_blocks=True,
         lstrip_blocks=True
     ).get_template(filename).render(context)
@@ -136,21 +139,27 @@ def path_to_operation(path, verb):
     return "{}_{}".format(verb, operation)
 
 
-def fixup_parameters(url):
+def fixup_parameters(url, backend):
     """
     Parameters in the Swagger spec paths are wrapped in curly braces.
     We change these to a named regex match for use be Django.
     E.g. "/foo/{bar_id}/" => "/foo/(?P<bar_id>.+)/"
     :param url: The URL from the Swagger spec
+    :param backend: The backend for which to generate the parameters
     :return: The URL with parameters changed into regexes.
     """
-    return url.replace("{", "(?P<").replace("}", ">.+)")
+    result = url
+    if backend == "django":
+        result = url.replace("{", "(?P<").replace("}", ">.+)")
+
+    return result
 
 
 class Generator(object):
     PATH_VERB_OPERATION_MAP = {}
 
-    def __init__(self, module_name=DEFAULT_MODULE):
+    def __init__(self, backend, module_name=DEFAULT_MODULE):
+        self.backend = backend
         self.parser = None
         self.module_name = module_name
         self._classes = None
@@ -324,13 +333,14 @@ class Generator(object):
         relative_urls = [path.replace(self.parser.base_path + "/", "")
                          for path in self.parser.paths]
         entries = {
-            fixup_parameters(relative_url): path_to_class_name(relative_url)
+            fixup_parameters(relative_url, self.backend): path_to_class_name(relative_url)
             for relative_url in relative_urls
         }
-        return render_to_string("urls.py", {
-            "entries": entries,
-            "module": self.module_name
-        })
+        return render_to_string(
+            self.backend, "urls.py", {
+                "entries": entries,
+                "module": self.module_name
+            })
 
     def generate_schemas(self):
         # type: (Generator) -> str
@@ -345,10 +355,11 @@ class Generator(object):
             self.resolve_schema_references(schema)
             schemas[name] = json.dumps(schema, indent=4, sort_keys=True)
 
-        return render_to_string("schemas.py", {
-            "schemas": schemas,
-            "module": self.module_name
-        })
+        return render_to_string(
+            self.backend, "schemas.py", {
+                "schemas": schemas,
+                "module": self.module_name
+            })
 
     def generate_views(self):
         # type: (Generator) -> str
@@ -356,12 +367,13 @@ class Generator(object):
         Generate a `views.py` file from the given specification.
         :return: str
         """
-        return render_to_string("views.py", {
-            "classes": self._classes,
-            "module": self.module_name,
-            "specification": json.dumps(self.parser.specification, indent=4,
-                                        sort_keys=True).replace("\\", "\\\\")
-        })
+        return render_to_string(
+            self.backend, "views.py", {
+                "classes": self._classes,
+                "module": self.module_name,
+                "specification": json.dumps(self.parser.specification, indent=4,
+                                            sort_keys=True).replace("\\", "\\\\")
+            })
 
     def generate_stubs(self):
         # type: (Generator) -> str
@@ -369,15 +381,18 @@ class Generator(object):
         Generate a `stubs.py` file from the given specification.
         :return: str
         """
-        return render_to_string("stubs.py", {
-            "classes": self._classes,
-            "module": self.module_name,
-        })
+        return render_to_string(
+            self.backend, "stubs.py", {
+                "classes": self._classes,
+                "module": self.module_name
+            })
+
 
 @click.command()
-@click.argument("specification_path", type=click.Path(dir_okay=False,
-                                                    exists=True))
+@click.argument("specification_path", type=click.Path(dir_okay=False, exists=True))
 @click.option("--spec-format", type=click.Choice(SPEC_CHOICES))
+@click.option("--backend", type=click.Choice(BACKEND_CHOICES),
+              default="django")
 @click.option("--verbose/--no-verbose", default=False)
 @click.option("--output-dir", type=click.Path(file_okay=False, exists=True,
                                               writable=True),
@@ -395,10 +410,10 @@ class Generator(object):
               help="Use an alternative filename for the utilities.")
 @click.option("--stubs-file", type=str,  default="stubs.py",
               help="Use an alternative filename for the utilities.")
-def main(specification_path, spec_format, verbose, output_dir, module_name,
+def main(specification_path, spec_format, backend, verbose, output_dir, module_name,
          urls_file, views_file, schemas_file, utils_file, stubs_file):
 
-    generator = Generator(module_name=module_name)
+    generator = Generator(backend, module_name=module_name)
     try:
         click.secho("Loading specification file...", fg="green")
         generator.load_specification(specification_path, spec_format)
@@ -426,7 +441,7 @@ def main(specification_path, spec_format, verbose, output_dir, module_name,
 
         click.secho("Generating utils file...", fg="green")
         with open(os.path.join(output_dir, utils_file), "w") as f:
-            data = render_to_string("utils.py", {})
+            data = render_to_string(backend, "utils.py", {})
             f.write(data)
             if verbose:
                 print(data)

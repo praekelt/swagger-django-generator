@@ -4,3 +4,4 @@ click
 nose
 parameterized
 django
+aiohttp

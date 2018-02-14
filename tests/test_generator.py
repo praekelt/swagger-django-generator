@@ -36,10 +36,11 @@ ALL_TEST_SPECIFICATIONS = [
     # "tests/resources/wordnik.yaml",
 ]
 
+
 class GeneratorTests(TestCase):
 
     def setUp(self):
-        self.generator = Generator()
+        self.generator = Generator("django")
 
     @parameterized.expand(ALL_TEST_SPECIFICATIONS)
     def test_file_parsing(self, spec_path):
