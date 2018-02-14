@@ -78,8 +78,8 @@ class {{ class_name }}(View):
         body = utils.body_to_dict(request.body, self.{{ verb|upper}}_BODY_SCHEMA)
         if not body:
             return HttpResponseBadRequest("Body required")
-        {% endif %}
 
+        {% endif %}
         {% for ra in info.required_args if ra.in == "query" %}
         try:
             {{ ra.name }} = request.GET["{{ ra.name }}"]
@@ -90,7 +90,6 @@ class {{ class_name }}(View):
         {% for oa in info.optional_args if oa.in == "query" %}
         {{ oa.name }} = request.GET.get("{{ oa.name }}", None)
         {% endfor %}
-
         {% if info.form_data %}
         form_data = {}
         {% for data in info.form_data %}

@@ -68,7 +68,6 @@ class Pet(View):
         if not body:
             return HttpResponseBadRequest("Body required")
 
-
         result = Stubs.addPet(
             request, body, *args, **kwargs)
         maybe_validate_result(result, self.POST_RESPONSE_SCHEMA)
@@ -83,7 +82,6 @@ class Pet(View):
         body = utils.body_to_dict(request.body, self.PUT_BODY_SCHEMA)
         if not body:
             return HttpResponseBadRequest("Body required")
-
 
         result = Stubs.updatePet(
             request, body, *args, **kwargs)
@@ -189,9 +187,7 @@ class PetFindByStatus(View):
         :param self: A PetFindByStatus instance
         :param request: An HttpRequest
         """
-
         status = request.GET.get("status", None)
-
         result = Stubs.findPetsByStatus(
             request, status, *args, **kwargs)
         maybe_validate_result(result, self.GET_RESPONSE_SCHEMA)
@@ -296,9 +292,7 @@ class PetFindByTags(View):
         :param self: A PetFindByTags instance
         :param request: An HttpRequest
         """
-
         tags = request.GET.get("tags", None)
-
         result = Stubs.findPetsByTags(
             request, tags, *args, **kwargs)
         maybe_validate_result(result, self.GET_RESPONSE_SCHEMA)
@@ -322,8 +316,6 @@ class PetPetId(View):
         :param request: An HttpRequest
         :param petId: integer Pet id to delete
         """
-
-
         result = Stubs.deletePet(
             request, petId, *args, **kwargs)
         maybe_validate_result(result, self.DELETE_RESPONSE_SCHEMA)
@@ -336,8 +328,6 @@ class PetPetId(View):
         :param request: An HttpRequest
         :param petId: integer ID of pet that needs to be fetched
         """
-
-
         result = Stubs.getPetById(
             request, petId, *args, **kwargs)
         maybe_validate_result(result, self.GET_RESPONSE_SCHEMA)
@@ -350,8 +340,6 @@ class PetPetId(View):
         :param request: An HttpRequest
         :param petId: string ID of pet that needs to be updated
         """
-
-
         form_data = {}
         name = request.POST.get("name", None)
         form_data["name"] = name
@@ -378,8 +366,6 @@ class PetPetIdUploadImage(View):
         :param request: An HttpRequest
         :param petId: integer ID of pet to update
         """
-
-
         form_data = {}
         additionalMetadata = request.POST.get("additionalMetadata", None)
         form_data["additionalMetadata"] = additionalMetadata
@@ -411,8 +397,6 @@ class StoreInventory(View):
         :param self: A StoreInventory instance
         :param request: An HttpRequest
         """
-
-
         result = Stubs.getInventory(
             request, *args, **kwargs)
         maybe_validate_result(result, self.GET_RESPONSE_SCHEMA)
@@ -435,7 +419,6 @@ class StoreOrder(View):
         if not body:
             return HttpResponseBadRequest("Body required")
 
-
         result = Stubs.placeOrder(
             request, body, *args, **kwargs)
         maybe_validate_result(result, self.POST_RESPONSE_SCHEMA)
@@ -455,8 +438,6 @@ class StoreOrderOrderId(View):
         :param request: An HttpRequest
         :param orderId: string ID of the order that needs to be deleted
         """
-
-
         result = Stubs.deleteOrder(
             request, orderId, *args, **kwargs)
         maybe_validate_result(result, self.DELETE_RESPONSE_SCHEMA)
@@ -469,8 +450,6 @@ class StoreOrderOrderId(View):
         :param request: An HttpRequest
         :param orderId: string ID of pet that needs to be fetched
         """
-
-
         result = Stubs.getOrderById(
             request, orderId, *args, **kwargs)
         maybe_validate_result(result, self.GET_RESPONSE_SCHEMA)
@@ -492,7 +471,6 @@ class User(View):
         body = utils.body_to_dict(request.body, self.POST_BODY_SCHEMA)
         if not body:
             return HttpResponseBadRequest("Body required")
-
 
         result = Stubs.createUser(
             request, body, *args, **kwargs)
@@ -555,7 +533,6 @@ class UserCreateWithArray(View):
         if not body:
             return HttpResponseBadRequest("Body required")
 
-
         result = Stubs.createUsersWithArrayInput(
             request, body, *args, **kwargs)
         maybe_validate_result(result, self.POST_RESPONSE_SCHEMA)
@@ -617,7 +594,6 @@ class UserCreateWithList(View):
         if not body:
             return HttpResponseBadRequest("Body required")
 
-
         result = Stubs.createUsersWithListInput(
             request, body, *args, **kwargs)
         maybe_validate_result(result, self.POST_RESPONSE_SCHEMA)
@@ -637,10 +613,8 @@ class UserLogin(View):
         :param self: A UserLogin instance
         :param request: An HttpRequest
         """
-
         username = request.GET.get("username", None)
         password = request.GET.get("password", None)
-
         result = Stubs.loginUser(
             request, username, password, *args, **kwargs)
         maybe_validate_result(result, self.GET_RESPONSE_SCHEMA)
@@ -658,8 +632,6 @@ class UserLogout(View):
         :param self: A UserLogout instance
         :param request: An HttpRequest
         """
-
-
         result = Stubs.logoutUser(
             request, *args, **kwargs)
         maybe_validate_result(result, self.GET_RESPONSE_SCHEMA)
@@ -681,8 +653,6 @@ class UserUsername(View):
         :param request: An HttpRequest
         :param username: string The name that needs to be deleted
         """
-
-
         result = Stubs.deleteUser(
             request, username, *args, **kwargs)
         maybe_validate_result(result, self.DELETE_RESPONSE_SCHEMA)
@@ -695,8 +665,6 @@ class UserUsername(View):
         :param request: An HttpRequest
         :param username: string The name that needs to be fetched. Use user1 for testing. 
         """
-
-
         result = Stubs.getUserByName(
             request, username, *args, **kwargs)
         maybe_validate_result(result, self.GET_RESPONSE_SCHEMA)
@@ -712,7 +680,6 @@ class UserUsername(View):
         body = utils.body_to_dict(request.body, self.PUT_BODY_SCHEMA)
         if not body:
             return HttpResponseBadRequest("Body required")
-
 
         result = Stubs.updateUser(
             request, body, username, *args, **kwargs)
