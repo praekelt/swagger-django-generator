@@ -8,7 +8,7 @@ import json
 import jsonschema
 import os
 from jsonschema import ValidationError
-from aiohttp.web import View, json_response, HTTPBadRequest
+from aiohttp.web import View, json_response, Response
 
 import {{ module }}.schemas as schemas
 import {{ module }}.utils as utils
@@ -73,14 +73,16 @@ class {{ class_name }}(View):
         {{ oa.name }} = self.request.query.get("{{ oa.name}}", None)
         {% endfor %}
         {% if info.body %}
-        body = await self.request.json()
-        if not body:
-            return HTTPBadRequest("Body required")
-
         try:
+            body = await self.request.json()
+            if not body:
+                return Response(status=400, text="Body required")
+
             jsonschema.validate(body, schema=self.{{ verb|upper}}_BODY_SCHEMA)
         except ValidationError:
-            raise HTTPBadRequest("Body validation failed")
+            return Response(status=400, text="Body validation failed")
+        except Exception:
+            return Response(status=400, text="JSON body expected")
 
         {% endif %}
         {% if info.form_data %}
@@ -93,7 +95,7 @@ class {{ class_name }}(View):
         {% endif %}
         {% if data.required %}
         if not {{ data.name }}:
-            return HTTPBadRequest("Formdata field '{{ data.name }}' required.")
+            return Response(status=400, text="Formdata field '{{ data.name }}' required.")
         {% endif %}
         form_data["{{ data.name }}"] = {{ data.name }}
 
