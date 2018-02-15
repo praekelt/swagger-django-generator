@@ -387,6 +387,14 @@ class Generator(object):
                 "module": self.module_name
             })
 
+    def generate_utils(self):
+        # type: (Generator) -> str
+        """
+        Generate a `utils.py` file from the given specification.
+        :return: str
+        """
+        return render_to_string(self.backend, "utils.py", {})
+
 
 @click.command()
 @click.argument("specification_path", type=click.Path(dir_okay=False, exists=True))
@@ -441,7 +449,7 @@ def main(specification_path, spec_format, backend, verbose, output_dir, module_n
 
         click.secho("Generating utils file...", fg="green")
         with open(os.path.join(output_dir, utils_file), "w") as f:
-            data = render_to_string(backend, "utils.py", {})
+            data = generator.generate_utils()
             f.write(data)
             if verbose:
                 print(data)
