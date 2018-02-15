@@ -72,11 +72,15 @@ class {{ class_name }}(View):
         # {{ oa.name }} (optional): {{ oa.type }} {{ oa.description }}
         {{ oa.name }} = self.request.query.get("{{ oa.name}}", None)
         {% endfor %}
-
         {% if info.body %}
-        body = utils.body_to_dict(self.request.content, self.{{ verb|upper}}_BODY_SCHEMA)
+        body = await self.request.json()
         if not body:
             return HTTPBadRequest("Body required")
+
+        try:
+            jsonschema.validate(body, schema=self.{{ verb|upper}}_BODY_SCHEMA)
+        except ValidationError:
+            raise HTTPBadRequest("Body validation failed")
 
         {% endif %}
         {% if info.form_data %}
