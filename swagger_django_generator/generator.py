@@ -178,6 +178,7 @@ class Generator(object):
                 raise RuntimeError("Could not infer specification format. Use "
                                    "--spec-format to specify it explicitly.")
 
+        click.secho("Using spec format '{}'".format(spec_format), fg="green")
         if spec_format == SPEC_YAML:
             with open(specification_path, "r") as f:
                 self.parser = SwaggerParser(swagger_yaml=f)
@@ -463,7 +464,12 @@ def main(specification_path, spec_format, backend, verbose, output_dir, module_n
 
         click.secho("Done.", fg="green")
     except Exception as e:
-        click.secho(e.message, fg="red")
+        click.secho(str(e), fg="red")
+        click.secho("""
+        If you get schema validation errors from a yaml Swagger spec that passes validation on other
+        validators, it may be because of single apostrophe's (') used in some descriptions. The
+        parser used does not like it at all.
+        """)
 
 
 if __name__ == "__main__":
