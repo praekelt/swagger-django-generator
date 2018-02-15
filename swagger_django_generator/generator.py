@@ -81,9 +81,10 @@ def render_to_string(backend, filename, context):
     """
     template_directory = "./swagger_django_generator/templates/{}/".format(backend)
     return jinja2.Environment(
-        loader=jinja2.FileSystemLoader(template_directory),
-        #loader=jinja2.PackageLoader("swagger_django_generator",
-        #                            "templates/{}/".format(template_module)),
+        loader=jinja2.ChoiceLoader([
+            jinja2.FileSystemLoader(template_directory),
+            jinja2.PackageLoader("swagger_django_generator", "templates/{}/".format(backend))
+        ]),
         trim_blocks=True,
         lstrip_blocks=True
     ).get_template(filename).render(context)
