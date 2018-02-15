@@ -7,7 +7,7 @@ PROJECT=swagger_django_generator
 .PHONY: check test virtualenv demo clean-demo
 
 test:
-	$(VENV)/bin/nosetests
+	$(VENV)/bin/nosetests --verbose
 
 $(VENV):
 	virtualenv $(VENV) --python=python3
