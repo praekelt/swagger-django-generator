@@ -79,12 +79,16 @@ def render_to_string(backend, filename, context):
     :param context: The data to use when rendering the template
     :return: The rendered template as a string
     """
-    template_directory = "./swagger_django_generator/templates/{}/".format(backend)
+    template_directory = "./swagger_django_generator/templates/{}".format(backend)
+    loaders = [jinja2.FileSystemLoader(template_directory)]
+    try:
+        import swagger_django_generator
+        loaders.append(jinja2.PackageLoader("swagger_django_generator", "templates/{}".format(backend)))
+    except ImportError:
+        pass
+
     return jinja2.Environment(
-        loader=jinja2.ChoiceLoader([
-            jinja2.FileSystemLoader(template_directory),
-            jinja2.PackageLoader("swagger_django_generator", "templates/{}/".format(backend))
-        ]),
+        loader=jinja2.ChoiceLoader(loaders),
         trim_blocks=True,
         lstrip_blocks=True
     ).get_template(filename).render(context)
