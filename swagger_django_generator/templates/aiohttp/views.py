@@ -68,9 +68,12 @@ class {{ class_name }}(View):
         {{ ra.name }} = self.request.query["{{ ra.name }}"]
         {% endif %}
         {% endfor %}
-        {% for oa in info.optional_args %}
+        optional_args = {}
+        {% for oa in info.optional_args if oa.in == "query" %}
         # {{ oa.name }} (optional): {{ oa.type }} {{ oa.description }}
-        {{ oa.name }} = self.request.query.get("{{ oa.name}}", None)
+        value = self.request.query.get("{{ oa.name}}", None)
+        if value is not None:
+            optional_args["{{ oa.name }}"] = value
         {% endfor %}
         {% if info.body %}
         try:
@@ -102,7 +105,9 @@ class {{ class_name }}(View):
         {% endfor %}
         {% endif %}
 
-        result = await Stubs.{{ info.operation }}(self.request, {% if info.body %}body, {% endif %}{% if info.form_data %}form_data, {% endif %}{% for ra in info.required_args %}{{ ra.name }}, {% endfor %}{% for oa in info.optional_args %}{{ oa.name }}, {% endfor %})
+        result = await Stubs.{{ info.operation }}(
+            self.request, {% if info.body %}body, {% endif %}{% if info.form_data %}form_data, {% endif %}
+            {% for ra in info.required_args %}{{ ra.name }}, {% endfor %}**optional_args)
         maybe_validate_result(result, self.{{ verb|upper }}_RESPONSE_SCHEMA)
 
         return json_response(result)
