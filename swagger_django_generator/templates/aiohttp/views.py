@@ -102,7 +102,7 @@ class {{ class_name }}(View):
         {% endfor %}
         {% endif %}
 
-        result = Stubs.{{ info.operation }}(self.request, {% if info.body %}body, {% endif %}{% if info.form_data %}form_data, {% endif %}{% for ra in info.required_args %}{{ ra.name }}, {% endfor %}{% for oa in info.optional_args %}{{ oa.name }}, {% endfor %})
+        result = await Stubs.{{ info.operation }}(self.request, {% if info.body %}body, {% endif %}{% if info.form_data %}form_data, {% endif %}{% for ra in info.required_args %}{{ ra.name }}, {% endfor %}{% for oa in info.optional_args %}{{ oa.name }}, {% endfor %})
         maybe_validate_result(result, self.{{ verb|upper }}_RESPONSE_SCHEMA)
 
         return json_response(result)
