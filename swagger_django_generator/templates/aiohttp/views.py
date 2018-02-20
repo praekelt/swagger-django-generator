@@ -82,8 +82,8 @@ class {{ class_name }}(View):
                 return Response(status=400, text="Body required")
 
             jsonschema.validate(body, schema=self.{{ verb|upper}}_BODY_SCHEMA)
-        except ValidationError:
-            return Response(status=400, text="Body validation failed")
+        except ValidationError as ve:
+            return Response(status=400, text="Body validation failed: {}".format(ve.message))
         except Exception:
             return Response(status=400, text="JSON body expected")
 
