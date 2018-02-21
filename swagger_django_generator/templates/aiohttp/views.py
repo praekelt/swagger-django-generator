@@ -89,7 +89,7 @@ class {{ class_name }}(View):
         except ValidationError as ve:
             return Response(status=400, text="Parameter validation failed: {}".format(ve.message))
         except ValueError as ve:
-            return Response(status=400, text="Parameter validation failed: {}".format(ve.message))
+            return Response(status=400, text="Parameter validation failed: {}".format(ve))
         {% if info.body %}
 
         try:
