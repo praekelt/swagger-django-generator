@@ -60,22 +60,28 @@ class {{ class_name }}(View):
         No parameters are passed explicitly. We unpack it from the request.
         :param self: A {{ class_name }} instance
         """
-        {% for ra in info.required_args %}
-        # {{ ra.name }}: {{ ra.type }} {{ ra.description }}
-        {% if ra.in == "path" %}
-        {{ ra.name }} = self.request.match_info["{{ ra.name}}"]
-        {% else %}
-        {{ ra.name }} = self.request.query["{{ ra.name }}"]
-        {% endif %}
-        {% endfor %}
-        optional_args = {}
-        {% for oa in info.optional_args if oa.in == "query" %}
-        # {{ oa.name }} (optional): {{ oa.type }} {{ oa.description }}
-        value = self.request.query.get("{{ oa.name}}", None)
-        if value is not None:
-            optional_args["{{ oa.name }}"] = value
-        {% endfor %}
+        try:
+            {% for ra in info.required_args %}
+            # {{ ra.name }}: {{ ra.type }} {{ ra.description }}
+            {% if ra.in == "path" %}
+            {{ ra.name }} = self.request.match_info["{{ ra.name}}"]
+            {% else %}
+            {{ ra.name }} = self.request.query["{{ ra.name }}"]
+            {% endif %}
+            jsonschema.validate({{ ra.name }}, {"type": "{{ ra.type }}"})
+            {% endfor %}
+            optional_args = {}
+            {% for oa in info.optional_args if oa.in == "query" %}
+            # {{ oa.name }} (optional): {{ oa.type }} {{ oa.description }}
+            value = self.request.query.get("{{ oa.name }}", None)
+            if value is not None:
+                jsonschema.validate(value, {"type": "{{ oa.type }}"})
+                optional_args["{{ oa.name }}"] = value
+            {% endfor %}
+        except ValidationError as ve:
+            return Response(status=400, text="Parameter validation failed: {}".format(ve.message))
         {% if info.body %}
+
         try:
             body = await self.request.json()
             if not body:
@@ -86,9 +92,9 @@ class {{ class_name }}(View):
             return Response(status=400, text="Body validation failed: {}".format(ve.message))
         except Exception:
             return Response(status=400, text="JSON body expected")
-
         {% endif %}
         {% if info.form_data %}
+
         form_data = {}
         {% for data in info.form_data %}
         {% if data.type == "file" %}
