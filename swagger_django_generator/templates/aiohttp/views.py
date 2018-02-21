@@ -82,9 +82,8 @@ class {{ class_name }}(View):
                 {% if oa.type == "integer" %}
                 value = int(value)
                 {% else %}
-                jsonschema.validate({{ oa.name }}, {"type": "{{ oa.type }}"})
-                {% endif %}
                 jsonschema.validate(value, {"type": "{{ oa.type }}"})
+                {% endif %}
                 optional_args["{{ oa.name }}"] = value
             {% endfor %}
         except ValidationError as ve:
