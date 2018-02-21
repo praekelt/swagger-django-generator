@@ -68,17 +68,28 @@ class {{ class_name }}(View):
             {% else %}
             {{ ra.name }} = self.request.query["{{ ra.name }}"]
             {% endif %}
+            {% if ra.type == "integer" %}
+            {{ ra.name }} = int({{ ra.name }})
+            {% else %}
             jsonschema.validate({{ ra.name }}, {"type": "{{ ra.type }}"})
+            {% endif %}
             {% endfor %}
             optional_args = {}
             {% for oa in info.optional_args if oa.in == "query" %}
             # {{ oa.name }} (optional): {{ oa.type }} {{ oa.description }}
             value = self.request.query.get("{{ oa.name }}", None)
             if value is not None:
+                {% if oa.type == "integer" %}
+                value = int(value)
+                {% else %}
+                jsonschema.validate({{ oa.name }}, {"type": "{{ oa.type }}"})
+                {% endif %}
                 jsonschema.validate(value, {"type": "{{ oa.type }}"})
                 optional_args["{{ oa.name }}"] = value
             {% endfor %}
         except ValidationError as ve:
+            return Response(status=400, text="Parameter validation failed: {}".format(ve.message))
+        except ValueError as ve:
             return Response(status=400, text="Parameter validation failed: {}".format(ve.message))
         {% if info.body %}
 
