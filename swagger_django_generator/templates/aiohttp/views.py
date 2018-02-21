@@ -110,7 +110,7 @@ class {{ class_name }}(View):
             {% for ra in info.required_args %}{{ ra.name }}, {% endfor %}**optional_args)
         maybe_validate_result(result, self.{{ verb|upper }}_RESPONSE_SCHEMA)
 
-        return json_response(result)
+        return json_response(result{% if info.operation == "post" %}, status=201{% endif %})
    {% if not loop.last %}
 
    {% endif %}
