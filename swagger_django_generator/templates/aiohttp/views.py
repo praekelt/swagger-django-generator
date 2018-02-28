@@ -139,10 +139,14 @@ class {{ class_name }}(View):
 
 {% endfor %}
 class __SWAGGER_SPEC__(View):
+    SPEC = json.loads("""{{ specification }}""")
 
     async def get(self):
-        spec = json.loads("""{{ specification }}""")
+        """
+        Override this function if further customisation to the spec is required.
+        """
         # Mod spec to point to demo application
+        spec = self.SPEC.copy()
         spec["basePath"] = "/"
         spec["host"] = "localhost:8000"
         # Add basic auth as a security definition
