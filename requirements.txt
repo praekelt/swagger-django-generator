@@ -1,5 +1,5 @@
 -e git+https://github.com/cobusc/apitools@master#egg=apitools
-swagger-parser
+-e git+https://github.com/praekelt/swagger-parser@master#egg=swagger-parser
 click
 nose
 parameterized
