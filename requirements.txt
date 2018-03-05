@@ -1,4 +1,4 @@
--e git+https://github.com/cobusc/apitools@master#egg=apitools
+-e git+https://github.com/praekelt/apitools@master#egg=apitools
 -e git+https://github.com/praekelt/swagger-parser@master#egg=swagger-parser
 click
 nose
