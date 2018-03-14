@@ -70,6 +70,14 @@ class {{ class_name }}(View):
             {% endif %}
             {% if ra.type == "integer" %}
             {{ ra.name }} = int({{ ra.name }})
+            {% if "minimum" in ra %}
+            if {{ ra.name }} < {{ ra.minimum }}:
+                raise ValidationError("{{ ra.name }} exceeds its minimum limit")
+            {% endif %}
+            {% if "maximum" in ra %}
+            if {{ ra.maximum }} < {{ ra.name }}:
+                raise ValidationError("{{ ra.name }} exceeds its maximum limit")
+            {% endif %}
             {% else %}
             jsonschema.validate({{ ra.name }}, {"type": "{{ ra.type }}"})
             {% endif %}
@@ -77,14 +85,26 @@ class {{ class_name }}(View):
             optional_args = {}
             {% for oa in info.optional_args if oa.in == "query" %}
             # {{ oa.name }} (optional): {{ oa.type }} {{ oa.description }}
-            value = self.request.query.get("{{ oa.name }}", None)
-            if value is not None:
+            {% if oa.type == "array" %}
+            {{ oa.name }} = self.request.query.getall("{{ oa.name }}", None)
+            {% else %}
+            {{ oa.name }} = self.request.query.get("{{ oa.name }}", None)
+            {% endif %}
+            if {{ oa.name }} is not None:
                 {% if oa.type == "integer" %}
-                value = int(value)
-                {% else %}
-                jsonschema.validate(value, {"type": "{{ oa.type }}"})
+                {{ oa.name }} = int({{ oa.name }})
+                {% if "minimum" in oa %}
+                if {{ oa.name }} < {{ oa.minimum }}:
+                    raise ValidationError("{{ oa.name }} exceeds its minimum limit")
                 {% endif %}
-                optional_args["{{ oa.name }}"] = value
+                {% if "maximum" in oa %}
+                if {{ oa.maximum }} < {{ oa.name }}:
+                    raise ValidationError("{{ oa.name }} exceeds its maximum limit")
+                {% endif %}
+                {% else %}
+                jsonschema.validate({{ oa.name }}, {"type": "{{ oa.type }}"})
+                {% endif %}
+                optional_args["{{ oa.name }}"] = {{ oa.name }}
             {% endfor %}
         except ValidationError as ve:
             return Response(status=400, text="Parameter validation failed: {}".format(ve.message))
@@ -124,12 +144,19 @@ class {{ class_name }}(View):
         result = await Stubs.{{ info.operation }}(
             self.request, {% if info.body %}body, {% endif %}{% if info.form_data %}form_data, {% endif %}
             {% for ra in info.required_args %}{{ ra.name }}, {% endfor %}**optional_args)
+
+        if type(result) is tuple:
+            result = result[0]
+            headers = result[1]
+        else:
+            headers = {}
+
         maybe_validate_result(result, self.{{ verb|upper }}_RESPONSE_SCHEMA)
 
         {% if verb|lower == "delete" %}
         return HTTPNoContent()
         {% else %}
-        return json_response(result{% if verb|lower == "post" %}, status=201{% endif %})
+        return json_response(result{% if verb|lower == "post" %}, status=201{% endif %}, headers=headers)
         {% endif %}
    {% if not loop.last %}
 
