@@ -4,6 +4,7 @@ import click
 import jinja2
 import json
 import os
+import sys
 from swagger_parser import SwaggerParser
 
 DEFAULT_OUTPUT_DIR = "./generated"
@@ -22,8 +23,10 @@ SPEC_JSON = "json"
 SPEC_YAML = "yaml"
 SPEC_CHOICES = [SPEC_JSON, SPEC_YAML]
 
-BACKEND_CHOICES = ["django", "aiohttp"]
-
+BACKEND_CHOICES = ["django"]
+major, minor = sys.version_info[0:2]
+if major > 3 or major == 3 and minor >= 5:
+    BACKEND_CHOICES.append("aiohttp")
 
 # from swagger_tester import swagger_test
 
