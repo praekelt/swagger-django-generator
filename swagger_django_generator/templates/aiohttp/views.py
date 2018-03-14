@@ -146,8 +146,7 @@ class {{ class_name }}(View):
             {% for ra in info.required_args %}{{ ra.name }}, {% endfor %}**optional_args)
 
         if type(result) is tuple:
-            result = result[0]
-            headers = result[1]
+            result, headers = result
         else:
             headers = {}
 
