@@ -15,9 +15,7 @@ class AbstractStubClass(object):
     {% for verb, info in verbs|dictsort(true) %}
 
     @staticmethod
-    def {{ info.operation }}(request, {% if info.body %}body, {% endif %}{% if info.form_data %}form_data, {% endif %}
-        {% for ra in info.required_args %}{{ ra.name }}, {% endfor %}
-        {% for oa in info.optional_args if oa.in == "query" %}{{ oa.name }}=None, {% endfor %}*args, **kwargs):
+    def {{ info.operation }}(request, {% if info.body %}body, {% endif %}{% if info.form_data %}form_data, {% endif %}{% for ra in info.required_args %}{{ ra.name }}, {% endfor %}{% for oa in info.optional_args %}{{ oa.name }}=None, {% endfor %}*args, **kwargs):
         """
         :param request: An HttpRequest
         {% if info.body %}
@@ -29,8 +27,8 @@ class AbstractStubClass(object):
         {% for ra in info.required_args %}
         :param {{ ra.name }}: {{ ra.type }} {{ ra.description }}
         {% endfor %}
-        {% for oa in info.optional_args if oa.in == "query" %}
-        :param {{ oa.name }} (optional): {{ oa.type }} {{ oa.description }}
+        {% for ra in info.option_args %}
+        :param {{ ra.name }} (optional): {{ ra.type }} {{ ra.description }}
         {% endfor %}
         """
         raise NotImplementedError()
@@ -43,14 +41,11 @@ class MockedStubClass(AbstractStubClass):
     Provides a mocked implementation of the AbstractStubClass.
     """
     GENERATOR = DataGenerator()
-
 {% for class_name, verbs in classes|dictsort(true) %}
     {% for verb, info in verbs|dictsort(true) %}
 
     @staticmethod
-    def {{ info.operation }}(request, {% if info.body %}body, {% endif %}{% if info.form_data %}form_data, {% endif %}
-        {% for ra in info.required_args %}{{ ra.name }}, {% endfor %}
-        {% for oa in info.optional_args if oa.in == "query" %}{{ oa.name }}=None, {% endfor %}*args, **kwargs):
+    def {{ info.operation }}(request, {% if info.body %}body, {% endif %}{% if info.form_data %}form_data, {% endif %}{% for ra in info.required_args %}{{ ra.name }}, {% endfor %}{% for oa in info.optional_args %}{{ oa.name }}=None, {% endfor %}*args, **kwargs):
         """
         :param request: An HttpRequest
         {% if info.body %}
@@ -62,8 +57,8 @@ class MockedStubClass(AbstractStubClass):
         {% for ra in info.required_args %}
         :param {{ ra.name }}: {{ ra.type }} {{ ra.description }}
         {% endfor %}
-        {% for oa in info.optional_args if oa.in == "query" %}
-        :param {{ oa.name }} (optional): {{ oa.type }} {{ oa.description }}
+        {% for ra in info.option_args %}
+        :param {{ ra.name }} (optional): {{ ra.type }} {{ ra.description }}
         {% endfor %}
         """
         response_schema = {{ info.response_schema }}

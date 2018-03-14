@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/praekelt/swagger-django-generator.svg?branch=master)](https://travis-ci.org/praekelt/swagger-django-generator)
 
-# swagger-django-generator
-Convert Swagger specifications into Django code
+# swagger-(django)-generator
+Convert Swagger specifications into Django or aiohttp server code
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -19,8 +19,7 @@ Convert Swagger specifications into Django code
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## Introduction
-This utility parses a Swagger specification and generates Django-specific
-definitions, which allows for easy integration into Django projects.
+This utility parses a Swagger specification and generates Django- or aiohttp-specific definitions, which allows for easy integration into Django projects or creating aiohttp daemons.
 In particular, the following files are currently generated:
 * `urls.py`, for routing requests,
 * `views.py`, for handling requests, performing validation, etc.,
@@ -42,6 +41,8 @@ run the utility with the `--help` flag:
 Usage: generator.py [OPTIONS] SPECIFICATION
 
 Options:
+  --spec-format [json|yaml]
+  --backend [django|aiohttp]
   --verbose / --no-verbose
   --output-dir DIRECTORY
   --module-name TEXT         The name of the module where the generated code
@@ -58,6 +59,7 @@ By default the generated `views.py` will call a generated mock implementation, w
 ```
 STUBS_CLASS = "myproject.implementation.Implementation"
 ```
+The code generated for `aiohttp` uses a `STUBS_CLASS` environment variable.
 
 ## Examples
 
@@ -67,7 +69,7 @@ For a quick demonstration of how to get started, run `make demo`. This will crea
 # Create a new Django project
 ./ve/bin/django-admin startproject demo
 # Generate files for the petstore API (including stubs) straight into the project
-./ve/bin/python swagger_django_generator/generator.py tests/resources/petstore.json --output-dir demo/demo/ --module-name demo --stubs
+./ve/bin/python swagger_django_generator/generator.py tests/resources/petstore.json --output-dir demo/demo/ --module-name demo
 ```
 You can then start the server:
 ```
@@ -86,8 +88,8 @@ The following links references files that were generated using this utility base
 * the [stubs](generated/stubs.py) contains the abstract base class with the API functions, as well as a class containing mocked implentations.
 
 ## Notes
-* All generated API calls are CSRF exempt
-* API calls that have any form of security defined on them will require a logged in user or basic HTTP auth.
+* All generated API calls are CSRF exempt (Django backend)
+* API calls that have any form of security defined on them will require a logged in user or basic HTTP auth (Django backend)
 * At this stage there are **limited tests**.
 
 ## Todo

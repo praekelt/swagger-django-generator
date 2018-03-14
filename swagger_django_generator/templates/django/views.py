@@ -81,14 +81,23 @@ class {{ class_name }}(View):
 
         {% endif %}
         {% for ra in info.required_args if ra.in == "query" %}
-        try:
-            {{ ra.name }} = request.GET["{{ ra.name }}"]
-        except KeyError:
+        if "{{ ra.name }}" not in request.GET:
             return HttpResponseBadRequest("{{ ra.name }} required")
+
+        {% if ra.type == "array" %}
+        {{ ra.name }} = request.GET.getlist("{{ ra.name }}")
+        {% else %}
+        {{ ra.name }} = request.GET.get("{{ ra.name }}")
+        {% endif %}
 
         {% endfor %}
         {% for oa in info.optional_args if oa.in == "query" %}
+        # {{ oa.name }} (optional): {{ oa.type }} {{ oa.description }}
+        {% if oa.type == "array" %}
+        {{ oa.name }} = request.GET.getlist("{{ oa.name }}", None)
+        {% else %}
         {{ oa.name }} = request.GET.get("{{ oa.name }}", None)
+        {% endif %}
         {% endfor %}
         {% if info.form_data %}
         form_data = {}
@@ -108,7 +117,7 @@ class {{ class_name }}(View):
         {% endif %}
         result = Stubs.{{ info.operation }}(request, {% if info.body %}body, {% endif %}{% if info.form_data %}form_data, {% endif %}
             {% for ra in info.required_args %}{{ ra.name }}, {% endfor %}
-            {% for oa in info.optional_args if oa.in == "query" %}{{ oa.name }}, {% endfor %}*args, **kwargs)
+            {% for oa in info.optional_args if oa.in == "query" %}{{ oa.name }}, {% endfor %})
         maybe_validate_result(result, self.{{ verb|upper }}_RESPONSE_SCHEMA)
 
         return JsonResponse(result, safe=False)

@@ -2,7 +2,7 @@ import os
 import types
 from parameterized import parameterized
 from unittest import TestCase
-from swagger_django_generator.generator import Generator
+from swagger_django_generator.generator import Generator, BACKEND_CHOICES
 
 # The specs that are commented out currently fails to be parsed.
 # Since I am using an existing parser, there is not mut I can do about
@@ -36,14 +36,16 @@ ALL_TEST_SPECIFICATIONS = [
     # "tests/resources/wordnik.yaml",
 ]
 
+
 class GeneratorTests(TestCase):
 
     def setUp(self):
-        self.generator = Generator()
+        self.generators = [Generator(backend) for backend in BACKEND_CHOICES]
 
     @parameterized.expand(ALL_TEST_SPECIFICATIONS)
     def test_file_parsing(self, spec_path):
-        self.generator.load_specification(spec_path)
+        for generator in self.generators:
+            generator.load_specification(spec_path)
 
     @parameterized.expand(ALL_TEST_SPECIFICATIONS)
     def test_that_generated_code_compiles(self, spec_path):
@@ -53,19 +55,21 @@ class GeneratorTests(TestCase):
         :param spec_path: The spec to base the code generation on
         :return:
         """
-        self.generator.load_specification(spec_path)
+        for generator in self.generators:
+            generator.load_specification(spec_path)
 
-        for func in [
-            self.generator.generate_urls,
-            self.generator.generate_schemas,
-            self.generator.generate_views,
-            self.generator.generate_stubs,
+            for func in [
+                generator.generate_schemas,
+                generator.generate_stubs,
+                generator.generate_urls,
+                generator.generate_utils,
+                generator.generate_views,
             ]:
-            generated_code = func()
-            self.assertIsInstance(compile(generated_code,
-                                          os.path.basename(spec_path),
-                                          "exec"),
-                                  types.CodeType)
+                generated_code = func()
+                self.assertIsInstance(compile(generated_code,
+                                              os.path.basename(spec_path),
+                                              "exec"),
+                                      types.CodeType)
 
     def tearDown(self):
         pass
