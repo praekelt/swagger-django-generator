@@ -48,7 +48,7 @@ def login_required_no_redirect(view_func):
         if "HTTP_AUTHORIZATION" in request.META:
             auth = request.META["HTTP_AUTHORIZATION"].split()
             if len(auth) == 2:
-                # NOTE: We are only support basic authentication for now.
+                # NOTE: We only support basic authentication for now.
                 if auth[0].lower() == "basic":
                     uname, passwd = base64.b64decode(auth[1]).split(":")
                     user = authenticate(username=uname, password=passwd)
@@ -56,6 +56,14 @@ def login_required_no_redirect(view_func):
                         login(request, user)
                         request.user = user
                         return view_func(request, *args, **kwargs)
+
+                    if "HTTP_X_API_KEY" in request.META:
+                        key = request.META["HTTP_X_API_KEY"]
+                        keys = set(os.getenv("ALLOWED_API_KEYS").split(","))
+                        if key in keys:
+                            return view_func(request, *args, **kwargs)
+                        else:
+                            return HttpResponse("Forbidden", status=403)
 
         return HttpResponse("Unauthorized", status=401)
 
