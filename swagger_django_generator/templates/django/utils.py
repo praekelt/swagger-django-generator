@@ -14,6 +14,8 @@ from django.contrib.auth import authenticate, login
 from django.core.exceptions import SuspiciousOperation
 from django.http import HttpResponse
 
+ALLOWED_API_KEYS = set(os.getenv("ALLOWED_API_KEYS").split(","))
+
 
 def body_to_dict(body, schema):
     # type: (str, Dict) -> Dict
@@ -60,8 +62,7 @@ def login_required_no_redirect(view_func):
 
         if "HTTP_X_API_KEY" in request.META:
             key = request.META["HTTP_X_API_KEY"]
-            keys = set(os.getenv("ALLOWED_API_KEYS").split(","))
-            if key in keys:
+            if key in ALLOWED_API_KEYS:
                 return view_func(request, *args, **kwargs)
 
         return HttpResponse("Unauthorized", status=401)
