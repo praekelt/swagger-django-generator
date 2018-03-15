@@ -27,7 +27,6 @@ BACKEND_CHOICES = ["django"]
 major, minor = sys.version_info[0:2]
 if major > 3 or major == 3 and minor >= 5:
     BACKEND_CHOICES.append("aiohttp")
-    BACKEND_CHOICES.append("aor")
 
 # from swagger_tester import swagger_test
 
@@ -168,22 +167,13 @@ def fixup_parameters(url, backend):
 class Generator(object):
     PATH_VERB_OPERATION_MAP = {}
 
-    def __init__(self, backend, output_dir, urls_file, views_file, schemas_file,
-                 utils_file, stubs_file, module_name=DEFAULT_MODULE, verbose=False):
+    def __init__(self, backend, module_name=DEFAULT_MODULE):
         self.backend = backend
         self.parser = None
         self.module_name = module_name
-        self._resources = None
         self._classes = None
-        self.verbose = verbose
-        self.output_dir = output_dir
-        self.urls_file = urls_file
-        self.views_file = views_file
-        self.schemas_file = schemas_file
-        self.utils_file = utils_file
-        self.stubs_file = stubs_file
 
-    def generate_with_specification(self, specification_path, spec_format=None):
+    def load_specification(self, specification_path, spec_format=None):
         # If the swagger spec format is not specified explicitly, we try to
         # derive it from the specification path
         if not spec_format:
@@ -211,10 +201,7 @@ class Generator(object):
             self.parser.operation.items()
         }
 
-        if self.backend == "aor":
-            self._make_aor_resource_definitions()
-        else:
-            self._make_django_class_definitions()
+        self._make_class_definitions()
 
     def resolve_schema_references(self, definition):
         # type: (Generator, Dict) -> None
@@ -236,78 +223,7 @@ class Generator(object):
             if isinstance(value, dict):
                 self.resolve_schema_references(value)
 
-    def _make_aor_resource_definitions(self):
-        self._resources = {}
-        definitions = self.parser.specification.get("definitions", None)
-        for name, definition in definitions.items():
-            properties = definition["properties"]
-            # Create an appropriate resourse name
-            resource_name = name.replace(
-                "_create", ""
-            ).replace("_update", "").replace("_", " ").title().replace(" ", "")
-            resource = []
-            for property_name, _property in properties.items():
-                # Only handle one level of depth in references.
-                if "$ref" in _property:
-                    def_name = self.parser.get_definition_name_from_ref(
-                        _property["$ref"]
-                    )
-                    _property = definitions[def_name]
-                # Check if it is an array of items.
-                if _property.get("type", None) == "array":
-                    _property = _property["items"]
-                    # Only handle one level of depth in references.
-                    if "$ref" in _property:
-                        def_name = self.parser.get_definition_name_from_ref(
-                            _property["$ref"]
-                        )
-                        _property = definitions[def_name]
-                attr = {
-                    "source": property_name
-                }
-                if property_name in definition.get("required", []):
-                    attr["required"] = True
-
-                if _property.get("type", None) == "integer":
-                    attr["component"] = "Number"
-                elif _property.get("type", None) == "string":
-                    if _property.get("format", None) == "date-time":
-                        attr["component"] = "Date"
-                    else:
-                        attr["component"] = "Text"
-                        attr["maxLength"] = _property.get("maxLength", None)
-                elif _property.get("type", None) == "boolean":
-                    attr["component"] = "Boolean"
-
-                attr["readOnly"] = _property.get("readOnly", False)
-                resource.append(attr)
-
-            if resource_name not in self._resources:
-                self._resources[resource_name] = {}
-
-            # Handle Create model
-            if "_create" in name:
-                self._resources[resource_name]["create"] = {
-                    "attributes": resource,
-                    "component": resource_name + "Create"
-                }
-            # Handle Edit Model
-            elif "_update" in name:
-                self._resources[resource_name]["edit"] = {
-                    "attributes": resource,
-                    "component": resource_name + "Edit"
-                }
-            # Handle List/Show Model
-            else:
-                self._resources[resource_name]["list_show"] = {
-                    "attributes": resource,
-                    "list_component": resource_name + "List",
-                    "show_component": resource_name + "Show"
-                }
-
-        self.aor_generation()
-
-    def _make_django_class_definitions(self):
+    def _make_class_definitions(self):
         self._classes = {}
         for path, verbs in self.parser.paths.items():
             relative_url = path.replace(self.parser.base_path, "")
@@ -417,7 +333,6 @@ class Generator(object):
                     payload["secure"] = "security" in specref
 
                 self._classes[class_name][verb] = payload
-        self.django_aiohttp_generation()
 
     def generate_urls(self):
         # type: (Generator) -> str
@@ -490,61 +405,6 @@ class Generator(object):
         """
         return render_to_string(self.backend, "utils.py", {})
 
-    def generate_app_js(self):
-        """
-        Generate a single file from the filename and context.
-        :return:
-        """
-        return render_to_string(self.backend, "App.js", {
-            "title": self.module_name,
-            "resources": self._resources
-        })
-
-    def aor_generation(self):
-        click.secho("Generating App.js component file...", fg="green")
-        with open(os.path.join(self.output_dir, "App.js"), "w") as f:
-            data = self.generate_app_js()
-            f.write(data)
-            if self.verbose:
-                print(data)
-
-    def django_aiohttp_generation(self):
-        click.secho("Generating URLs file...", fg="green")
-        with open(os.path.join(self.output_dir, self.urls_file), "w") as f:
-            data = self.generate_urls()
-            f.write(data)
-            if self.verbose:
-                print(data)
-
-        click.secho("Generating views file...", fg="green")
-        with open(os.path.join(self.output_dir, self.views_file), "w") as f:
-            data = self.generate_views()
-            f.write(data)
-            if self.verbose:
-                print(data)
-
-        click.secho("Generating schemas file...", fg="green")
-        with open(os.path.join(self.output_dir, self.schemas_file), "w") as f:
-            data = self.generate_schemas()
-            f.write(data)
-            if self.verbose:
-                print(data)
-
-        click.secho("Generating utils file...", fg="green")
-        with open(os.path.join(self.output_dir, self.utils_file), "w") as f:
-            data = self.generate_utils()
-            f.write(data)
-            if self.verbose:
-                print(data)
-
-        click.secho("Generating stubs file...", fg="green")
-        with open(os.path.join(self.output_dir, self.stubs_file), "w") as f:
-            data = self.generate_stubs()
-            f.write(data)
-            if self.verbose:
-                print(data)
-
-
 @click.command()
 @click.argument("specification_path", type=click.Path(dir_okay=False, exists=True))
 @click.option("--spec-format", type=click.Choice(SPEC_CHOICES))
@@ -570,13 +430,46 @@ class Generator(object):
 def main(specification_path, spec_format, backend, verbose, output_dir, module_name,
          urls_file, views_file, schemas_file, utils_file, stubs_file):
 
-    generator = Generator(
-        backend, output_dir, urls_file, views_file, schemas_file,
-        utils_file, stubs_file, module_name=module_name, verbose=verbose
-    )
+    generator = Generator(backend, module_name=module_name)
     try:
         click.secho("Loading specification file...", fg="green")
-        generator.generate_with_specification(specification_path, spec_format)
+        generator.load_specification(specification_path, spec_format)
+
+        click.secho("Generating URLs file...", fg="green")
+        with open(os.path.join(output_dir, urls_file), "w") as f:
+            data = generator.generate_urls()
+            f.write(data)
+            if verbose:
+                print(data)
+
+        click.secho("Generating views file...", fg="green")
+        with open(os.path.join(output_dir, views_file), "w") as f:
+            data = generator.generate_views()
+            f.write(data)
+            if verbose:
+                print(data)
+
+        click.secho("Generating schemas file...", fg="green")
+        with open(os.path.join(output_dir, schemas_file), "w") as f:
+            data = generator.generate_schemas()
+            f.write(data)
+            if verbose:
+                print(data)
+
+        click.secho("Generating utils file...", fg="green")
+        with open(os.path.join(output_dir, utils_file), "w") as f:
+            data = generator.generate_utils()
+            f.write(data)
+            if verbose:
+                print(data)
+
+        click.secho("Generating stubs file...", fg="green")
+        with open(os.path.join(output_dir, stubs_file), "w") as f:
+            data = generator.generate_stubs()
+            f.write(data)
+            if verbose:
+                print(data)
+
         click.secho("Done.", fg="green")
     except Exception as e:
         click.secho(str(e), fg="red")
