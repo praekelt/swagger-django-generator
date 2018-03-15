@@ -13,3 +13,16 @@ def add_routes(app, with_ui=False):
     if with_ui:
         app.router.add_view(r"/the_specification", views.__SWAGGER_SPEC__)
         app.router.add_static(r"/ui", path="ui")
+
+    # Configure default CORS settings.
+    cors = aiohttp_cors.setup(app, defaults={
+        "*": aiohttp_cors.ResourceOptions(
+            allow_credentials=True,
+            expose_headers="*",
+            allow_headers="*",
+        )
+    })
+
+    # Configure CORS on all routes.
+    for route in app.router.routes():
+        cors.add(route)

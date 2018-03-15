@@ -9,6 +9,7 @@ import jsonschema
 import os
 from jsonschema import ValidationError
 from aiohttp.web import View, json_response, Response, HTTPNoContent
+from aiohttp_cors import CorsViewMixin
 
 import {{ module }}.schemas as schemas
 import {{ module }}.utils as utils
@@ -45,7 +46,7 @@ def maybe_validate_result(result, schema):
 {# @method_decorator(utils.login_required_no_redirect, name="{{ verb }}") #}
 {% endif %}
 {% endfor %}
-class {{ class_name }}(View):
+class {{ class_name }}(View, CorsViewMixin):
 
     {% for verb, info in verbs|dictsort(true) %}
     {{ verb|upper }}_RESPONSE_SCHEMA = {{ info.response_schema }}
