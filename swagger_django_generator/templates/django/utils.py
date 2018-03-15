@@ -9,6 +9,7 @@ import json
 from functools import wraps
 
 import jsonschema
+import os
 from django.contrib.auth import authenticate, login
 from django.core.exceptions import SuspiciousOperation
 from django.http import HttpResponse
