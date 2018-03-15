@@ -9,9 +9,12 @@ import json
 from functools import wraps
 
 import jsonschema
+import os
 from django.contrib.auth import authenticate, login
 from django.core.exceptions import SuspiciousOperation
 from django.http import HttpResponse
+
+ALLOWED_API_KEYS = set(os.getenv("ALLOWED_API_KEYS").split(","))
 
 
 def body_to_dict(body, schema):
@@ -48,7 +51,7 @@ def login_required_no_redirect(view_func):
         if "HTTP_AUTHORIZATION" in request.META:
             auth = request.META["HTTP_AUTHORIZATION"].split()
             if len(auth) == 2:
-                # NOTE: We are only support basic authentication for now.
+                # NOTE: We only support basic authentication for now.
                 if auth[0].lower() == "basic":
                     uname, passwd = base64.b64decode(auth[1]).split(":")
                     user = authenticate(username=uname, password=passwd)
@@ -56,6 +59,11 @@ def login_required_no_redirect(view_func):
                         login(request, user)
                         request.user = user
                         return view_func(request, *args, **kwargs)
+
+        if "HTTP_X_API_KEY" in request.META:
+            key = request.META["HTTP_X_API_KEY"]
+            if key in ALLOWED_API_KEYS:
+                return view_func(request, *args, **kwargs)
 
         return HttpResponse("Unauthorized", status=401)
 
