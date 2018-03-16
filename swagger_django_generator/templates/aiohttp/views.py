@@ -102,6 +102,8 @@ class {{ class_name }}(View, CorsViewMixin):
                 if {{ oa.maximum }} < {{ oa.name }}:
                     raise ValidationError("{{ oa.name }} exceeds its maximum limit")
                 {% endif %}
+                {% elif oa.type == "array" %}
+                jsonschema.validate({{ oa.name }}, {"type": "{{ oa.type }}", "items": oa.items })
                 {% else %}
                 jsonschema.validate({{ oa.name }}, {"type": "{{ oa.type }}"})
                 {% endif %}
