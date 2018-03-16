@@ -103,7 +103,13 @@ class {{ class_name }}(View, CorsViewMixin):
                     raise ValidationError("{{ oa.name }} exceeds its maximum limit")
                 {% endif %}
                 {% elif oa.type == "array" %}
-                jsonschema.validate({{ oa.name }}, {"type": "{{ oa.type }}", "items": oa.items })
+                schema = {{ oa }}
+                # Remove Swagger fields that clash with JSONSchema names at this level
+                for field in ["required"]:
+                    if field in schema:
+                        del schema[field]
+
+                jsonschema.validate({{ oa.name }}, {{ oa }})
                 {% else %}
                 jsonschema.validate({{ oa.name }}, {"type": "{{ oa.type }}"})
                 {% endif %}
