@@ -7,7 +7,7 @@ import {
 {% if actions.list_show %}    {{ actions.list_show.list_component }},
     {{ actions.list_show.show_component }}{% endif %}{% if actions.create %},
     {{ actions.create.component }}{% endif %}{% if actions.edit %},
-    {{ actions.create.component }}{% endif %}
+    {{ actions.edit.component }}{% endif %}
 
 } from './{{ name }}';
 {% endfor %}

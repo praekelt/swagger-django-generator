@@ -3,57 +3,73 @@ import { simpleRestClient, Admin, Resource } from 'admin-on-rest';
 import { Delete } from 'admin-on-rest/lib/mui';
 
 import { 
+    UserList,
+    UserShow,
+    UserCreate,
+    UserEdit
+} from './User';
+import { 
+    PetList,
+    PetShow,
+    PetCreate,
+    PetEdit
+} from './Pet';
+import { 
+    CategoryList,
+    CategoryShow,
+    CategoryCreate
+} from './Category';
+import { 
     OrderList,
-    OrderShow
+    OrderShow,
+    OrderCreate,
+    OrderEdit
 } from './Order';
 import { 
     TagList,
-    TagShow
+    TagShow,
+    TagEdit
 } from './Tag';
-import { 
-    UserList,
-    UserShow
-} from './User';
-import { 
-    CategoryList,
-    CategoryShow
-} from './Category';
-import { 
-    PetList,
-    PetShow
-} from './Pet';
 
 
 const App = () => (
     <Admin title={"demo"} restClient={simpleRestClient}>
         <Resource
-            name={"Order"}
-            list={ OrderList }
-            show={ OrderShow }
-            remove={Delete}
-        />
-        <Resource
-            name={"Tag"}
-            list={ TagList }
-            show={ TagShow }
-            remove={Delete}
-        />
-        <Resource
             name={"User"}
             list={ UserList }
             show={ UserShow }
-            remove={Delete}
-        />
-        <Resource
-            name={"Category"}
-            list={ CategoryList }
-            show={ CategoryShow }
+            create={ UserCreate }
+            edit={ UserEdit}
             remove={Delete}
         />
         <Resource
             name={"Pet"}
             list={ PetList }
             show={ PetShow }
+            create={ PetCreate }
+            edit={ PetEdit}
+            remove={Delete}
+        />
+        <Resource
+            name={"Category"}
+            list={ CategoryList }
+            show={ CategoryShow }
+            create={ CategoryCreate }
+            remove={Delete}
+        />
+        <Resource
+            name={"Order"}
+            list={ OrderList }
+            show={ OrderShow }
+            create={ OrderCreate }
+            edit={ OrderEdit}
+            remove={Delete}
+        />
+        <Resource
+            name={"Tag"}
+            list={ TagList }
+            show={ TagShow }
+            edit={ TagEdit}
             remove={Delete}
         />
     </Admin>

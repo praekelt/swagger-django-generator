@@ -33,7 +33,7 @@ aiohttpdemo:
 
 aordemo:
 	mkdir -p aor-demo/demo
-	$(PYTHON) swagger_django_generator/generator.py tests/resources/petstore.json --output-dir aor-demo/demo --module-name demo --backend=aor
+	$(PYTHON) swagger_django_generator/generator.py tests/resources/petstore-aor.json --output-dir aor-demo/demo --module-name demo --backend=aor
 
 clean-demo:
 	rm -rf demo

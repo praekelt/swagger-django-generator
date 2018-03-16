@@ -238,7 +238,6 @@ class Generator(object):
 
     def _make_aor_resource_definitions(self):
         self._resources = {}
-        imports = {}
         definitions = self.parser.specification.get("definitions", None)
         for name, definition in definitions.items():
             properties = definition["properties"]
@@ -246,10 +245,8 @@ class Generator(object):
             resource_name = name.replace(
                 "_create", ""
             ).replace("_update", "").replace("_", " ").title().replace(" ", "")
-            # Load unique imports to context for each resource...
-            if resource_name not in imports:
-                imports[resource_name] = []
             resource = []
+            imports = []
             for property_name, _property in properties.items():
                 # Only handle one level of depth in references.
                 if "$ref" in _property:
@@ -272,6 +269,7 @@ class Generator(object):
                 if property_name in definition.get("required", []):
                     attr["required"] = True
 
+                # Get component type based on property type.
                 if _property.get("type", None) == "integer":
                     attr["component"] = "Number"
                 elif _property.get("type", None) == "string":
@@ -283,15 +281,23 @@ class Generator(object):
                 elif _property.get("type", None) == "boolean":
                     attr["component"] = "Boolean"
 
+                # If Enum present, overwrite component with select
+                # and get choices in AOR 'tuple' (as mentioned in docs).
+                if _property.get("enum", None):
+                    attr["component"] = "Select"
+                    attr["choices"] = _property["enum"]
+
                 # Only include this attribute if it has a supported component.
                 if attr.get("component", None):
-                    if attr["component"] not in imports[resource_name]:
-                        imports[resource_name].append(attr["component"])
+                    if attr["component"] not in imports:
+                        imports.append(attr["component"])
+                    attr["type"] = _property["type"]
                     attr["readOnly"] = _property.get("readOnly", False)
                     resource.append(attr)
                 else:
                     pass
 
+            # Check if the resource has not been added yet.
             if resource_name not in self._resources:
                 self._resources[resource_name] = {}
 
@@ -300,14 +306,12 @@ class Generator(object):
                 self._resources[resource_name]["create"] = {
                     "attributes": resource,
                     "component": resource_name + "Create",
-                    "imports": imports[resource_name]
                 }
             # Handle Edit Model
             elif "_update" in name:
                 self._resources[resource_name]["edit"] = {
                     "attributes": resource,
                     "component": resource_name + "Edit",
-                    "imports": imports[resource_name]
                 }
             # Handle List/Show Model
             else:
@@ -315,7 +319,7 @@ class Generator(object):
                     "attributes": resource,
                     "list_component": resource_name + "List",
                     "show_component": resource_name + "Show",
-                    "imports": imports[resource_name]
+                    "imports": imports
                 }
 
         self.aor_generation()

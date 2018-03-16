@@ -7,21 +7,10 @@ import {
     DataGrid,
     SimpleShowLayout,
     SimpleForm{% if resource.list_show %}{% for import in resource.list_show.imports %},
-    {{ import }}Field{% endfor %}
-    {% endif %}
-    {% if resource.create %}
-    {% for import in resource.create.imports %},
-    {{ import }}Input
-    {% endfor %},
-    DisabledInput
-    {% elif resource.edit %}
-    {% for import in resource.edit.imports %},
-    {{ import }}Input
-    {% endfor %},
-    DisabledInput
-    {% endif %},{% if resource.edit %}
+    {{ import }}Field{% if resource.create or resource.edit %},
+    {{ import }}Input{% endif %}{% endfor %}{% endif %},
+    DisabledInput,
     EditButton
-    {% endif %}
 
 } from 'admin-on-rest';
 
@@ -37,6 +26,7 @@ const validationCreate{{ name }} = values => {
     {% endfor %}
     return errors;
 }
+
 {% endif %}
 {% if resource.edit %}
 const validationEdit{{ name }} = values => {
@@ -50,6 +40,43 @@ const validationEdit{{ name }} = values => {
     {% endfor %}
     return errors;
 }
+
+{% endif %}
+{% if resource.create %}
+{% for attribute in resource.create.attributes %}
+{% if attribute.choices %}
+const createchoice{{ attribute.source }} = [
+    {% if attribute.type == "integer" %}
+    {% for choice in attribute.choices %}
+    { id: {{ choice }}, name: {{ choice }} },
+    {% endfor %}
+    {% else %}
+    {% for choice in attribute.choices %}
+    { id: '{{ choice }}', name: '{{ choice }}' },
+    {% endfor %}
+    {% endif%}
+];
+
+{% endif %}
+{% endfor %}
+{% endif %}
+{% if resource.edit %}
+{% for attribute in resource.edit.attributes %}
+{% if attribute.choices %}
+const editchoice{{ attribute.source }} = [
+    {% if attribute.type == "integer" %}
+    {% for choice in attribute.choices %}
+    { id: {{ choice }}, name: {{ choice }} },
+    {% endfor %}
+    {% else %}
+    {% for choice in attribute.choices %}
+    { id: '{{ choice }}', name: '{{ choice }}' },
+    {% endfor %}
+    {% endif%}
+];
+
+{% endif %}
+{% endfor %}
 {% endif %}
 {% if resource.list_show %}
 export const {{ resource.list_show.list_component }} = props => (
@@ -84,7 +111,7 @@ export const {{ resource.create.component }} = props => (
     <Create {...props} title={"Create {{ name }}"}>
         <SimpleForm validate={validationCreate{{ name }}}>
             {% for attribute in resource.create.attributes %}
-            <{{ attribute.component }}Input source="{{ attribute.source }}" />
+            <{{ attribute.component }}Input source="{{ attribute.source }}"{% if attribute.choices %} choices={createchoice{{ attribute.source }}}{% endif %} />
             {% endfor %}
         </SimpleForm>
     </Create>
@@ -95,8 +122,8 @@ export const {{ resource.create.component }} = props => (
 export const {{ resource.edit.component }} = props => (
     <Edit {...props} title={"Edit {{ name }}"}>
         <SimpleForm validate={validationEdit{{ name }}}>
-            {% for attribute in resource.create.attributes %}
-            <{% if attribute.readOnly %}DisabledInput{% else %}{{ attribute.component }}Input{% endif %} source="{{ attribute.source }}" />
+            {% for attribute in resource.edit.attributes %}
+            <{% if attribute.readOnly %}DisabledInput{% else %}{{ attribute.component }}Input{% endif %} source="{{ attribute.source }}"{% if attribute.choices %} choices={editchoice{{ attribute.source }}}{% endif %} />
             {% endfor %}
         </SimpleForm>
     </Edit>
