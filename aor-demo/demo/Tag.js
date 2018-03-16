@@ -7,10 +7,10 @@ import {
     DataGrid,
     SimpleShowLayout,
     SimpleForm,
-    NumberField,
-    NumberInput,
     TextField,
     TextInput,
+    NumberField,
+    NumberInput,
     DisabledInput,
     EditButton
 
@@ -24,8 +24,8 @@ const validationEditTag = values => {
 export const TagList = props => (
     <List {...props} title={"Tag List"}>
         <DataGrid>
-            <NumberField source="id" />
             <TextField source="name" />
+            <NumberField source="id" />
             <EditButton />
         </DataGrid>
     </List>
@@ -34,8 +34,8 @@ export const TagList = props => (
 export const TagShow = props => (
     <Show {...props} title={"Tag Show"}>
         <SimpleShowLayout>
-            <NumberField source="id" />
             <TextField source="name" />
+            <NumberField source="id" />
             <EditButton />
         </SimpleShowLayout>
     </Show>

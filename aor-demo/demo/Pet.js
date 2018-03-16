@@ -7,12 +7,19 @@ import {
     DataGrid,
     SimpleShowLayout,
     SimpleForm,
-    NumberField,
-    NumberInput,
     SelectField,
     SelectInput,
     TextField,
     TextInput,
+    ReferenceField,
+    ReferenceInput,
+    ReferenceArrayField,
+    ReferenceArrayInput,
+    SingleFieldList,
+    ChipField,
+    SelectArrayInput,
+    NumberField,
+    NumberInput,
     DisabledInput,
     EditButton
 
@@ -46,10 +53,17 @@ const editchoicestatus = [
 export const PetList = props => (
     <List {...props} title={"Pet List"}>
         <DataGrid>
+            <ReferenceField source="category" reference="Category">
+                <TextField source="id" />
+            </ReferenceField>
+            <TextField source="name" />
+            <ReferenceArrayField source="tags" reference="Tag">
+                <SingleFieldList>
+                    <ChipField source="id" />
+                </SingleFieldList>
+            </ReferenceArrayField>
             <NumberField source="id" />
             <SelectField source="status" />
-            <TextField source="photoUrls" />
-            <TextField source="name" />
             <EditButton />
         </DataGrid>
     </List>
@@ -58,10 +72,17 @@ export const PetList = props => (
 export const PetShow = props => (
     <Show {...props} title={"Pet Show"}>
         <SimpleShowLayout>
+            <ReferenceField source="category" reference="Category">
+                <TextField source="id" />
+            </ReferenceField>
+            <TextField source="name" />
+            <ReferenceArrayField source="tags" reference="Tag">
+                <SingleFieldList>
+                    <ChipField source="id" />
+                </SingleFieldList>
+            </ReferenceArrayField>
             <NumberField source="id" />
             <SelectField source="status" />
-            <TextField source="photoUrls" />
-            <TextField source="name" />
             <EditButton />
         </SimpleShowLayout>
     </Show>
@@ -71,8 +92,13 @@ export const PetCreate = props => (
     <Create {...props} title={"Create Pet"}>
         <SimpleForm validate={validationCreatePet}>
             <TextInput source="name" />
+            <ReferenceInput source="category" reference="Category">
+                <SelectInput source="id" />
+            </ReferenceInput>
             <SelectInput source="status" choices={createchoicestatus} />
-            <TextInput source="photoUrls" />
+            <ReferenceArrayInput source="tags" reference="Tag">
+                <SelectArrayInput optionText="id" />
+            </ReferenceArrayInput>
         </SimpleForm>
     </Create>
 )
@@ -81,8 +107,13 @@ export const PetEdit = props => (
     <Edit {...props} title={"Edit Pet"}>
         <SimpleForm validate={validationEditPet}>
             <TextInput source="name" />
+            <ReferenceInput source="category" reference="Category">
+                <SelectInput source="id" />
+            </ReferenceInput>
             <SelectInput source="status" choices={editchoicestatus} />
-            <TextInput source="photoUrls" />
+            <ReferenceArrayInput source="tags" reference="Tag">
+                <SelectArrayInput optionText="id" />
+            </ReferenceArrayInput>
         </SimpleForm>
     </Edit>
 )

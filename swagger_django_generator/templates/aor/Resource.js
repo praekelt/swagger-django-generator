@@ -8,7 +8,10 @@ import {
     SimpleShowLayout,
     SimpleForm{% if resource.list_show %}{% for import in resource.list_show.imports %},
     {{ import }}Field{% if resource.create or resource.edit %},
-    {{ import }}Input{% endif %}{% endfor %}{% endif %},
+    {{ import }}Input{% if import == "ReferenceArray" %},
+    SingleFieldList,
+    ChipField,
+    SelectArrayInput{% endif %}{% endif %}{% endfor %}{% endif %},
     DisabledInput,
     EditButton
 
@@ -83,7 +86,19 @@ export const {{ resource.list_show.list_component }} = props => (
     <List {...props} title={"{{ name }} List"}>
         <DataGrid>
             {% for attribute in resource.list_show.attributes %}
+            {% if attribute.type == "relation" %}
+            <{{ attribute.component }}Field source="{{ attribute.source }}" reference="{{ attribute.reference }}">
+                {% if attribute.component == "Reference" %}
+                <TextField source="id" />
+                {% elif attribute.component == "ReferenceArray" %}
+                <SingleFieldList>
+                    <ChipField source="id" />
+                </SingleFieldList>
+                {% endif %}
+            </{{ attribute.component }}Field>
+            {% else %}
             <{{ attribute.component }}Field source="{{ attribute.source }}" />
+            {% endif %}
             {% endfor %}
             {% if resource.edit %}
             <EditButton />
@@ -96,7 +111,19 @@ export const {{ resource.list_show.show_component }} = props => (
     <Show {...props} title={"{{ name }} Show"}>
         <SimpleShowLayout>
             {% for attribute in resource.list_show.attributes %}
+            {% if attribute.type == "relation" %}
+            <{{ attribute.component }}Field source="{{ attribute.source }}" reference="{{ attribute.reference }}">
+                {% if attribute.component == "Reference" %}
+                <TextField source="id" />
+                {% elif attribute.component == "ReferenceArray" %}
+                <SingleFieldList>
+                    <ChipField source="id" />
+                </SingleFieldList>
+                {% endif %}
+            </{{ attribute.component }}Field>
+            {% else %}
             <{{ attribute.component }}Field source="{{ attribute.source }}" />
+            {% endif %}
             {% endfor %}
             {% if resource.edit %}
             <EditButton />
@@ -111,7 +138,17 @@ export const {{ resource.create.component }} = props => (
     <Create {...props} title={"Create {{ name }}"}>
         <SimpleForm validate={validationCreate{{ name }}}>
             {% for attribute in resource.create.attributes %}
+            {% if attribute.type == "relation" %}
+            <{{ attribute.component }}Input source="{{ attribute.source }}" reference="{{ attribute.reference }}">
+                {% if attribute.component == "Reference" %}
+                <SelectInput source="id" />
+                {% elif attribute.component == "ReferenceArray" %}
+                <SelectArrayInput optionText="id" />
+                {% endif %}
+            </{{ attribute.component }}Input>
+            {% else %}
             <{{ attribute.component }}Input source="{{ attribute.source }}"{% if attribute.choices %} choices={createchoice{{ attribute.source }}}{% endif %} />
+            {% endif %}
             {% endfor %}
         </SimpleForm>
     </Create>
@@ -123,7 +160,17 @@ export const {{ resource.edit.component }} = props => (
     <Edit {...props} title={"Edit {{ name }}"}>
         <SimpleForm validate={validationEdit{{ name }}}>
             {% for attribute in resource.edit.attributes %}
+            {% if attribute.type == "relation" %}
+            <{{ attribute.component }}Input source="{{ attribute.source }}" reference="{{ attribute.reference }}">
+                {% if attribute.component == "Reference" %}
+                <SelectInput source="id" />
+                {% elif attribute.component == "ReferenceArray" %}
+                <SelectArrayInput optionText="id" />
+                {% endif %}
+            </{{ attribute.component }}Input>
+            {% else %}
             <{% if attribute.readOnly %}DisabledInput{% else %}{{ attribute.component }}Input{% endif %} source="{{ attribute.source }}"{% if attribute.choices %} choices={editchoice{{ attribute.source }}}{% endif %} />
+            {% endif %}
             {% endfor %}
         </SimpleForm>
     </Edit>

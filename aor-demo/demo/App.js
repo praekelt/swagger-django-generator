@@ -3,11 +3,11 @@ import { simpleRestClient, Admin, Resource } from 'admin-on-rest';
 import { Delete } from 'admin-on-rest/lib/mui';
 
 import { 
-    UserList,
-    UserShow,
-    UserCreate,
-    UserEdit
-} from './User';
+    OrderList,
+    OrderShow,
+    OrderCreate,
+    OrderEdit
+} from './Order';
 import { 
     PetList,
     PetShow,
@@ -20,11 +20,11 @@ import {
     CategoryCreate
 } from './Category';
 import { 
-    OrderList,
-    OrderShow,
-    OrderCreate,
-    OrderEdit
-} from './Order';
+    UserList,
+    UserShow,
+    UserCreate,
+    UserEdit
+} from './User';
 import { 
     TagList,
     TagShow,
@@ -35,11 +35,11 @@ import {
 const App = () => (
     <Admin title={"demo"} restClient={simpleRestClient}>
         <Resource
-            name={"User"}
-            list={ UserList }
-            show={ UserShow }
-            create={ UserCreate }
-            edit={ UserEdit}
+            name={"Order"}
+            list={ OrderList }
+            show={ OrderShow }
+            create={ OrderCreate }
+            edit={ OrderEdit}
             remove={Delete}
         />
         <Resource
@@ -58,11 +58,11 @@ const App = () => (
             remove={Delete}
         />
         <Resource
-            name={"Order"}
-            list={ OrderList }
-            show={ OrderShow }
-            create={ OrderCreate }
-            edit={ OrderEdit}
+            name={"User"}
+            list={ UserList }
+            show={ UserShow }
+            create={ UserCreate }
+            edit={ UserEdit}
             remove={Delete}
         />
         <Resource

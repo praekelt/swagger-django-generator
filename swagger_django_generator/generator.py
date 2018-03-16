@@ -248,14 +248,32 @@ class Generator(object):
             resource = []
             imports = []
             for property_name, _property in properties.items():
+                attr = {
+                    "source": property_name,
+                    "type": _property.get("type", None),
+                    "readOnly": _property.get("readOnly", False)
+                }
                 # Only handle one level of depth in references.
                 if "$ref" in _property:
                     def_name = self.parser.get_definition_name_from_ref(
                         _property["$ref"]
                     )
                     _property = definitions[def_name]
+                    # Handle relation as the ID of the related object.
+                    if _property.get("properties", None):
+                        _property = _property["properties"].get("id", None)
+                        attr["type"] = "relation"
+                        attr["reference"] = def_name.title()
+                        attr["component"] = "Reference"
+                        # Add additional imports in case they
+                        # don't already exist.
+                        if "Select" not in imports:
+                            imports.append("Select")
+                        if "Text" not in imports:
+                            imports.append("Text")
+
                 # Check if it is an array of items.
-                if _property.get("type", None) == "array":
+                if attr["type"] == "array":
                     _property = _property["items"]
                     # Only handle one level of depth in references.
                     if "$ref" in _property:
@@ -263,22 +281,26 @@ class Generator(object):
                             _property["$ref"]
                         )
                         _property = definitions[def_name]
-                attr = {
-                    "source": property_name
-                }
+                        # Handle relation as the ID of the related object.
+                        if _property.get("properties", None):
+                            _property = _property["properties"].get("id", None)
+                            attr["type"] = "relation"
+                            attr["reference"] = def_name.title()
+                            attr["component"] = "ReferenceArray"
+
                 if property_name in definition.get("required", []):
                     attr["required"] = True
 
                 # Get component type based on property type.
-                if _property.get("type", None) == "integer":
+                if attr["type"] == "integer":
                     attr["component"] = "Number"
-                elif _property.get("type", None) == "string":
+                elif attr["type"] == "string":
                     if _property.get("format", None) == "date-time":
                         attr["component"] = "Date"
                     else:
                         attr["component"] = "Text"
                         attr["maxLength"] = _property.get("maxLength", None)
-                elif _property.get("type", None) == "boolean":
+                elif attr["type"] == "boolean":
                     attr["component"] = "Boolean"
 
                 # If Enum present, overwrite component with select
@@ -291,8 +313,6 @@ class Generator(object):
                 if attr.get("component", None):
                     if attr["component"] not in imports:
                         imports.append(attr["component"])
-                    attr["type"] = _property["type"]
-                    attr["readOnly"] = _property.get("readOnly", False)
                     resource.append(attr)
                 else:
                     pass

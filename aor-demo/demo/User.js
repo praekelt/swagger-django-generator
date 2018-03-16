@@ -18,8 +18,8 @@ import {
 
 const validationCreateUser = values => {
     const errors = {};
-    if (!values.firstName) {
-        errors.firstName = ["firstName is required"];
+    if (!values.email) {
+        errors.email = ["email is required"];
     }
     if (!values.username) {
         errors.username = ["username is required"];
@@ -27,8 +27,8 @@ const validationCreateUser = values => {
     if (!values.password) {
         errors.password = ["password is required"];
     }
-    if (!values.email) {
-        errors.email = ["email is required"];
+    if (!values.firstName) {
+        errors.firstName = ["firstName is required"];
     }
     if (!values.lastName) {
         errors.lastName = ["lastName is required"];
@@ -38,17 +38,17 @@ const validationCreateUser = values => {
 
 const validationEditUser = values => {
     const errors = {};
-    if (!values.email) {
-        errors.email = ["email is required"];
-    }
-    if (!values.firstName) {
-        errors.firstName = ["firstName is required"];
+    if (!values.username) {
+        errors.username = ["username is required"];
     }
     if (!values.lastName) {
         errors.lastName = ["lastName is required"];
     }
-    if (!values.username) {
-        errors.username = ["username is required"];
+    if (!values.firstName) {
+        errors.firstName = ["firstName is required"];
+    }
+    if (!values.email) {
+        errors.email = ["email is required"];
     }
     return errors;
 }
@@ -56,14 +56,14 @@ const validationEditUser = values => {
 export const UserList = props => (
     <List {...props} title={"User List"}>
         <DataGrid>
-            <TextField source="firstName" />
             <TextField source="password" />
-            <NumberField source="id" />
+            <TextField source="firstName" />
             <TextField source="lastName" />
             <TextField source="phone" />
-            <TextField source="username" />
             <TextField source="email" />
+            <TextField source="username" />
             <NumberField source="userStatus" />
+            <NumberField source="id" />
             <EditButton />
         </DataGrid>
     </List>
@@ -72,14 +72,14 @@ export const UserList = props => (
 export const UserShow = props => (
     <Show {...props} title={"User Show"}>
         <SimpleShowLayout>
-            <TextField source="firstName" />
             <TextField source="password" />
-            <NumberField source="id" />
+            <TextField source="firstName" />
             <TextField source="lastName" />
             <TextField source="phone" />
-            <TextField source="username" />
             <TextField source="email" />
+            <TextField source="username" />
             <NumberField source="userStatus" />
+            <NumberField source="id" />
             <EditButton />
         </SimpleShowLayout>
     </Show>
@@ -88,12 +88,12 @@ export const UserShow = props => (
 export const UserCreate = props => (
     <Create {...props} title={"Create User"}>
         <SimpleForm validate={validationCreateUser}>
-            <TextInput source="phone" />
-            <TextInput source="firstName" />
+            <TextInput source="email" />
             <TextInput source="username" />
             <TextInput source="password" />
-            <TextInput source="email" />
+            <TextInput source="firstName" />
             <TextInput source="lastName" />
+            <TextInput source="phone" />
         </SimpleForm>
     </Create>
 )
@@ -101,11 +101,11 @@ export const UserCreate = props => (
 export const UserEdit = props => (
     <Edit {...props} title={"Edit User"}>
         <SimpleForm validate={validationEditUser}>
-            <TextInput source="email" />
+            <TextInput source="username" />
+            <TextInput source="lastName" />
             <TextInput source="phone" />
             <TextInput source="firstName" />
-            <TextInput source="lastName" />
-            <TextInput source="username" />
+            <TextInput source="email" />
         </SimpleForm>
     </Edit>
 )
