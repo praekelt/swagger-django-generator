@@ -105,11 +105,11 @@ class {{ class_name }}(View, CorsViewMixin):
                 {% elif oa.type == "array" %}
                 schema = {{ oa }}
                 # Remove Swagger fields that clash with JSONSchema names at this level
-                for field in ["required"]:
+                for field in ["name", "in", "required", "collectionFormat"]:
                     if field in schema:
                         del schema[field]
 
-                jsonschema.validate({{ oa.name }}, {{ oa }})
+                jsonschema.validate({{ oa.name }}, schema)
                 {% else %}
                 jsonschema.validate({{ oa.name }}, {"type": "{{ oa.type }}"})
                 {% endif %}
