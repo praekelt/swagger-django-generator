@@ -173,7 +173,7 @@ class {{ class_name }}(View, CorsViewMixin):
 
 
 {% endfor %}
-class __SWAGGER_SPEC__(View):
+class __SWAGGER_SPEC__(View, CorsViewMixin):
     SPEC = json.loads("""{{ specification }}""")
 
     async def get(self):
