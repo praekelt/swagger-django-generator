@@ -238,6 +238,7 @@ class Generator(object):
 
     def _make_aor_resource_definitions(self):
         self._resources = {}
+        imports = {}
         definitions = self.parser.specification.get("definitions", None)
         for name, definition in definitions.items():
             properties = definition["properties"]
@@ -245,6 +246,9 @@ class Generator(object):
             resource_name = name.replace(
                 "_create", ""
             ).replace("_update", "").replace("_", " ").title().replace(" ", "")
+            # Load unique imports to context for each resource...
+            if resource_name not in imports:
+                imports[resource_name] = []
             resource = []
             for property_name, _property in properties.items():
                 # Only handle one level of depth in references.
@@ -279,8 +283,14 @@ class Generator(object):
                 elif _property.get("type", None) == "boolean":
                     attr["component"] = "Boolean"
 
-                attr["readOnly"] = _property.get("readOnly", False)
-                resource.append(attr)
+                # Only include this attribute if it has a supported component.
+                if attr.get("component", None):
+                    if attr["component"] not in imports[resource_name]:
+                        imports[resource_name].append(attr["component"])
+                    attr["readOnly"] = _property.get("readOnly", False)
+                    resource.append(attr)
+                else:
+                    pass
 
             if resource_name not in self._resources:
                 self._resources[resource_name] = {}
@@ -289,20 +299,23 @@ class Generator(object):
             if "_create" in name:
                 self._resources[resource_name]["create"] = {
                     "attributes": resource,
-                    "component": resource_name + "Create"
+                    "component": resource_name + "Create",
+                    "imports": imports[resource_name]
                 }
             # Handle Edit Model
             elif "_update" in name:
                 self._resources[resource_name]["edit"] = {
                     "attributes": resource,
-                    "component": resource_name + "Edit"
+                    "component": resource_name + "Edit",
+                    "imports": imports[resource_name]
                 }
             # Handle List/Show Model
             else:
                 self._resources[resource_name]["list_show"] = {
                     "attributes": resource,
                     "list_component": resource_name + "List",
-                    "show_component": resource_name + "Show"
+                    "show_component": resource_name + "Show",
+                    "imports": imports[resource_name]
                 }
 
         self.aor_generation()
@@ -492,12 +505,22 @@ class Generator(object):
 
     def generate_app_js(self):
         """
-        Generate a single file from the filename and context.
-        :return:
+        Generate an `App.js` file from the given specification.
+        :return: str
         """
         return render_to_string(self.backend, "App.js", {
             "title": self.module_name,
             "resources": self._resources
+        })
+
+    def generate_resource_js(self, name, resource):
+        """
+        Generate a single resource component file.
+        :return: str
+        """
+        return render_to_string(self.backend, "Resource.js", {
+            "name": name,
+            "resource": resource
         })
 
     def aor_generation(self):
@@ -507,6 +530,14 @@ class Generator(object):
             f.write(data)
             if self.verbose:
                 print(data)
+        click.secho("Generating resource component files...", fg="green")
+        for name, resource in self._resources.items():
+            click.secho("Generating {}.js file...".format(name), fg="green")
+            with open(os.path.join(self.output_dir, "{}.js".format(name)), "w") as f:
+                data = self.generate_resource_js(name, resource)
+                f.write(data)
+                if self.verbose:
+                    print(data)
 
     def django_aiohttp_generation(self):
         click.secho("Generating URLs file...", fg="green")
