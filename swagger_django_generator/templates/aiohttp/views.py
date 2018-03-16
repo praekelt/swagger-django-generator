@@ -88,6 +88,9 @@ class {{ class_name }}(View, CorsViewMixin):
             # {{ oa.name }} (optional): {{ oa.type }} {{ oa.description }}
             {% if oa.type == "array" %}
             {{ oa.name }} = self.request.query.getall("{{ oa.name }}", None)
+            {% if oa.items.type == "integer" %}
+            {{ oa.name }} = [int(e) for e in {{ oa.name }}]
+            {% endif %}
             {% else %}
             {{ oa.name }} = self.request.query.get("{{ oa.name }}", None)
             {% endif %}
