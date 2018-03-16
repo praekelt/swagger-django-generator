@@ -73,6 +73,7 @@ if major > 3 or major == 3 and minor >= 5:
 # * Paths map to class based views.
 # * (path, http_verb) combinations map to operations.
 
+
 def render_to_string(backend, filename, context):
     # type: (str, str, Dict) -> str
     """
@@ -403,7 +404,6 @@ class Generator(object):
         :return: str
         """
         return render_to_string(self.backend, "utils.py", {})
-
 
 @click.command()
 @click.argument("specification_path", type=click.Path(dir_okay=False, exists=True))
