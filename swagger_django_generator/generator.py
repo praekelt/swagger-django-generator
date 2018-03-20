@@ -240,6 +240,9 @@ class Generator(object):
         self._resources = {}
         definitions = self.parser.specification.get("definitions", None)
         for name, definition in definitions.items():
+            # Only handle object type definitions as resources.
+            if definition.get("properties", None) is None:
+                continue
             properties = definition["properties"]
             # Create an appropriate resourse name
             resource_name = name.replace(
