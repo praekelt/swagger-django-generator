@@ -4,13 +4,15 @@ import {
     Show,
     Edit,
     Create,
-    DataGrid,
+    Datagrid,
     SimpleShowLayout,
     SimpleForm,
-    SelectField,
-    SelectInput,
     TextField,
     TextInput,
+    SelectField,
+    SelectInput,
+    NumberField,
+    NumberInput,
     ReferenceField,
     ReferenceInput,
     ReferenceArrayField,
@@ -18,14 +20,12 @@ import {
     SingleFieldList,
     ChipField,
     SelectArrayInput,
-    NumberField,
-    NumberInput,
     DisabledInput,
     EditButton
 
 } from 'admin-on-rest';
 
-const validationCreatePet = values => {
+const validationCreatepet = values => {
     const errors = {};
     if (!values.name) {
         errors.name = ["name is required"];
@@ -33,7 +33,7 @@ const validationCreatePet = values => {
     return errors;
 }
 
-const validationEditPet = values => {
+const validationEditpet = values => {
     const errors = {};
     return errors;
 }
@@ -51,52 +51,52 @@ const editchoicestatus = [
 ];
 
 export const PetList = props => (
-    <List {...props} title={"Pet List"}>
-        <DataGrid>
-            <ReferenceField source="category" reference="Category">
+    <List {...props} title="pet List">
+        <Datagrid>
+            <TextField source="name" />
+            <SelectField source="status" />
+            <NumberField source="id" />
+            <ReferenceField source="category" reference="category" allowEmpty>
                 <TextField source="id" />
             </ReferenceField>
-            <TextField source="name" />
-            <ReferenceArrayField source="tags" reference="Tag">
+            <ReferenceArrayField source="tags" reference="Tag" allowEmpty>
                 <SingleFieldList>
                     <ChipField source="id" />
                 </SingleFieldList>
             </ReferenceArrayField>
-            <NumberField source="id" />
-            <SelectField source="status" />
             <EditButton />
-        </DataGrid>
+        </Datagrid>
     </List>
 )
 
 export const PetShow = props => (
-    <Show {...props} title={"Pet Show"}>
+    <Show {...props} title="pet Show">
         <SimpleShowLayout>
-            <ReferenceField source="category" reference="Category">
+            <TextField source="name" />
+            <SelectField source="status" />
+            <NumberField source="id" />
+            <ReferenceField source="category" reference="category" allowEmpty>
                 <TextField source="id" />
             </ReferenceField>
-            <TextField source="name" />
-            <ReferenceArrayField source="tags" reference="Tag">
+            <ReferenceArrayField source="tags" reference="Tag" allowEmpty>
                 <SingleFieldList>
                     <ChipField source="id" />
                 </SingleFieldList>
             </ReferenceArrayField>
-            <NumberField source="id" />
-            <SelectField source="status" />
             <EditButton />
         </SimpleShowLayout>
     </Show>
 )
 
 export const PetCreate = props => (
-    <Create {...props} title={"Create Pet"}>
-        <SimpleForm validate={validationCreatePet}>
+    <Create {...props} title="Create pet">
+        <SimpleForm validate={validationCreatepet}>
             <TextInput source="name" />
-            <ReferenceInput source="category" reference="Category">
+            <ReferenceInput source="category" reference="category" allowEmpty>
                 <SelectInput source="id" />
             </ReferenceInput>
             <SelectInput source="status" choices={createchoicestatus} />
-            <ReferenceArrayInput source="tags" reference="Tag">
+            <ReferenceArrayInput source="tags" reference="Tag" allowEmpty>
                 <SelectArrayInput optionText="id" />
             </ReferenceArrayInput>
         </SimpleForm>
@@ -104,14 +104,14 @@ export const PetCreate = props => (
 )
 
 export const PetEdit = props => (
-    <Edit {...props} title={"Edit Pet"}>
-        <SimpleForm validate={validationEditPet}>
+    <Edit {...props} title="Edit pet">
+        <SimpleForm validate={validationEditpet}>
             <TextInput source="name" />
-            <ReferenceInput source="category" reference="Category">
+            <ReferenceInput source="category" reference="category" allowEmpty>
                 <SelectInput source="id" />
             </ReferenceInput>
             <SelectInput source="status" choices={editchoicestatus} />
-            <ReferenceArrayInput source="tags" reference="Tag">
+            <ReferenceArrayInput source="tags" reference="Tag" allowEmpty>
                 <SelectArrayInput optionText="id" />
             </ReferenceArrayInput>
         </SimpleForm>

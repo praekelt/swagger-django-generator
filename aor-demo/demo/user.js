@@ -4,7 +4,7 @@ import {
     Show,
     Edit,
     Create,
-    DataGrid,
+    Datagrid,
     SimpleShowLayout,
     SimpleForm,
     TextField,
@@ -16,96 +16,96 @@ import {
 
 } from 'admin-on-rest';
 
-const validationCreateUser = values => {
+const validationCreateuser = values => {
     const errors = {};
-    if (!values.email) {
-        errors.email = ["email is required"];
+    if (!values.password) {
+        errors.password = ["password is required"];
     }
     if (!values.username) {
         errors.username = ["username is required"];
     }
-    if (!values.password) {
-        errors.password = ["password is required"];
+    if (!values.lastName) {
+        errors.lastName = ["lastName is required"];
+    }
+    if (!values.email) {
+        errors.email = ["email is required"];
     }
     if (!values.firstName) {
         errors.firstName = ["firstName is required"];
-    }
-    if (!values.lastName) {
-        errors.lastName = ["lastName is required"];
     }
     return errors;
 }
 
-const validationEditUser = values => {
+const validationEdituser = values => {
     const errors = {};
     if (!values.username) {
         errors.username = ["username is required"];
+    }
+    if (!values.email) {
+        errors.email = ["email is required"];
     }
     if (!values.lastName) {
         errors.lastName = ["lastName is required"];
     }
     if (!values.firstName) {
         errors.firstName = ["firstName is required"];
-    }
-    if (!values.email) {
-        errors.email = ["email is required"];
     }
     return errors;
 }
 
 export const UserList = props => (
-    <List {...props} title={"User List"}>
-        <DataGrid>
+    <List {...props} title="user List">
+        <Datagrid>
             <TextField source="password" />
-            <TextField source="firstName" />
-            <TextField source="lastName" />
-            <TextField source="phone" />
-            <TextField source="email" />
             <TextField source="username" />
+            <TextField source="lastName" />
+            <TextField source="firstName" />
             <NumberField source="userStatus" />
             <NumberField source="id" />
+            <TextField source="phone" />
+            <TextField source="email" />
             <EditButton />
-        </DataGrid>
+        </Datagrid>
     </List>
 )
 
 export const UserShow = props => (
-    <Show {...props} title={"User Show"}>
+    <Show {...props} title="user Show">
         <SimpleShowLayout>
             <TextField source="password" />
-            <TextField source="firstName" />
-            <TextField source="lastName" />
-            <TextField source="phone" />
-            <TextField source="email" />
             <TextField source="username" />
+            <TextField source="lastName" />
+            <TextField source="firstName" />
             <NumberField source="userStatus" />
             <NumberField source="id" />
+            <TextField source="phone" />
+            <TextField source="email" />
             <EditButton />
         </SimpleShowLayout>
     </Show>
 )
 
 export const UserCreate = props => (
-    <Create {...props} title={"Create User"}>
-        <SimpleForm validate={validationCreateUser}>
-            <TextInput source="email" />
-            <TextInput source="username" />
+    <Create {...props} title="Create user">
+        <SimpleForm validate={validationCreateuser}>
             <TextInput source="password" />
-            <TextInput source="firstName" />
+            <TextInput source="username" />
             <TextInput source="lastName" />
             <TextInput source="phone" />
+            <TextInput source="email" />
+            <TextInput source="firstName" />
         </SimpleForm>
     </Create>
 )
 
 export const UserEdit = props => (
-    <Edit {...props} title={"Edit User"}>
-        <SimpleForm validate={validationEditUser}>
+    <Edit {...props} title="Edit user">
+        <SimpleForm validate={validationEdituser}>
             <TextInput source="username" />
-            <TextInput source="lastName" />
             <TextInput source="phone" />
-            <TextInput source="firstName" />
             <TextInput source="email" />
+            <TextInput source="lastName" />
+            <TextInput source="firstName" />
         </SimpleForm>
     </Edit>
 )

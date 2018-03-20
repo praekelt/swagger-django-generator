@@ -247,7 +247,7 @@ class Generator(object):
             # Create an appropriate resourse name
             resource_name = name.replace(
                 "_create", ""
-            ).replace("_update", "").replace("_", " ").title().replace(" ", "")
+            ).replace("_update", "").replace("_", " ").replace(" ", "-")
             resource = []
             imports = []
             for property_name, _property in properties.items():
@@ -266,7 +266,7 @@ class Generator(object):
                     if _property.get("properties", None):
                         _property = _property["properties"].get("id", None)
                         attr["type"] = "relation"
-                        attr["reference"] = def_name.title()
+                        attr["reference"] = def_name
                         attr["component"] = "Reference"
                         # Add additional imports in case they
                         # don't already exist.
@@ -324,24 +324,27 @@ class Generator(object):
             if resource_name not in self._resources:
                 self._resources[resource_name] = {}
 
+            component_name = resource_name.replace(
+                "-", " "
+            ).title().replace(" ", "")
             # Handle Create model
             if "_create" in name:
                 self._resources[resource_name]["create"] = {
                     "attributes": resource,
-                    "component": resource_name + "Create",
+                    "component": component_name + "Create",
                 }
             # Handle Edit Model
             elif "_update" in name:
                 self._resources[resource_name]["edit"] = {
                     "attributes": resource,
-                    "component": resource_name + "Edit",
+                    "component": component_name + "Edit",
                 }
             # Handle List/Show Model
             else:
                 self._resources[resource_name]["list_show"] = {
                     "attributes": resource,
-                    "list_component": resource_name + "List",
-                    "show_component": resource_name + "Show",
+                    "list_component": component_name + "List",
+                    "show_component": component_name + "Show",
                     "imports": imports
                 }
 

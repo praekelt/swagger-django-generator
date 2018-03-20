@@ -4,7 +4,7 @@ import {
     Show,
     Edit,
     Create,
-    DataGrid,
+    Datagrid,
     SimpleShowLayout,
     SimpleForm{% if resource.list_show %}{% for import in resource.list_show.imports %},
     {{ import }}Field{% if resource.create or resource.edit %},
@@ -83,11 +83,11 @@ const editchoice{{ attribute.source }} = [
 {% endif %}
 {% if resource.list_show %}
 export const {{ resource.list_show.list_component }} = props => (
-    <List {...props} title={"{{ name }} List"}>
-        <DataGrid>
+    <List {...props} title="{{ name }} List">
+        <Datagrid>
             {% for attribute in resource.list_show.attributes %}
             {% if attribute.type == "relation" %}
-            <{{ attribute.component }}Field source="{{ attribute.source }}" reference="{{ attribute.reference }}">
+            <{{ attribute.component }}Field source="{{ attribute.source }}" reference="{{ attribute.reference }}" allowEmpty>
                 {% if attribute.component == "Reference" %}
                 <TextField source="id" />
                 {% elif attribute.component == "ReferenceArray" %}
@@ -103,16 +103,16 @@ export const {{ resource.list_show.list_component }} = props => (
             {% if resource.edit %}
             <EditButton />
             {% endif %}
-        </DataGrid>
+        </Datagrid>
     </List>
 )
 
 export const {{ resource.list_show.show_component }} = props => (
-    <Show {...props} title={"{{ name }} Show"}>
+    <Show {...props} title="{{ name }} Show">
         <SimpleShowLayout>
             {% for attribute in resource.list_show.attributes %}
             {% if attribute.type == "relation" %}
-            <{{ attribute.component }}Field source="{{ attribute.source }}" reference="{{ attribute.reference }}">
+            <{{ attribute.component }}Field source="{{ attribute.source }}" reference="{{ attribute.reference }}" allowEmpty>
                 {% if attribute.component == "Reference" %}
                 <TextField source="id" />
                 {% elif attribute.component == "ReferenceArray" %}
@@ -135,11 +135,11 @@ export const {{ resource.list_show.show_component }} = props => (
 {% endif %}
 {% if resource.create %}
 export const {{ resource.create.component }} = props => (
-    <Create {...props} title={"Create {{ name }}"}>
+    <Create {...props} title="Create {{ name }}">
         <SimpleForm validate={validationCreate{{ name }}}>
             {% for attribute in resource.create.attributes %}
             {% if attribute.type == "relation" %}
-            <{{ attribute.component }}Input source="{{ attribute.source }}" reference="{{ attribute.reference }}">
+            <{{ attribute.component }}Input source="{{ attribute.source }}" reference="{{ attribute.reference }}" allowEmpty>
                 {% if attribute.component == "Reference" %}
                 <SelectInput source="id" />
                 {% elif attribute.component == "ReferenceArray" %}
@@ -157,11 +157,11 @@ export const {{ resource.create.component }} = props => (
 {% endif %}
 {% if resource.edit %}
 export const {{ resource.edit.component }} = props => (
-    <Edit {...props} title={"Edit {{ name }}"}>
+    <Edit {...props} title="Edit {{ name }}">
         <SimpleForm validate={validationEdit{{ name }}}>
             {% for attribute in resource.edit.attributes %}
             {% if attribute.type == "relation" %}
-            <{{ attribute.component }}Input source="{{ attribute.source }}" reference="{{ attribute.reference }}">
+            <{{ attribute.component }}Input source="{{ attribute.source }}" reference="{{ attribute.reference }}" allowEmpty>
                 {% if attribute.component == "Reference" %}
                 <SelectInput source="id" />
                 {% elif attribute.component == "ReferenceArray" %}

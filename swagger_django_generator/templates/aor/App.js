@@ -17,7 +17,7 @@ const App = () => (
     <Admin title={"{{ title }}"} restClient={simpleRestClient}>
     {% for name, actions in resources.items() %}
         <Resource
-            name={"{{ name }}"}
+            name="{{ name }}"
             {% if actions.list_show %}
             list={ {{ actions.list_show.list_component }} }
             show={ {{ actions.list_show.show_component }} }

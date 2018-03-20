@@ -4,7 +4,7 @@ import {
     Show,
     Edit,
     Create,
-    DataGrid,
+    Datagrid,
     SimpleShowLayout,
     SimpleForm,
     TextField,
@@ -16,23 +16,23 @@ import {
 
 } from 'admin-on-rest';
 
-const validationEditTag = values => {
+const validationEdittag = values => {
     const errors = {};
     return errors;
 }
 
 export const TagList = props => (
-    <List {...props} title={"Tag List"}>
-        <DataGrid>
+    <List {...props} title="tag List">
+        <Datagrid>
             <TextField source="name" />
             <NumberField source="id" />
             <EditButton />
-        </DataGrid>
+        </Datagrid>
     </List>
 )
 
 export const TagShow = props => (
-    <Show {...props} title={"Tag Show"}>
+    <Show {...props} title="tag Show">
         <SimpleShowLayout>
             <TextField source="name" />
             <NumberField source="id" />
@@ -42,8 +42,8 @@ export const TagShow = props => (
 )
 
 export const TagEdit = props => (
-    <Edit {...props} title={"Edit Tag"}>
-        <SimpleForm validate={validationEditTag}>
+    <Edit {...props} title="Edit tag">
+        <SimpleForm validate={validationEdittag}>
             <TextInput source="name" />
         </SimpleForm>
     </Edit>

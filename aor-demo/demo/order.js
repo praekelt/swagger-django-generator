@@ -4,23 +4,23 @@ import {
     Show,
     Edit,
     Create,
-    DataGrid,
+    Datagrid,
     SimpleShowLayout,
     SimpleForm,
-    NumberField,
-    NumberInput,
-    BooleanField,
-    BooleanInput,
     DateField,
     DateInput,
     SelectField,
     SelectInput,
+    BooleanField,
+    BooleanInput,
+    NumberField,
+    NumberInput,
     DisabledInput,
     EditButton
 
 } from 'admin-on-rest';
 
-const validationCreateOrder = values => {
+const validationCreateorder = values => {
     const errors = {};
     if (!values.quantity) {
         errors.quantity = ["quantity is required"];
@@ -31,7 +31,7 @@ const validationCreateOrder = values => {
     return errors;
 }
 
-const validationEditOrder = values => {
+const validationEditorder = values => {
     const errors = {};
     return errors;
 }
@@ -43,36 +43,36 @@ const editchoicestatus = [
 ];
 
 export const OrderList = props => (
-    <List {...props} title={"Order List"}>
-        <DataGrid>
-            <NumberField source="quantity" />
-            <BooleanField source="complete" />
-            <NumberField source="petId" />
+    <List {...props} title="order List">
+        <Datagrid>
             <DateField source="shipDate" />
-            <NumberField source="id" />
             <SelectField source="status" />
+            <BooleanField source="complete" />
+            <NumberField source="id" />
+            <NumberField source="quantity" />
+            <NumberField source="petId" />
             <EditButton />
-        </DataGrid>
+        </Datagrid>
     </List>
 )
 
 export const OrderShow = props => (
-    <Show {...props} title={"Order Show"}>
+    <Show {...props} title="order Show">
         <SimpleShowLayout>
-            <NumberField source="quantity" />
-            <BooleanField source="complete" />
-            <NumberField source="petId" />
             <DateField source="shipDate" />
-            <NumberField source="id" />
             <SelectField source="status" />
+            <BooleanField source="complete" />
+            <NumberField source="id" />
+            <NumberField source="quantity" />
+            <NumberField source="petId" />
             <EditButton />
         </SimpleShowLayout>
     </Show>
 )
 
 export const OrderCreate = props => (
-    <Create {...props} title={"Create Order"}>
-        <SimpleForm validate={validationCreateOrder}>
+    <Create {...props} title="Create order">
+        <SimpleForm validate={validationCreateorder}>
             <NumberInput source="quantity" />
             <NumberInput source="petId" />
         </SimpleForm>
@@ -80,13 +80,13 @@ export const OrderCreate = props => (
 )
 
 export const OrderEdit = props => (
-    <Edit {...props} title={"Edit Order"}>
-        <SimpleForm validate={validationEditOrder}>
-            <NumberInput source="quantity" />
+    <Edit {...props} title="Edit order">
+        <SimpleForm validate={validationEditorder}>
             <BooleanInput source="complete" />
-            <NumberInput source="petId" />
             <DateInput source="shipDate" />
             <SelectInput source="status" choices={editchoicestatus} />
+            <NumberInput source="petId" />
+            <NumberInput source="quantity" />
         </SimpleForm>
     </Edit>
 )

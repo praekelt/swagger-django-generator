@@ -4,7 +4,7 @@ import {
     Show,
     Edit,
     Create,
-    DataGrid,
+    Datagrid,
     SimpleShowLayout,
     SimpleForm,
     TextField,
@@ -16,7 +16,7 @@ import {
 
 } from 'admin-on-rest';
 
-const validationCreateCategory = values => {
+const validationCreatecategory = values => {
     const errors = {};
     if (!values.name) {
         errors.name = ["name is required"];
@@ -25,16 +25,16 @@ const validationCreateCategory = values => {
 }
 
 export const CategoryList = props => (
-    <List {...props} title={"Category List"}>
-        <DataGrid>
+    <List {...props} title="category List">
+        <Datagrid>
             <TextField source="name" />
             <NumberField source="id" />
-        </DataGrid>
+        </Datagrid>
     </List>
 )
 
 export const CategoryShow = props => (
-    <Show {...props} title={"Category Show"}>
+    <Show {...props} title="category Show">
         <SimpleShowLayout>
             <TextField source="name" />
             <NumberField source="id" />
@@ -43,8 +43,8 @@ export const CategoryShow = props => (
 )
 
 export const CategoryCreate = props => (
-    <Create {...props} title={"Create Category"}>
-        <SimpleForm validate={validationCreateCategory}>
+    <Create {...props} title="Create category">
+        <SimpleForm validate={validationCreatecategory}>
             <TextInput source="name" />
         </SimpleForm>
     </Create>
