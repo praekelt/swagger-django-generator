@@ -562,9 +562,10 @@ class Generator(object):
                 print(data)
         click.secho("Generating resource component files...", fg="green")
         for name, resource in self._resources.items():
-            click.secho("Generating {}.js file...".format(name), fg="green")
-            with open(os.path.join(self.output_dir, "{}.js".format(name)), "w") as f:
-                data = self.generate_resource_js(name, resource)
+            title = name.replace("-", " ").title().replace(" ", "")
+            click.secho("Generating {}.js file...".format(title), fg="green")
+            with open(os.path.join(self.output_dir, "{}.js".format(title)), "w") as f:
+                data = self.generate_resource_js(title, resource)
                 f.write(data)
                 if self.verbose:
                     print(data)

@@ -35,5 +35,9 @@ aordemo:
 	mkdir -p aor-demo/demo
 	$(PYTHON) swagger_django_generator/generator.py tests/resources/petstore-aor.json --output-dir aor-demo/demo --module-name demo --backend=aor
 
+management-layer:
+	mkdir -p aor-demo/management-layer
+	$(PYTHON) swagger_django_generator/generator.py tests/resources/management_layer.json --output-dir aor-demo/management-layer --module-name ManagementLayer --backend=aor
+
 clean-demo:
 	rm -rf demo
