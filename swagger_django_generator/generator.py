@@ -29,6 +29,15 @@ if major > 3 or major == 3 and minor >= 5:
     BACKEND_CHOICES.append("aiohttp")
     BACKEND_CHOICES.append("aor")
 
+# Component Mapping for swagger types to AOR components
+COMPONENT_MAPPING = {
+    "integer": "Number",
+    "string": "Text",
+    "boolean": "Boolean",
+    "date-time": "Date",
+    "enum": "Select"
+}
+
 # from swagger_tester import swagger_test
 
 # parser.base_path contains the base URL, e.g. "/portal/v1"
@@ -236,117 +245,111 @@ class Generator(object):
             if isinstance(value, dict):
                 self.resolve_schema_references(value)
 
+    def _get_definition_from_ref(self, definition):
+        if "$ref" in definition:
+            definition_name = \
+                self.parser.get_definition_name_from_ref(definition["$ref"])
+            return self.parser.specification["definitions"][definition_name]
+        else:
+            return definition
+
+    def _get_resource_from_definition(self, resource_name, head_component,
+                                      definition, composite_parameters, suffix):
+        resource = []
+        for name, details in definition["properties"]:
+            attribute = {
+                "source": name,
+                "type": details.get("type", None)
+            }
+            # If the attribute name is in the list of composite ids
+            # Change it to be a Reference component.
+            # Else based on the type/format combination get the correct
+            # AOR component to use.
+            if name in composite_parameters:
+                attribute["component"] = "Reference" + suffix
+                if suffix != "Input":
+                    attribute["related_component"] = \
+                        COMPONENT_MAPPING[composite_parameters[name]]
+                else:
+                    attribute["related_component"] = "SelectInput"
+            else:
+                if details.get("format", None) in COMPONENT_MAPPING:
+                    attribute["component"] = \
+                        COMPONENT_MAPPING[details["format"]] + suffix
+                else:
+                    attribute["component"] = \
+                        COMPONENT_MAPPING[attribute["type"]] + suffix
+            # Handle an enum possibility
+            if details.get("enum", None) is not None:
+                # Just check if the Select is already accounted for.
+                if attribute.get("related_component", None) is not None:
+                    attribute["component"] = COMPONENT_MAPPING["enum"] + suffix
+                attribute["choices"] = details["enum"]
+
+            resource.append(attribute)
+        self._resources[resource_name][head_component] = resource
+
     def _make_aor_resource_definitions(self):
         self._resources = {}
-        definitions = self.parser.specification.get("definitions", None)
-        for name, definition in definitions.items():
-            # Only handle object type definitions as resources.
-            if definition.get("properties", None) is None:
-                continue
-            properties = definition["properties"]
-            # Create an appropriate resourse name
-            resource_name = name.replace(
-                "_create", ""
-            ).replace("_update", "").replace("_", " ").replace(" ", "-")
-            resource = []
-            imports = []
-            for property_name, _property in properties.items():
-                attr = {
-                    "source": property_name,
-                    "type": _property.get("type", None),
-                    "readOnly": _property.get("readOnly", False)
-                }
-                # Only handle one level of depth in references.
-                if "$ref" in _property:
-                    def_name = self.parser.get_definition_name_from_ref(
-                        _property["$ref"]
+        for path, verbs in self.parser.paths.items():
+            for verb, io in verbs:
+                # Get resource name and path and add it to the list
+                # for the first occurring instance of the resource
+                operation_id = io["operationId"]
+                name = operation_id.split("_")[0]
+                if name not in self._resources:
+                    self._resources[name] = {
+                        "path": path[1:].split("/")[0],
+                        "imports": []
+                    }
+
+                # Get all composite ID parameters for the current resource.
+                composite_parameters = {}
+                for parameter in io.get("parameters", []):
+                    param = parameter["$ref"] if "$ref" in parameter else parameter
+                    if "id" in param["name"] and param["name"] != "id":
+                        composite_parameters[param["name"]] = param["type"]
+
+                definition = None
+                head_component = None
+                suffix = None
+
+                # Get the correct definition/head_component/component suffix per
+                # verb based on the operation.
+                _create = "create" in operation_id
+                _update = "update" in operation_id
+                if "read" in operation_id:
+                    definition = self._get_definition_from_ref(
+                        definition=io["responses"]["200"]["schema"]
                     )
-                    _property = definitions[def_name]
-                    # Handle relation as the ID of the related object.
-                    if _property.get("properties", None):
-                        _property = _property["properties"].get("id", None)
-                        attr["type"] = "relation"
-                        attr["reference"] = def_name
-                        attr["component"] = "Reference"
-                        # Add additional imports in case they
-                        # don't already exist.
-                        if "Select" not in imports:
-                            imports.append("Select")
-                        if "Text" not in imports:
-                            imports.append("Text")
+                    head_component = "show"
+                    suffix = "Field"
+                elif "list" in operation_id:
+                    definition = self._get_definition_from_ref(
+                        definition=io["responses"]["200"]["schema"]["items"]
+                    )
+                    head_component = "list"
+                    suffix = "Field"
+                elif _create or _update:
+                    for parameter in io.get("parameters", []):
+                        param = parameter["$ref"] \
+                            if "$ref" in parameter else parameter
+                        # Grab the body parameter as the create definition
+                        if param["in"] == "body":
+                            definition = self._get_definition_from_ref(
+                                definition=param["schema"]
+                            )
+                    head_component = "create" if _create else "edit"
+                    suffix = "Input"
 
-                # Check if it is an array of items.
-                if attr["type"] == "array":
-                    _property = _property["items"]
-                    # Only handle one level of depth in references.
-                    if "$ref" in _property:
-                        def_name = self.parser.get_definition_name_from_ref(
-                            _property["$ref"]
-                        )
-                        _property = definitions[def_name]
-                        # Handle relation as the ID of the related object.
-                        if _property.get("properties", None):
-                            _property = _property["properties"].get("id", None)
-                            attr["type"] = "relation"
-                            attr["reference"] = def_name.title()
-                            attr["component"] = "ReferenceArray"
-
-                if property_name in definition.get("required", []):
-                    attr["required"] = True
-
-                # Get component type based on property type.
-                if attr["type"] == "integer":
-                    attr["component"] = "Number"
-                elif attr["type"] == "string":
-                    if _property.get("format", None) == "date-time":
-                        attr["component"] = "Date"
-                    else:
-                        attr["component"] = "Text"
-                        attr["maxLength"] = _property.get("maxLength", None)
-                elif attr["type"] == "boolean":
-                    attr["component"] = "Boolean"
-
-                # If Enum present, overwrite component with select
-                # and get choices in AOR 'tuple' (as mentioned in docs).
-                if _property.get("enum", None):
-                    attr["component"] = "Select"
-                    attr["choices"] = _property["enum"]
-
-                # Only include this attribute if it has a supported component.
-                if attr.get("component", None):
-                    if attr["component"] not in imports:
-                        imports.append(attr["component"])
-                    resource.append(attr)
-                else:
-                    pass
-
-            # Check if the resource has not been added yet.
-            if resource_name not in self._resources:
-                self._resources[resource_name] = {}
-
-            component_name = resource_name.replace(
-                "-", " "
-            ).title().replace(" ", "")
-            # Handle Create model
-            if "_create" in name:
-                self._resources[resource_name]["create"] = {
-                    "attributes": resource,
-                    "component": component_name + "Create",
-                }
-            # Handle Edit Model
-            elif "_update" in name:
-                self._resources[resource_name]["edit"] = {
-                    "attributes": resource,
-                    "component": component_name + "Edit",
-                }
-            # Handle List/Show Model
-            else:
-                self._resources[resource_name]["list_show"] = {
-                    "attributes": resource,
-                    "list_component": component_name + "List",
-                    "show_component": component_name + "Show",
-                    "imports": imports
-                }
+                if head_component and definition:
+                    self._get_resource_from_definition(
+                        resource_name=name,
+                        head_component=head_component,
+                        definition=definition,
+                        composite_parameters=composite_parameters,
+                        suffix=suffix
+                    )
 
         self.aor_generation()
 
