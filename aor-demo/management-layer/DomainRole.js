@@ -7,15 +7,15 @@ import {
     Datagrid,
     SimpleShowLayout,
     SimpleForm,
-    NumberField,
-    NumberInput,
     DateField,
-    DateInput,
+    NumberField,
     BooleanField,
     BooleanInput,
+    NumberInput,
     DisabledInput,
-    EditButton
-
+    DeleteButton,
+    EditButton,
+    ShowButton
 } from 'admin-on-rest';
 
 const validationCreateDomainRole = values => {
@@ -37,42 +37,55 @@ const validationEditDomainRole = values => {
 export const DomainRoleList = props => (
     <List {...props} title="DomainRole List">
         <Datagrid>
-            <NumberField source="domain_id" />
             <DateField source="updated_at" />
-            <NumberField source="role_id" />
+            <ReferenceField label="Role" source="role_id" reference="roles" allowEmpty>
+                <NumberField source="id" />
+            </ReferenceField>
             <BooleanField source="grant_implicitly" />
+            <ReferenceField label="Domain" source="domain_id" reference="domains" allowEmpty>
+                <NumberField source="id" />
+            </ReferenceField>
             <DateField source="created_at" />
             <EditButton />
+            <ShowButton />
+            <DeleteButton />
         </Datagrid>
     </List>
+)
+
+export const DomainRoleCreate = props => (
+    <Create {...props} title="DomainRole Create">
+        <SimpleForm validate={validationCreateDomainRole}>
+            <BooleanInput source="grant_implicitly" />
+            <ReferenceInput label="Domain" source="domain_id" reference="domains" allowEmpty>
+                <SelectInput source="id" />
+            </ReferenceInput>
+            <ReferenceInput label="Role" source="role_id" reference="roles" allowEmpty>
+                <SelectInput source="id" />
+            </ReferenceInput>
+        </SimpleForm>
+    </Create>
 )
 
 export const DomainRoleShow = props => (
     <Show {...props} title="DomainRole Show">
         <SimpleShowLayout>
-            <NumberField source="domain_id" />
             <DateField source="updated_at" />
-            <NumberField source="role_id" />
+            <ReferenceField label="Role" source="role_id" reference="roles" allowEmpty>
+                <NumberField source="id" />
+            </ReferenceField>
             <BooleanField source="grant_implicitly" />
+            <ReferenceField label="Domain" source="domain_id" reference="domains" allowEmpty>
+                <NumberField source="id" />
+            </ReferenceField>
             <DateField source="created_at" />
-            <EditButton />
         </SimpleShowLayout>
     </Show>
 )
 
-export const DomainRoleCreate = props => (
-    <Create {...props} title="Create DomainRole">
-        <SimpleForm validate={validationCreateDomainRole}>
-            <NumberInput source="domain_id" />
-            <NumberInput source="role_id" />
-            <BooleanInput source="grant_implicitly" />
-        </SimpleForm>
-    </Create>
-)
-
 export const DomainRoleEdit = props => (
-    <Edit {...props} title="Edit DomainRole">
-        <SimpleForm validate={validationEditDomainRole}>
+    <Edit {...props} title="DomainRole Edit">
+        <SimpleForm validate={validationCreateDomainRole}>
             <BooleanInput source="grant_implicitly" />
         </SimpleForm>
     </Edit>

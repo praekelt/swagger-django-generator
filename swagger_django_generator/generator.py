@@ -1,11 +1,15 @@
 import copy
+from collections import OrderedDict
 
 import click
+import inflect
 import jinja2
 import json
 import os
 import sys
 from swagger_parser import SwaggerParser
+
+words = inflect.engine()
 
 DEFAULT_OUTPUT_DIR = "./generated"
 DEFAULT_MODULE = "generated"
@@ -37,6 +41,15 @@ COMPONENT_MAPPING = {
     "date-time": "Date",
     "enum": "Select"
 }
+
+COMPONENT_SUFFIX = {
+    "list": "Field",
+    "show": "Field",
+    "create": "Input",
+    "edit": "Input"
+}
+
+SUPPORTED_COMPONENTS = ["list", "show", "create", "edit"]
 
 # from swagger_tester import swagger_test
 
@@ -249,107 +262,148 @@ class Generator(object):
         if "$ref" in definition:
             definition_name = \
                 self.parser.get_definition_name_from_ref(definition["$ref"])
-            return self.parser.specification["definitions"][definition_name]
+            ref_def = self.parser.specification["definitions"][definition_name]
+            title = definition_name.replace("_", " ").title().replace(" ", "")
+            return ref_def, title
         else:
-            return definition
+            return definition, None
 
     def _get_resource_from_definition(self, resource_name, head_component,
-                                      definition, composite_parameters, suffix):
+                                      definition):
         resource = []
-        for name, details in definition["properties"]:
+        suffix = COMPONENT_SUFFIX[head_component]
+        properties = OrderedDict(definition.get("properties", {}))
+        for name, details in properties.items():
             attribute = {
                 "source": name,
-                "type": details.get("type", None)
+                "type": details.get("type", None),
+                "required": name in definition.get("required", []),
+                "read_only": details.get("readOnly", False)
             }
-            # If the attribute name is in the list of composite ids
-            # Change it to be a Reference component.
-            # Else based on the type/format combination get the correct
+            # Based on the type/format combination get the correct
             # AOR component to use.
-            if name in composite_parameters:
-                attribute["component"] = "Reference" + suffix
-                if suffix != "Input":
-                    attribute["related_component"] = \
-                        COMPONENT_MAPPING[composite_parameters[name]]
-                else:
-                    attribute["related_component"] = "SelectInput"
-            else:
-                if details.get("format", None) in COMPONENT_MAPPING:
-                    attribute["component"] = \
-                        COMPONENT_MAPPING[details["format"]] + suffix
-                else:
-                    attribute["component"] = \
-                        COMPONENT_MAPPING[attribute["type"]] + suffix
+            if details.get("format", None) in COMPONENT_MAPPING:
+                attribute["component"] = \
+                    COMPONENT_MAPPING[details["format"]] + suffix
+            elif attribute["type"] in COMPONENT_MAPPING:
+                attribute["component"] = \
+                    COMPONENT_MAPPING[attribute["type"]] + suffix
             # Handle an enum possibility
             if details.get("enum", None) is not None:
-                # Just check if the Select is already accounted for.
-                if attribute.get("related_component", None) is not None:
-                    attribute["component"] = COMPONENT_MAPPING["enum"] + suffix
+                attribute["component"] = COMPONENT_MAPPING["enum"] + suffix
                 attribute["choices"] = details["enum"]
 
-            resource.append(attribute)
-        self._resources[resource_name][head_component] = resource
+            if attribute.get("component", None) is not None:
+                # Add component to resource imports if not there.
+                if attribute["component"] not in \
+                        self._resources[resource_name]["imports"]:
+                    self._resources[resource_name]["imports"].append(
+                        attribute["component"]
+                    )
+                resource.append(attribute)
+        # Only add if there is something in resource
+        if resource:
+            self._resources[resource_name][head_component] = resource
+
+    def _fix_composite_ids(self, composite_parameters):
+        # Go through each resources components and check if they are
+        # Composite parameters.
+        for resource in self._resources.values():
+            for action, attributes in resource.items():
+                if action in SUPPORTED_COMPONENTS:
+                    suffix = COMPONENT_SUFFIX[action]
+                    for attribute in attributes:
+                        if attribute["source"] in composite_parameters[resource["path"]]:
+                            old_component = attribute["component"]
+                            attribute["component"] = "Reference" + suffix
+                            relation = attribute["source"].replace("_id", "")
+                            attribute["label"] = relation.title()
+                            attribute["reference"] = words.plural(relation)
+                            if suffix != "Input":
+                                attribute["related_component"] = old_component
+                            else:
+                                attribute["related_component"] = "SelectInput"
 
     def _make_aor_resource_definitions(self):
         self._resources = {}
-        for path, verbs in self.parser.paths.items():
-            for verb, io in verbs:
+        # Get all composite ID parameters for each resource.
+        composite_parameters = {}
+        for path, verbs in self.parser.specification["paths"].items():
+            # Get base path and load all composite parameters for the same
+            # base_path.
+            base_path = path[1:].split("/")[0]
+            if base_path not in composite_parameters:
+                composite_parameters[base_path] = {}
+            for parameter in verbs.get("parameters", []):
+                if "$ref" in parameter:
+                    ref = parameter["$ref"].split("/")[2]
+                    param = self.parser.specification["parameters"][ref]
+                else:
+                    param = parameter
+                if "id" in param.get("name", []) and param.get("name", None) != "id":
+                    composite_parameters[base_path][param["name"]] = param["type"]
+
+            for verb, io in verbs.items():
+
+                # Check if this is not a method.
+                if verb == "parameters":
+                    continue
+                elif not io.get("operationId", None):
+                    continue
+
                 # Get resource name and path and add it to the list
                 # for the first occurring instance of the resource
                 operation_id = io["operationId"]
                 name = operation_id.split("_")[0]
                 if name not in self._resources:
                     self._resources[name] = {
-                        "path": path[1:].split("/")[0],
-                        "imports": []
+                        "path": base_path,
+                        "imports": [],
+                        "has_methods": False
                     }
-
-                # Get all composite ID parameters for the current resource.
-                composite_parameters = {}
-                for parameter in io.get("parameters", []):
-                    param = parameter["$ref"] if "$ref" in parameter else parameter
-                    if "id" in param["name"] and param["name"] != "id":
-                        composite_parameters[param["name"]] = param["type"]
 
                 definition = None
                 head_component = None
-                suffix = None
 
                 # Get the correct definition/head_component/component suffix per
                 # verb based on the operation.
                 _create = "create" in operation_id
                 _update = "update" in operation_id
                 if "read" in operation_id:
-                    definition = self._get_definition_from_ref(
+                    definition, title = self._get_definition_from_ref(
                         definition=io["responses"]["200"]["schema"]
                     )
+                    self._resources[name]["title"] = title or name
                     head_component = "show"
-                    suffix = "Field"
                 elif "list" in operation_id:
-                    definition = self._get_definition_from_ref(
+                    definition, title = self._get_definition_from_ref(
                         definition=io["responses"]["200"]["schema"]["items"]
                     )
                     head_component = "list"
-                    suffix = "Field"
                 elif _create or _update:
                     for parameter in io.get("parameters", []):
                         param = parameter["$ref"] \
                             if "$ref" in parameter else parameter
                         # Grab the body parameter as the create definition
                         if param["in"] == "body":
-                            definition = self._get_definition_from_ref(
+                            definition, title = self._get_definition_from_ref(
                                 definition=param["schema"]
                             )
                     head_component = "create" if _create else "edit"
-                    suffix = "Input"
-
                 if head_component and definition:
+                    # Toggle to be included in AOR if it has a single method.
+                    self._resources[name]["has_methods"] = True
                     self._get_resource_from_definition(
                         resource_name=name,
                         head_component=head_component,
-                        definition=definition,
-                        composite_parameters=composite_parameters,
-                        suffix=suffix
+                        definition=definition
                     )
+        print("yo")
+        print(composite_parameters)
+
+        self._fix_composite_ids(composite_parameters=composite_parameters)
+
+        print("here")
 
         self.aor_generation()
 
@@ -543,7 +597,8 @@ class Generator(object):
         """
         return render_to_string(self.backend, "App.js", {
             "title": self.module_name,
-            "resources": self._resources
+            "resources": self._resources,
+            "supported_components": SUPPORTED_COMPONENTS
         })
 
     def generate_resource_js(self, name, resource):
@@ -553,7 +608,8 @@ class Generator(object):
         """
         return render_to_string(self.backend, "Resource.js", {
             "name": name,
-            "resource": resource
+            "resource": resource,
+            "supported_components": SUPPORTED_COMPONENTS
         })
 
     def aor_generation(self):
@@ -565,13 +621,14 @@ class Generator(object):
                 print(data)
         click.secho("Generating resource component files...", fg="green")
         for name, resource in self._resources.items():
-            title = name.replace("-", " ").title().replace(" ", "")
-            click.secho("Generating {}.js file...".format(title), fg="green")
-            with open(os.path.join(self.output_dir, "{}.js".format(title)), "w") as f:
-                data = self.generate_resource_js(title, resource)
-                f.write(data)
-                if self.verbose:
-                    print(data)
+            title = resource.get("title", None)
+            if title:
+                click.secho("Generating {}.js file...".format(title), fg="green")
+                with open(os.path.join(self.output_dir, "{}.js".format(title)), "w") as f:
+                    data = self.generate_resource_js(title, resource)
+                    f.write(data)
+                    if self.verbose:
+                        print(data)
 
     def django_aiohttp_generation(self):
         click.secho("Generating URLs file...", fg="green")

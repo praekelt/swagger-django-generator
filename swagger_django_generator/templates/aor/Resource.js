@@ -6,21 +6,20 @@ import {
     Create,
     Datagrid,
     SimpleShowLayout,
-    SimpleForm{% if resource.list_show %}{% for import in resource.list_show.imports %},
-    {{ import }}Field{% if resource.create or resource.edit %},
-    {{ import }}Input{% if import == "ReferenceArray" %},
-    SingleFieldList,
-    ChipField,
-    SelectArrayInput{% endif %}{% endif %}{% endfor %}{% endif %},
+    SimpleForm,
+    {% for import in resource.imports %}
+    {{ import }},
+    {% endfor %}
     DisabledInput,
-    EditButton
-
+    DeleteButton,
+    EditButton,
+    ShowButton
 } from 'admin-on-rest';
 
 {% if resource.create %}
 const validationCreate{{ name }} = values => {
     const errors = {};
-    {% for attribute in resource.create.attributes %}
+    {% for attribute in resource.create %}
     {% if attribute.required %}
     if (!values.{{ attribute.source }}) {
         errors.{{ attribute.source }} = ["{{ attribute.source }} is required"];
@@ -34,7 +33,7 @@ const validationCreate{{ name }} = values => {
 {% if resource.edit %}
 const validationEdit{{ name }} = values => {
     const errors = {};
-    {% for attribute in resource.edit.attributes %}
+    {% for attribute in resource.edit %}
     {% if attribute.required %}
     if (!values.{{ attribute.source }}) {
         errors.{{ attribute.source }} = ["{{ attribute.source }} is required"];
@@ -46,7 +45,7 @@ const validationEdit{{ name }} = values => {
 
 {% endif %}
 {% if resource.create %}
-{% for attribute in resource.create.attributes %}
+{% for attribute in resource.create %}
 {% if attribute.choices %}
 const createchoice{{ attribute.source }} = [
     {% if attribute.type == "integer" %}
@@ -64,7 +63,7 @@ const createchoice{{ attribute.source }} = [
 {% endfor %}
 {% endif %}
 {% if resource.edit %}
-{% for attribute in resource.edit.attributes %}
+{% for attribute in resource.edit %}
 {% if attribute.choices %}
 const editchoice{{ attribute.source }} = [
     {% if attribute.type == "integer" %}
@@ -81,99 +80,28 @@ const editchoice{{ attribute.source }} = [
 {% endif %}
 {% endfor %}
 {% endif %}
-{% if resource.list_show %}
-export const {{ resource.list_show.list_component }} = props => (
-    <List {...props} title="{{ name }} List">
-        <Datagrid>
-            {% for attribute in resource.list_show.attributes %}
-            {% if attribute.type == "relation" %}
-            <{{ attribute.component }}Field source="{{ attribute.source }}" reference="{{ attribute.reference }}" allowEmpty>
-                {% if attribute.component == "Reference" %}
-                <TextField source="id" />
-                {% elif attribute.component == "ReferenceArray" %}
-                <SingleFieldList>
-                    <ChipField source="id" />
-                </SingleFieldList>
-                {% endif %}
-            </{{ attribute.component }}Field>
+{% for component, attributes in resource.items() %}
+{% if component in supported_components and attributes|length > 0 %}
+export const {{ resource.title }}{{ component|title }} = props => (
+    <{{ component|title }} {...props} title="{{ resource.title }} {{ component|title }}">
+        <{% if component == "list" %}Datagrid{% elif component == "show" %}SimpleShowLayout{% else %}SimpleForm validate={validationCreate{{ name }}}{% endif %}>
+            {% for attribute in attributes %}
+            {% if attribute.related_component %}
+            <{{ attribute.component }} label="{{ attribute.label }}" source="{{ attribute.source }}" reference="{{ attribute.reference }}" {% if "Field" in attribute.component %}linkType="show" {% endif %}allowEmpty>
+                <{{ attribute.related_component }} source="id" />
+            </{{ attribute.component }}>
             {% else %}
-            <{{ attribute.component }}Field source="{{ attribute.source }}" />
+            <{{ attribute.component }} source="{{ attribute.source }}" />
             {% endif %}
             {% endfor %}
-            {% if resource.edit %}
+            {% if component == "list" %}
             <EditButton />
+            <ShowButton />
+            <DeleteButton />
             {% endif %}
-        </Datagrid>
-    </List>
-)
-
-export const {{ resource.list_show.show_component }} = props => (
-    <Show {...props} title="{{ name }} Show">
-        <SimpleShowLayout>
-            {% for attribute in resource.list_show.attributes %}
-            {% if attribute.type == "relation" %}
-            <{{ attribute.component }}Field source="{{ attribute.source }}" reference="{{ attribute.reference }}" allowEmpty>
-                {% if attribute.component == "Reference" %}
-                <TextField source="id" />
-                {% elif attribute.component == "ReferenceArray" %}
-                <SingleFieldList>
-                    <ChipField source="id" />
-                </SingleFieldList>
-                {% endif %}
-            </{{ attribute.component }}Field>
-            {% else %}
-            <{{ attribute.component }}Field source="{{ attribute.source }}" />
-            {% endif %}
-            {% endfor %}
-            {% if resource.edit %}
-            <EditButton />
-            {% endif %}
-        </SimpleShowLayout>
-    </Show>
+        </{% if component == "list" %}Datagrid{% elif component == "show" %}SimpleShowLayout{% else %}SimpleForm{% endif %}>
+    </{{ component|title }}>
 )
 
 {% endif %}
-{% if resource.create %}
-export const {{ resource.create.component }} = props => (
-    <Create {...props} title="Create {{ name }}">
-        <SimpleForm validate={validationCreate{{ name }}}>
-            {% for attribute in resource.create.attributes %}
-            {% if attribute.type == "relation" %}
-            <{{ attribute.component }}Input source="{{ attribute.source }}" reference="{{ attribute.reference }}" allowEmpty>
-                {% if attribute.component == "Reference" %}
-                <SelectInput source="id" />
-                {% elif attribute.component == "ReferenceArray" %}
-                <SelectArrayInput optionText="id" />
-                {% endif %}
-            </{{ attribute.component }}Input>
-            {% else %}
-            <{{ attribute.component }}Input source="{{ attribute.source }}"{% if attribute.choices %} choices={createchoice{{ attribute.source }}}{% endif %} />
-            {% endif %}
-            {% endfor %}
-        </SimpleForm>
-    </Create>
-)
-
-{% endif %}
-{% if resource.edit %}
-export const {{ resource.edit.component }} = props => (
-    <Edit {...props} title="Edit {{ name }}">
-        <SimpleForm validate={validationEdit{{ name }}}>
-            {% for attribute in resource.edit.attributes %}
-            {% if attribute.type == "relation" %}
-            <{{ attribute.component }}Input source="{{ attribute.source }}" reference="{{ attribute.reference }}" allowEmpty>
-                {% if attribute.component == "Reference" %}
-                <SelectInput source="id" />
-                {% elif attribute.component == "ReferenceArray" %}
-                <SelectArrayInput optionText="id" />
-                {% endif %}
-            </{{ attribute.component }}Input>
-            {% else %}
-            <{% if attribute.readOnly %}DisabledInput{% else %}{{ attribute.component }}Input{% endif %} source="{{ attribute.source }}"{% if attribute.choices %} choices={editchoice{{ attribute.source }}}{% endif %} />
-            {% endif %}
-            {% endfor %}
-        </SimpleForm>
-    </Edit>
-)
-
-{% endif %}
+{% endfor %}

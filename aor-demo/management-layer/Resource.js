@@ -7,15 +7,14 @@ import {
     Datagrid,
     SimpleShowLayout,
     SimpleForm,
-    DateField,
-    DateInput,
-    NumberField,
-    NumberInput,
     TextField,
+    NumberField,
+    DateField,
     TextInput,
     DisabledInput,
-    EditButton
-
+    DeleteButton,
+    EditButton,
+    ShowButton
 } from 'admin-on-rest';
 
 const validationCreateResource = values => {
@@ -34,31 +33,20 @@ const validationEditResource = values => {
 export const ResourceList = props => (
     <List {...props} title="Resource List">
         <Datagrid>
-            <DateField source="updated_at" />
-            <NumberField source="id" />
-            <TextField source="description" />
-            <DateField source="created_at" />
             <TextField source="urn" />
+            <NumberField source="id" />
+            <DateField source="created_at" />
+            <TextField source="description" />
+            <DateField source="updated_at" />
             <EditButton />
+            <ShowButton />
+            <DeleteButton />
         </Datagrid>
     </List>
 )
 
-export const ResourceShow = props => (
-    <Show {...props} title="Resource Show">
-        <SimpleShowLayout>
-            <DateField source="updated_at" />
-            <NumberField source="id" />
-            <TextField source="description" />
-            <DateField source="created_at" />
-            <TextField source="urn" />
-            <EditButton />
-        </SimpleShowLayout>
-    </Show>
-)
-
 export const ResourceCreate = props => (
-    <Create {...props} title="Create Resource">
+    <Create {...props} title="Resource Create">
         <SimpleForm validate={validationCreateResource}>
             <TextInput source="urn" />
             <TextInput source="description" />
@@ -66,9 +54,21 @@ export const ResourceCreate = props => (
     </Create>
 )
 
+export const ResourceShow = props => (
+    <Show {...props} title="Resource Show">
+        <SimpleShowLayout>
+            <TextField source="urn" />
+            <NumberField source="id" />
+            <DateField source="created_at" />
+            <TextField source="description" />
+            <DateField source="updated_at" />
+        </SimpleShowLayout>
+    </Show>
+)
+
 export const ResourceEdit = props => (
-    <Edit {...props} title="Edit Resource">
-        <SimpleForm validate={validationEditResource}>
+    <Edit {...props} title="Resource Edit">
+        <SimpleForm validate={validationCreateResource}>
             <TextInput source="urn" />
             <TextInput source="description" />
         </SimpleForm>

@@ -2,74 +2,58 @@ import React from 'react';
 import { simpleRestClient, Admin, Resource } from 'admin-on-rest';
 import { Delete } from 'admin-on-rest/lib/mui';
 
-import { 
-    TagList,
-    TagShow,
-    TagEdit
-} from './tag';
-import { 
-    PetList,
-    PetShow,
-    PetCreate,
-    PetEdit
-} from './pet';
-import { 
+import {
+    CategoryList,
+    CategoryCreate,
+    CategoryShow,
+} from './Category';
+
+import {
+    List,
+} from './';
+
+import {
     UserList,
+    UserEdit,
     UserShow,
     UserCreate,
-    UserEdit
-} from './user';
-import { 
-    OrderList,
-    OrderShow,
-    OrderCreate,
-    OrderEdit
-} from './order';
-import { 
-    CategoryList,
-    CategoryShow,
-    CategoryCreate
-} from './category';
+} from './User';
+
+import {
+    PetCreate,
+    PetEdit,
+    PetShow,
+} from './Pet';
+
 
 
 const App = () => (
     <Admin title={"demo"} restClient={simpleRestClient}>
         <Resource
-            name="tag"
-            list={ TagList }
-            show={ TagShow }
-            edit={ TagEdit}
+            name="categorys"
+            list={ CategoryList }
+            create={ CategoryCreate }
+            show={ CategoryShow }
             remove={Delete}
         />
         <Resource
-            name="pet"
-            list={ PetList }
-            show={ PetShow }
-            create={ PetCreate }
-            edit={ PetEdit}
+            name="pets"
+            list={ List }
             remove={Delete}
         />
         <Resource
-            name="user"
+            name="users"
             list={ UserList }
+            edit={ UserEdit }
             show={ UserShow }
             create={ UserCreate }
-            edit={ UserEdit}
             remove={Delete}
         />
         <Resource
-            name="order"
-            list={ OrderList }
-            show={ OrderShow }
-            create={ OrderCreate }
-            edit={ OrderEdit}
-            remove={Delete}
-        />
-        <Resource
-            name="category"
-            list={ CategoryList }
-            show={ CategoryShow }
-            create={ CategoryCreate }
+            name="pets"
+            create={ PetCreate }
+            edit={ PetEdit }
+            show={ PetShow }
             remove={Delete}
         />
     </Admin>

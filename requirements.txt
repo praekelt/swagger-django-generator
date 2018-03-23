@@ -6,3 +6,4 @@ parameterized
 django
 aiohttp
 aiohttp-cors
+inflect

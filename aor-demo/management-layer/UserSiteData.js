@@ -7,17 +7,17 @@ import {
     Datagrid,
     SimpleShowLayout,
     SimpleForm,
-    DateField,
-    DateInput,
-    NumberField,
-    NumberInput,
-    TextField,
-    TextInput,
     BooleanField,
+    DateField,
+    TextField,
+    NumberField,
     BooleanInput,
+    TextInput,
+    NumberInput,
     DisabledInput,
-    EditButton
-
+    DeleteButton,
+    EditButton,
+    ShowButton
 } from 'admin-on-rest';
 
 const validationCreateUserSiteData = values => {
@@ -39,45 +39,58 @@ const validationEditUserSiteData = values => {
 export const UserSiteDataList = props => (
     <List {...props} title="UserSiteData List">
         <Datagrid>
-            <DateField source="updated_at" />
-            <NumberField source="site_id" />
-            <DateField source="consented_at" />
-            <TextField source="user_id" />
             <BooleanField source="blocked" />
+            <DateField source="updated_at" />
+            <ReferenceField label="User" source="user_id" reference="users" allowEmpty>
+                <TextField source="id" />
+            </ReferenceField>
+            <DateField source="consented_at" />
             <DateField source="created_at" />
+            <ReferenceField label="Site" source="site_id" reference="sites" allowEmpty>
+                <NumberField source="id" />
+            </ReferenceField>
             <EditButton />
+            <ShowButton />
+            <DeleteButton />
         </Datagrid>
     </List>
+)
+
+export const UserSiteDataCreate = props => (
+    <Create {...props} title="UserSiteData Create">
+        <SimpleForm validate={validationCreateUserSiteData}>
+            <BooleanInput source="blocked" />
+            <ReferenceInput label="User" source="user_id" reference="users" allowEmpty>
+                <SelectInput source="id" />
+            </ReferenceInput>
+            <ReferenceInput label="Site" source="site_id" reference="sites" allowEmpty>
+                <SelectInput source="id" />
+            </ReferenceInput>
+            <TextInput source="consented_at" />
+        </SimpleForm>
+    </Create>
 )
 
 export const UserSiteDataShow = props => (
     <Show {...props} title="UserSiteData Show">
         <SimpleShowLayout>
-            <DateField source="updated_at" />
-            <NumberField source="site_id" />
-            <DateField source="consented_at" />
-            <TextField source="user_id" />
             <BooleanField source="blocked" />
+            <DateField source="updated_at" />
+            <ReferenceField label="User" source="user_id" reference="users" allowEmpty>
+                <TextField source="id" />
+            </ReferenceField>
+            <DateField source="consented_at" />
             <DateField source="created_at" />
-            <EditButton />
+            <ReferenceField label="Site" source="site_id" reference="sites" allowEmpty>
+                <NumberField source="id" />
+            </ReferenceField>
         </SimpleShowLayout>
     </Show>
 )
 
-export const UserSiteDataCreate = props => (
-    <Create {...props} title="Create UserSiteData">
-        <SimpleForm validate={validationCreateUserSiteData}>
-            <TextInput source="user_id" />
-            <BooleanInput source="blocked" />
-            <TextInput source="consented_at" />
-            <NumberInput source="site_id" />
-        </SimpleForm>
-    </Create>
-)
-
 export const UserSiteDataEdit = props => (
-    <Edit {...props} title="Edit UserSiteData">
-        <SimpleForm validate={validationEditUserSiteData}>
+    <Edit {...props} title="UserSiteData Edit">
+        <SimpleForm validate={validationCreateUserSiteData}>
             <BooleanInput source="blocked" />
             <TextInput source="consented_at" />
         </SimpleForm>

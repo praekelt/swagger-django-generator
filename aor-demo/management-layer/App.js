@@ -2,294 +2,262 @@ import React from 'react';
 import { simpleRestClient, Admin, Resource } from 'admin-on-rest';
 import { Delete } from 'admin-on-rest/lib/mui';
 
-import { 
+import {
+    InvitationList,
+    InvitationCreate,
+    InvitationShow,
+    InvitationEdit,
+} from './Invitation';
+
+import {
     SiteList,
-    SiteShow,
     SiteCreate,
-    SiteEdit
-} from './site';
-import { 
-    AdminNoteList,
-    AdminNoteShow,
-    AdminNoteCreate,
-    AdminNoteEdit
-} from './admin-note';
-import { 
-    InvitationDomainRoleList,
-    InvitationDomainRoleShow,
-    InvitationDomainRoleCreate
-} from './invitation-domain-role';
-import { 
+    SiteShow,
+    SiteEdit,
+} from './Site';
+
+import {
     InvitationSiteRoleList,
     InvitationSiteRoleShow,
-    InvitationSiteRoleCreate
-} from './invitation-site-role';
-import { 
-    SiteAndDomainRolesList,
-    SiteAndDomainRolesShow
-} from './site-and-domain-roles';
-import { 
+    InvitationSiteRoleCreate,
+} from './InvitationSiteRole';
+
+import {
+    ResourceList,
+    ResourceCreate,
+    ResourceShow,
+    ResourceEdit,
+} from './Resource';
+
+import {
     ClientList,
-    ClientShow
-} from './client';
-import { 
-    UserList,
-    UserShow,
-    UserEdit
-} from './user';
-import { 
-    DomainList,
+    ClientShow,
+} from './Client';
+
+import {
+    DomainRoleList,
+    DomainRoleCreate,
+    DomainRoleShow,
+    DomainRoleEdit,
+} from './DomainRole';
+
+import {
     DomainShow,
+    DomainEdit,
     DomainCreate,
-    DomainEdit
-} from './domain';
-import { 
-    PermissionList,
-    PermissionShow,
-    PermissionCreate,
-    PermissionEdit
-} from './permission';
-import { 
-    AllUserRolesList,
-    AllUserRolesShow
-} from './all-user-roles';
-import { 
+    DomainList,
+} from './Domain';
+
+import {
     RoleResourcePermissionList,
     RoleResourcePermissionShow,
-    RoleResourcePermissionCreate
-} from './role-resource-permission';
-import { 
-    UserSiteRoleLabelsAggregatedList,
-    UserSiteRoleLabelsAggregatedShow
-} from './user-site-role-labels-aggregated';
-import { 
-    InvitationList,
-    InvitationShow,
-    InvitationCreate,
-    InvitationEdit
-} from './invitation';
-import { 
-    SiteDataSchemaList,
-    SiteDataSchemaShow,
-    SiteDataSchemaCreate,
-    SiteDataSchemaEdit
-} from './site-data-schema';
-import { 
-    SiteRoleList,
+    RoleResourcePermissionCreate,
+} from './RoleResourcePermission';
+
+import {
     SiteRoleShow,
+    SiteRoleEdit,
     SiteRoleCreate,
-    SiteRoleEdit
-} from './site-role';
-import { 
-    ResourceList,
-    ResourceShow,
-    ResourceCreate,
-    ResourceEdit
-} from './resource';
-import { 
-    DomainRoleList,
-    DomainRoleShow,
-    DomainRoleCreate,
-    DomainRoleEdit
-} from './domain-role';
-import { 
-    UserSiteRoleList,
-    UserSiteRoleShow,
-    UserSiteRoleCreate
-} from './user-site-role';
-import { 
-    SiteRoleLabelsAggregatedList,
-    SiteRoleLabelsAggregatedShow
-} from './site-role-labels-aggregated';
-import { 
-    RoleList,
-    RoleShow,
-    RoleCreate,
-    RoleEdit
-} from './role';
-import { 
+    SiteRoleList,
+} from './SiteRole';
+
+import {
+    InvitationDomainRoleList,
+    InvitationDomainRoleShow,
+    InvitationDomainRoleCreate,
+} from './InvitationDomainRole';
+
+import {
     UserSiteDataList,
-    UserSiteDataShow,
     UserSiteDataCreate,
-    UserSiteDataEdit
-} from './user-site-data';
-import { 
-    DomainRolesList,
-    DomainRolesShow
-} from './domain-roles';
-import { 
-    UserDomainRoleList,
+    UserSiteDataShow,
+    UserSiteDataEdit,
+} from './UserSiteData';
+
+import {
+    RoleList,
+    RoleCreate,
+    RoleShow,
+    RoleEdit,
+} from './Role';
+
+import {
+    AdminNoteShow,
+    AdminNoteEdit,
+    AdminNoteCreate,
+    AdminNoteList,
+} from './AdminNote';
+
+import {
+    SiteDataSchemaShow,
+    SiteDataSchemaEdit,
+    SiteDataSchemaCreate,
+    SiteDataSchemaList,
+} from './SiteDataSchema';
+
+import {
+    UserList,
+    UserShow,
+    UserEdit,
+} from './User';
+
+import {
+    PermissionShow,
+    PermissionEdit,
+    PermissionCreate,
+    PermissionList,
+} from './Permission';
+
+import {
     UserDomainRoleShow,
-    UserDomainRoleCreate
-} from './user-domain-role';
+    UserDomainRoleCreate,
+    UserDomainRoleList,
+} from './UserDomainRole';
+
+import {
+    UserSiteRoleShow,
+    UserSiteRoleCreate,
+    UserSiteRoleList,
+} from './UserSiteRole';
+
 
 
 const App = () => (
     <Admin title={"ManagementLayer"} restClient={simpleRestClient}>
         <Resource
-            name="site"
+            name="invitations"
+            list={ InvitationList }
+            create={ InvitationCreate }
+            show={ InvitationShow }
+            edit={ InvitationEdit }
+            remove={Delete}
+        />
+        <Resource
+            name="sites"
             list={ SiteList }
-            show={ SiteShow }
             create={ SiteCreate }
-            edit={ SiteEdit}
+            show={ SiteShow }
+            edit={ SiteEdit }
             remove={Delete}
         />
         <Resource
-            name="admin-note"
-            list={ AdminNoteList }
-            show={ AdminNoteShow }
-            create={ AdminNoteCreate }
-            edit={ AdminNoteEdit}
-            remove={Delete}
-        />
-        <Resource
-            name="invitation-domain-role"
-            list={ InvitationDomainRoleList }
-            show={ InvitationDomainRoleShow }
-            create={ InvitationDomainRoleCreate }
-            remove={Delete}
-        />
-        <Resource
-            name="invitation-site-role"
+            name="invitationsiteroles"
             list={ InvitationSiteRoleList }
             show={ InvitationSiteRoleShow }
             create={ InvitationSiteRoleCreate }
             remove={Delete}
         />
         <Resource
-            name="site-and-domain-roles"
-            list={ SiteAndDomainRolesList }
-            show={ SiteAndDomainRolesShow }
+            name="resources"
+            list={ ResourceList }
+            create={ ResourceCreate }
+            show={ ResourceShow }
+            edit={ ResourceEdit }
             remove={Delete}
         />
         <Resource
-            name="client"
+            name="clients"
             list={ ClientList }
             show={ ClientShow }
             remove={Delete}
         />
         <Resource
-            name="user"
-            list={ UserList }
-            show={ UserShow }
-            edit={ UserEdit}
+            name="domainroles"
+            list={ DomainRoleList }
+            create={ DomainRoleCreate }
+            show={ DomainRoleShow }
+            edit={ DomainRoleEdit }
             remove={Delete}
         />
         <Resource
-            name="domain"
-            list={ DomainList }
+            name="domains"
             show={ DomainShow }
+            edit={ DomainEdit }
             create={ DomainCreate }
-            edit={ DomainEdit}
+            list={ DomainList }
             remove={Delete}
         />
         <Resource
-            name="permission"
-            list={ PermissionList }
-            show={ PermissionShow }
-            create={ PermissionCreate }
-            edit={ PermissionEdit}
-            remove={Delete}
-        />
-        <Resource
-            name="all-user-roles"
-            list={ AllUserRolesList }
-            show={ AllUserRolesShow }
-            remove={Delete}
-        />
-        <Resource
-            name="role-resource-permission"
+            name="roleresourcepermissions"
             list={ RoleResourcePermissionList }
             show={ RoleResourcePermissionShow }
             create={ RoleResourcePermissionCreate }
             remove={Delete}
         />
         <Resource
-            name="user-site-role-labels-aggregated"
-            list={ UserSiteRoleLabelsAggregatedList }
-            show={ UserSiteRoleLabelsAggregatedShow }
-            remove={Delete}
-        />
-        <Resource
-            name="invitation"
-            list={ InvitationList }
-            show={ InvitationShow }
-            create={ InvitationCreate }
-            edit={ InvitationEdit}
-            remove={Delete}
-        />
-        <Resource
-            name="site-data-schema"
-            list={ SiteDataSchemaList }
-            show={ SiteDataSchemaShow }
-            create={ SiteDataSchemaCreate }
-            edit={ SiteDataSchemaEdit}
-            remove={Delete}
-        />
-        <Resource
-            name="site-role"
-            list={ SiteRoleList }
+            name="siteroles"
             show={ SiteRoleShow }
+            edit={ SiteRoleEdit }
             create={ SiteRoleCreate }
-            edit={ SiteRoleEdit}
+            list={ SiteRoleList }
             remove={Delete}
         />
         <Resource
-            name="resource"
-            list={ ResourceList }
-            show={ ResourceShow }
-            create={ ResourceCreate }
-            edit={ ResourceEdit}
+            name="invitationdomainroles"
+            list={ InvitationDomainRoleList }
+            show={ InvitationDomainRoleShow }
+            create={ InvitationDomainRoleCreate }
             remove={Delete}
         />
         <Resource
-            name="domain-role"
-            list={ DomainRoleList }
-            show={ DomainRoleShow }
-            create={ DomainRoleCreate }
-            edit={ DomainRoleEdit}
-            remove={Delete}
-        />
-        <Resource
-            name="user-site-role"
-            list={ UserSiteRoleList }
-            show={ UserSiteRoleShow }
-            create={ UserSiteRoleCreate }
-            remove={Delete}
-        />
-        <Resource
-            name="site-role-labels-aggregated"
-            list={ SiteRoleLabelsAggregatedList }
-            show={ SiteRoleLabelsAggregatedShow }
-            remove={Delete}
-        />
-        <Resource
-            name="role"
-            list={ RoleList }
-            show={ RoleShow }
-            create={ RoleCreate }
-            edit={ RoleEdit}
-            remove={Delete}
-        />
-        <Resource
-            name="user-site-data"
+            name="usersitedata"
             list={ UserSiteDataList }
-            show={ UserSiteDataShow }
             create={ UserSiteDataCreate }
-            edit={ UserSiteDataEdit}
+            show={ UserSiteDataShow }
+            edit={ UserSiteDataEdit }
             remove={Delete}
         />
         <Resource
-            name="domain-roles"
-            list={ DomainRolesList }
-            show={ DomainRolesShow }
+            name="roles"
+            list={ RoleList }
+            create={ RoleCreate }
+            show={ RoleShow }
+            edit={ RoleEdit }
             remove={Delete}
         />
         <Resource
-            name="user-domain-role"
-            list={ UserDomainRoleList }
+            name="adminnotes"
+            show={ AdminNoteShow }
+            edit={ AdminNoteEdit }
+            create={ AdminNoteCreate }
+            list={ AdminNoteList }
+            remove={Delete}
+        />
+        <Resource
+            name="sitedataschemas"
+            show={ SiteDataSchemaShow }
+            edit={ SiteDataSchemaEdit }
+            create={ SiteDataSchemaCreate }
+            list={ SiteDataSchemaList }
+            remove={Delete}
+        />
+        <Resource
+            name="users"
+            list={ UserList }
+            show={ UserShow }
+            edit={ UserEdit }
+            remove={Delete}
+        />
+        <Resource
+            name="permissions"
+            show={ PermissionShow }
+            edit={ PermissionEdit }
+            create={ PermissionCreate }
+            list={ PermissionList }
+            remove={Delete}
+        />
+        <Resource
+            name="userdomainroles"
             show={ UserDomainRoleShow }
             create={ UserDomainRoleCreate }
+            list={ UserDomainRoleList }
+            remove={Delete}
+        />
+        <Resource
+            name="usersiteroles"
+            show={ UserSiteRoleShow }
+            create={ UserSiteRoleCreate }
+            list={ UserSiteRoleList }
             remove={Delete}
         />
     </Admin>

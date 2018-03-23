@@ -8,24 +8,24 @@ import {
     SimpleShowLayout,
     SimpleForm,
     DateField,
-    DateInput,
     NumberField,
     NumberInput,
     DisabledInput,
-    EditButton
-
+    DeleteButton,
+    EditButton,
+    ShowButton
 } from 'admin-on-rest';
 
 const validationCreateRoleResourcePermission = values => {
     const errors = {};
+    if (!values.resource_id) {
+        errors.resource_id = ["resource_id is required"];
+    }
     if (!values.permission_id) {
         errors.permission_id = ["permission_id is required"];
     }
     if (!values.role_id) {
         errors.role_id = ["role_id is required"];
-    }
-    if (!values.resource_id) {
-        errors.resource_id = ["resource_id is required"];
     }
     return errors;
 }
@@ -34,10 +34,19 @@ export const RoleResourcePermissionList = props => (
     <List {...props} title="RoleResourcePermission List">
         <Datagrid>
             <DateField source="updated_at" />
-            <NumberField source="permission_id" />
-            <NumberField source="role_id" />
+            <ReferenceField label="Role" source="role_id" reference="roles" allowEmpty>
+                <NumberField source="id" />
+            </ReferenceField>
+            <ReferenceField label="Resource" source="resource_id" reference="resources" allowEmpty>
+                <NumberField source="id" />
+            </ReferenceField>
+            <ReferenceField label="Permission" source="permission_id" reference="permissions" allowEmpty>
+                <NumberField source="id" />
+            </ReferenceField>
             <DateField source="created_at" />
-            <NumberField source="resource_id" />
+            <EditButton />
+            <ShowButton />
+            <DeleteButton />
         </Datagrid>
     </List>
 )
@@ -46,20 +55,32 @@ export const RoleResourcePermissionShow = props => (
     <Show {...props} title="RoleResourcePermission Show">
         <SimpleShowLayout>
             <DateField source="updated_at" />
-            <NumberField source="permission_id" />
-            <NumberField source="role_id" />
+            <ReferenceField label="Role" source="role_id" reference="roles" allowEmpty>
+                <NumberField source="id" />
+            </ReferenceField>
+            <ReferenceField label="Resource" source="resource_id" reference="resources" allowEmpty>
+                <NumberField source="id" />
+            </ReferenceField>
+            <ReferenceField label="Permission" source="permission_id" reference="permissions" allowEmpty>
+                <NumberField source="id" />
+            </ReferenceField>
             <DateField source="created_at" />
-            <NumberField source="resource_id" />
         </SimpleShowLayout>
     </Show>
 )
 
 export const RoleResourcePermissionCreate = props => (
-    <Create {...props} title="Create RoleResourcePermission">
+    <Create {...props} title="RoleResourcePermission Create">
         <SimpleForm validate={validationCreateRoleResourcePermission}>
-            <NumberInput source="permission_id" />
-            <NumberInput source="role_id" />
-            <NumberInput source="resource_id" />
+            <ReferenceInput label="Resource" source="resource_id" reference="resources" allowEmpty>
+                <SelectInput source="id" />
+            </ReferenceInput>
+            <ReferenceInput label="Permission" source="permission_id" reference="permissions" allowEmpty>
+                <SelectInput source="id" />
+            </ReferenceInput>
+            <ReferenceInput label="Role" source="role_id" reference="roles" allowEmpty>
+                <SelectInput source="id" />
+            </ReferenceInput>
         </SimpleForm>
     </Create>
 )

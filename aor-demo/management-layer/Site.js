@@ -8,16 +8,16 @@ import {
     SimpleShowLayout,
     SimpleForm,
     TextField,
-    TextInput,
-    BooleanField,
-    BooleanInput,
-    DateField,
-    DateInput,
     NumberField,
+    DateField,
+    BooleanField,
+    TextInput,
+    BooleanInput,
     NumberInput,
     DisabledInput,
-    EditButton
-
+    DeleteButton,
+    EditButton,
+    ShowButton
 } from 'admin-on-rest';
 
 const validationCreateSite = values => {
@@ -40,54 +40,55 @@ export const SiteList = props => (
     <List {...props} title="Site List">
         <Datagrid>
             <TextField source="client_id" />
-            <BooleanField source="is_active" />
+            <NumberField source="id" />
+            <NumberField source="domain_id" />
             <TextField source="name" />
             <DateField source="updated_at" />
-            <NumberField source="domain_id" />
-            <NumberField source="id" />
-            <TextField source="description" />
             <DateField source="created_at" />
+            <TextField source="description" />
+            <BooleanField source="is_active" />
             <EditButton />
+            <ShowButton />
+            <DeleteButton />
         </Datagrid>
     </List>
+)
+
+export const SiteCreate = props => (
+    <Create {...props} title="Site Create">
+        <SimpleForm validate={validationCreateSite}>
+            <TextInput source="client_id" />
+            <TextInput source="description" />
+            <BooleanInput source="is_active" />
+            <NumberInput source="domain_id" />
+            <TextInput source="name" />
+        </SimpleForm>
+    </Create>
 )
 
 export const SiteShow = props => (
     <Show {...props} title="Site Show">
         <SimpleShowLayout>
             <TextField source="client_id" />
-            <BooleanField source="is_active" />
+            <NumberField source="id" />
+            <NumberField source="domain_id" />
             <TextField source="name" />
             <DateField source="updated_at" />
-            <NumberField source="domain_id" />
-            <NumberField source="id" />
-            <TextField source="description" />
             <DateField source="created_at" />
-            <EditButton />
+            <TextField source="description" />
+            <BooleanField source="is_active" />
         </SimpleShowLayout>
     </Show>
 )
 
-export const SiteCreate = props => (
-    <Create {...props} title="Create Site">
+export const SiteEdit = props => (
+    <Edit {...props} title="Site Edit">
         <SimpleForm validate={validationCreateSite}>
             <TextInput source="client_id" />
-            <NumberInput source="domain_id" />
-            <TextInput source="name" />
             <TextInput source="description" />
             <BooleanInput source="is_active" />
-        </SimpleForm>
-    </Create>
-)
-
-export const SiteEdit = props => (
-    <Edit {...props} title="Edit Site">
-        <SimpleForm validate={validationEditSite}>
-            <TextInput source="client_id" />
             <NumberInput source="domain_id" />
             <TextInput source="name" />
-            <TextInput source="description" />
-            <BooleanInput source="is_active" />
         </SimpleForm>
     </Edit>
 )

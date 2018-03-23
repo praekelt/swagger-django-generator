@@ -7,15 +7,14 @@ import {
     Datagrid,
     SimpleShowLayout,
     SimpleForm,
-    TextField,
-    TextInput,
     DateField,
-    DateInput,
+    TextField,
     NumberField,
-    NumberInput,
+    TextInput,
     DisabledInput,
-    EditButton
-
+    DeleteButton,
+    EditButton,
+    ShowButton
 } from 'admin-on-rest';
 
 const validationCreatePermission = values => {
@@ -31,47 +30,48 @@ const validationEditPermission = values => {
     return errors;
 }
 
-export const PermissionList = props => (
-    <List {...props} title="Permission List">
-        <Datagrid>
-            <TextField source="name" />
-            <DateField source="updated_at" />
-            <NumberField source="id" />
-            <TextField source="description" />
-            <DateField source="created_at" />
-            <EditButton />
-        </Datagrid>
-    </List>
-)
-
 export const PermissionShow = props => (
     <Show {...props} title="Permission Show">
         <SimpleShowLayout>
-            <TextField source="name" />
             <DateField source="updated_at" />
-            <NumberField source="id" />
             <TextField source="description" />
             <DateField source="created_at" />
-            <EditButton />
+            <NumberField source="id" />
+            <TextField source="name" />
         </SimpleShowLayout>
     </Show>
 )
 
-export const PermissionCreate = props => (
-    <Create {...props} title="Create Permission">
+export const PermissionEdit = props => (
+    <Edit {...props} title="Permission Edit">
         <SimpleForm validate={validationCreatePermission}>
-            <TextInput source="name" />
             <TextInput source="description" />
+            <TextInput source="name" />
+        </SimpleForm>
+    </Edit>
+)
+
+export const PermissionCreate = props => (
+    <Create {...props} title="Permission Create">
+        <SimpleForm validate={validationCreatePermission}>
+            <TextInput source="description" />
+            <TextInput source="name" />
         </SimpleForm>
     </Create>
 )
 
-export const PermissionEdit = props => (
-    <Edit {...props} title="Edit Permission">
-        <SimpleForm validate={validationEditPermission}>
-            <TextInput source="name" />
-            <TextInput source="description" />
-        </SimpleForm>
-    </Edit>
+export const PermissionList = props => (
+    <List {...props} title="Permission List">
+        <Datagrid>
+            <DateField source="updated_at" />
+            <TextField source="description" />
+            <DateField source="created_at" />
+            <NumberField source="id" />
+            <TextField source="name" />
+            <EditButton />
+            <ShowButton />
+            <DeleteButton />
+        </Datagrid>
+    </List>
 )
 

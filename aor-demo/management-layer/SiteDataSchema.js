@@ -8,12 +8,12 @@ import {
     SimpleShowLayout,
     SimpleForm,
     DateField,
-    DateInput,
     NumberField,
     NumberInput,
     DisabledInput,
-    EditButton
-
+    DeleteButton,
+    EditButton,
+    ShowButton
 } from 'admin-on-rest';
 
 const validationCreateSiteDataSchema = values => {
@@ -24,45 +24,40 @@ const validationCreateSiteDataSchema = values => {
     return errors;
 }
 
-const validationEditSiteDataSchema = values => {
-    const errors = {};
-    return errors;
-}
-
-export const SiteDataSchemaList = props => (
-    <List {...props} title="SiteDataSchema List">
-        <Datagrid>
-            <DateField source="updated_at" />
-            <NumberField source="site_id" />
-            <DateField source="created_at" />
-            <EditButton />
-        </Datagrid>
-    </List>
-)
-
 export const SiteDataSchemaShow = props => (
     <Show {...props} title="SiteDataSchema Show">
         <SimpleShowLayout>
             <DateField source="updated_at" />
-            <NumberField source="site_id" />
+            <ReferenceField label="Site" source="site_id" reference="sites" allowEmpty>
+                <NumberField source="id" />
+            </ReferenceField>
             <DateField source="created_at" />
-            <EditButton />
         </SimpleShowLayout>
     </Show>
 )
 
 export const SiteDataSchemaCreate = props => (
-    <Create {...props} title="Create SiteDataSchema">
+    <Create {...props} title="SiteDataSchema Create">
         <SimpleForm validate={validationCreateSiteDataSchema}>
-            <NumberInput source="site_id" />
+            <ReferenceInput label="Site" source="site_id" reference="sites" allowEmpty>
+                <SelectInput source="id" />
+            </ReferenceInput>
         </SimpleForm>
     </Create>
 )
 
-export const SiteDataSchemaEdit = props => (
-    <Edit {...props} title="Edit SiteDataSchema">
-        <SimpleForm validate={validationEditSiteDataSchema}>
-        </SimpleForm>
-    </Edit>
+export const SiteDataSchemaList = props => (
+    <List {...props} title="SiteDataSchema List">
+        <Datagrid>
+            <DateField source="updated_at" />
+            <ReferenceField label="Site" source="site_id" reference="sites" allowEmpty>
+                <NumberField source="id" />
+            </ReferenceField>
+            <DateField source="created_at" />
+            <EditButton />
+            <ShowButton />
+            <DeleteButton />
+        </Datagrid>
+    </List>
 )
 
