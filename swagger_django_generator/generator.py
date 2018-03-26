@@ -232,12 +232,16 @@ class Generator(object):
             for operation, (path, http_verb, tag) in
             self.parser.operation.items()
         }
-
-    def generate_specification(self):
         if self.backend == "aor":
             self._make_aor_resource_definitions()
         else:
             self._make_django_class_definitions()
+
+    def generate_specification(self):
+        if self.backend == "aor":
+            self.aor_generation()
+        else:
+            self.django_aiohttp_generation()
 
     def resolve_schema_references(self, definition):
         # type: (Generator, Dict) -> None
@@ -410,7 +414,6 @@ class Generator(object):
                     )
 
         self._fix_composite_ids(composite_parameters=composite_parameters)
-        self.aor_generation()
 
     def _make_django_class_definitions(self):
         self._classes = {}
@@ -522,7 +525,6 @@ class Generator(object):
                     payload["secure"] = "security" in specref
 
                 self._classes[class_name][verb] = payload
-        self.django_aiohttp_generation()
 
     def generate_urls(self):
         # type: (Generator) -> str
