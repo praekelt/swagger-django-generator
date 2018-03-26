@@ -44,7 +44,7 @@
   "paths": {
     "/pets": {
       "get": {
-        "operationId": "pets_list",
+        "operationId": "pet_list",
         "parameters": [
           {
             "name": "pet_ids",

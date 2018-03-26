@@ -3,14 +3,11 @@ import { Admin, Delete, Resource } from 'admin-on-rest';
 import swaggerRestServer from './swaggerRestServer';
 
 import {
-    PetEdit,
+    PetList,
     PetShow,
+    PetEdit,
     PetCreate,
 } from './Pet';
-
-import {
-    List,
-} from './';
 
 import {
     CategoryList,
@@ -21,8 +18,8 @@ import {
 import {
     UserList,
     UserShow,
-    UserCreate,
     UserEdit,
+    UserCreate,
 } from './User';
 
 
@@ -31,14 +28,10 @@ const App = () => (
     <Admin title={"demo"} restClient={swaggerRestServer('rest-url:port')}>
         <Resource
             name="pets"
-            edit={ PetEdit }
+            list={ PetList }
             show={ PetShow }
+            edit={ PetEdit }
             create={ PetCreate }
-            remove={Delete}
-        />
-        <Resource
-            name="pets"
-            list={ List }
             remove={Delete}
         />
         <Resource
@@ -52,8 +45,8 @@ const App = () => (
             name="users"
             list={ UserList }
             show={ UserShow }
-            create={ UserCreate }
             edit={ UserEdit }
+            create={ UserCreate }
             remove={Delete}
         />
     </Admin>

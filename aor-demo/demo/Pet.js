@@ -7,11 +7,11 @@ import {
     Datagrid,
     SimpleShowLayout,
     SimpleForm,
-    TextInput,
-    SelectInput,
     NumberField,
     TextField,
     SelectField,
+    TextInput,
+    SelectInput,
     DisabledInput,
     DeleteButton,
     EditButton,
@@ -43,13 +43,17 @@ const editchoicestatus = [
     { id: 'sold', name: 'sold' },
 ];
 
-export const PetEdit = props => (
-    <Edit {...props} title="Pet Edit">
-        <SimpleForm validate={validationCreatePet}>
-            <TextInput source="name" />
-            <SelectInput source="status" />
-        </SimpleForm>
-    </Edit>
+export const PetList = props => (
+    <List {...props} title="Pet List">
+        <Datagrid>
+            <NumberField source="id" />
+            <TextField source="name" />
+            <SelectField source="status" />
+            <EditButton />
+            <ShowButton />
+            <DeleteButton />
+        </Datagrid>
+    </List>
 )
 
 export const PetShow = props => (
@@ -60,6 +64,15 @@ export const PetShow = props => (
             <SelectField source="status" />
         </SimpleShowLayout>
     </Show>
+)
+
+export const PetEdit = props => (
+    <Edit {...props} title="Pet Edit">
+        <SimpleForm validate={validationCreatePet}>
+            <TextInput source="name" />
+            <SelectInput source="status" />
+        </SimpleForm>
+    </Edit>
 )
 
 export const PetCreate = props => (

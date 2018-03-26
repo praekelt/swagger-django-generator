@@ -205,7 +205,7 @@ class Generator(object):
         self.utils_file = utils_file
         self.stubs_file = stubs_file
 
-    def generate_with_specification(self, specification_path, spec_format=None):
+    def load_specification(self, specification_path, spec_format=None):
         # If the swagger spec format is not specified explicitly, we try to
         # derive it from the specification path
         if not spec_format:
@@ -233,6 +233,7 @@ class Generator(object):
             self.parser.operation.items()
         }
 
+    def generate_specification(self):
         if self.backend == "aor":
             self._make_aor_resource_definitions()
         else:
@@ -724,7 +725,8 @@ def main(specification_path, spec_format, backend, verbose, output_dir, module_n
     )
     try:
         click.secho("Loading specification file...", fg="green")
-        generator.generate_with_specification(specification_path, spec_format)
+        generator.load_specification(specification_path, spec_format)
+        generator.generate_specification()
         click.secho("Done.", fg="green")
     except Exception as e:
         click.secho(str(e), fg="red")
