@@ -88,6 +88,10 @@ class {{ class_name }}(View, CorsViewMixin):
             # {{ oa.name }} (optional): {{ oa.type }} {{ oa.description }}
             {% if oa.type == "array" %}
             {{ oa.name }} = self.request.query.getall("{{ oa.name }}", None)
+            {% if oa["items"].type == "integer" %}
+            if {{ oa.name }}:
+                {{ oa.name }} = [int(e) for e in {{ oa.name }}]
+            {% endif %}
             {% else %}
             {{ oa.name }} = self.request.query.get("{{ oa.name }}", None)
             {% endif %}
@@ -102,6 +106,14 @@ class {{ class_name }}(View, CorsViewMixin):
                 if {{ oa.maximum }} < {{ oa.name }}:
                     raise ValidationError("{{ oa.name }} exceeds its maximum limit")
                 {% endif %}
+                {% elif oa.type == "array" %}
+                schema = {{ oa }}
+                # Remove Swagger fields that clash with JSONSchema names at this level
+                for field in ["name", "in", "required", "collectionFormat"]:
+                    if field in schema:
+                        del schema[field]
+
+                jsonschema.validate({{ oa.name }}, schema)
                 {% else %}
                 jsonschema.validate({{ oa.name }}, {"type": "{{ oa.type }}"})
                 {% endif %}
@@ -165,7 +177,7 @@ class {{ class_name }}(View, CorsViewMixin):
 
 
 {% endfor %}
-class __SWAGGER_SPEC__(View):
+class __SWAGGER_SPEC__(View, CorsViewMixin):
     SPEC = json.loads("""{{ specification }}""")
 
     async def get(self):

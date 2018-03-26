@@ -4,6 +4,7 @@ Do not modify this file. It is generated from the Swagger specification.
 Routing module.
 """
 import {{ module }}.views as views
+import aiohttp_cors
 
 def add_routes(app, with_ui=False):
     {# URLs are traverse in reversed sorted order so that longer ones are evaluated first #}
