@@ -40,7 +40,12 @@ ALL_TEST_SPECIFICATIONS = [
 class GeneratorTests(TestCase):
 
     def setUp(self):
-        self.generators = [Generator(backend) for backend in BACKEND_CHOICES]
+        self.generators = [
+            Generator(
+                backend, "./", "urls.py", "views.py",
+                "schemas.py", "utils.py", "stubs.py"
+            ) for backend in BACKEND_CHOICES
+        ]
 
     @parameterized.expand(ALL_TEST_SPECIFICATIONS)
     def test_file_parsing(self, spec_path):

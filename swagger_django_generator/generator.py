@@ -715,7 +715,7 @@ class Generator(object):
 @click.option("--utils-file", type=str,  default="utils.py",
               help="Use an alternative filename for the utilities.")
 @click.option("--stubs-file", type=str,  default="stubs.py",
-              help="Use an alternative filename for the utilities.")
+              help="Use an alternative filename for the stubs.")
 def main(specification_path, spec_format, backend, verbose, output_dir, module_name,
          urls_file, views_file, schemas_file, utils_file, stubs_file):
 
