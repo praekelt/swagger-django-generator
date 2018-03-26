@@ -1,6 +1,6 @@
 import React from 'react';
-import { simpleRestClient, Admin, Resource } from 'admin-on-rest';
-import { Delete } from 'admin-on-rest/lib/mui';
+import { Admin, Delete, Resource } from 'admin-on-rest';
+import swaggerRestServer from './swaggerRestServer';
 
 {% for name, actions in resources.items() %}
 {% if actions.has_methods %}
@@ -17,7 +17,7 @@ import {
 
 
 const App = () => (
-    <Admin title={"{{ title }}"} restClient={simpleRestClient}>
+    <Admin title={"{{ title }}"} restClient={swaggerRestServer('rest-url:port')}>
     {% for name, actions in resources.items() %}
     {% if actions.has_methods %}
         <Resource

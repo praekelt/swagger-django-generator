@@ -18,17 +18,17 @@ import {
 
 const validationCreateUser = values => {
     const errors = {};
-    if (!values.username) {
-        errors.username = ["username is required"];
-    }
-    if (!values.email) {
-        errors.email = ["email is required"];
-    }
     if (!values.lastName) {
         errors.lastName = ["lastName is required"];
     }
     if (!values.password) {
         errors.password = ["password is required"];
+    }
+    if (!values.email) {
+        errors.email = ["email is required"];
+    }
+    if (!values.username) {
+        errors.username = ["username is required"];
     }
     if (!values.firstName) {
         errors.firstName = ["firstName is required"];
@@ -38,14 +38,14 @@ const validationCreateUser = values => {
 
 const validationEditUser = values => {
     const errors = {};
-    if (!values.username) {
-        errors.username = ["username is required"];
+    if (!values.lastName) {
+        errors.lastName = ["lastName is required"];
     }
     if (!values.email) {
         errors.email = ["email is required"];
     }
-    if (!values.lastName) {
-        errors.lastName = ["lastName is required"];
+    if (!values.username) {
+        errors.username = ["username is required"];
     }
     if (!values.firstName) {
         errors.firstName = ["firstName is required"];
@@ -56,14 +56,14 @@ const validationEditUser = values => {
 export const UserList = props => (
     <List {...props} title="User List">
         <Datagrid>
-            <TextField source="phone" />
-            <TextField source="firstName" />
+            <TextField source="lastName" />
+            <NumberField source="id" />
             <NumberField source="userStatus" />
+            <TextField source="password" />
+            <TextField source="phone" />
             <TextField source="email" />
             <TextField source="username" />
-            <TextField source="password" />
-            <NumberField source="id" />
-            <TextField source="lastName" />
+            <TextField source="firstName" />
             <EditButton />
             <ShowButton />
             <DeleteButton />
@@ -71,29 +71,17 @@ export const UserList = props => (
     </List>
 )
 
-export const UserEdit = props => (
-    <Edit {...props} title="User Edit">
-        <SimpleForm validate={validationCreateUser}>
-            <TextInput source="username" />
-            <TextInput source="phone" />
-            <TextInput source="email" />
-            <TextInput source="lastName" />
-            <TextInput source="firstName" />
-        </SimpleForm>
-    </Edit>
-)
-
 export const UserShow = props => (
     <Show {...props} title="User Show">
         <SimpleShowLayout>
-            <TextField source="phone" />
-            <TextField source="firstName" />
+            <TextField source="lastName" />
+            <NumberField source="id" />
             <NumberField source="userStatus" />
+            <TextField source="password" />
+            <TextField source="phone" />
             <TextField source="email" />
             <TextField source="username" />
-            <TextField source="password" />
-            <NumberField source="id" />
-            <TextField source="lastName" />
+            <TextField source="firstName" />
         </SimpleShowLayout>
     </Show>
 )
@@ -101,13 +89,25 @@ export const UserShow = props => (
 export const UserCreate = props => (
     <Create {...props} title="User Create">
         <SimpleForm validate={validationCreateUser}>
-            <TextInput source="username" />
-            <TextInput source="email" />
             <TextInput source="lastName" />
-            <TextInput source="phone" />
             <TextInput source="password" />
+            <TextInput source="phone" />
+            <TextInput source="email" />
+            <TextInput source="username" />
             <TextInput source="firstName" />
         </SimpleForm>
     </Create>
+)
+
+export const UserEdit = props => (
+    <Edit {...props} title="User Edit">
+        <SimpleForm validate={validationCreateUser}>
+            <TextInput source="lastName" />
+            <TextInput source="email" />
+            <TextInput source="phone" />
+            <TextInput source="username" />
+            <TextInput source="firstName" />
+        </SimpleForm>
+    </Edit>
 )
 

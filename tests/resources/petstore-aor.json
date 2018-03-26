@@ -302,7 +302,7 @@
         ]
       }
     },
-    "/categorys": {
+    "/categories": {
       "get": {
         "operationId": "category_list",
         "parameters": [
@@ -368,7 +368,7 @@
         ]
       }
     },
-    "/categorys/{category_id}": {
+    "/categories/{category_id}": {
       "parameters": [
         {
           "$ref": "#/parameters/category_id"

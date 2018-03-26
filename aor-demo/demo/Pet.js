@@ -9,8 +9,8 @@ import {
     SimpleForm,
     TextInput,
     SelectInput,
-    TextField,
     NumberField,
+    TextField,
     SelectField,
     DisabledInput,
     DeleteButton,
@@ -43,15 +43,6 @@ const editchoicestatus = [
     { id: 'sold', name: 'sold' },
 ];
 
-export const PetCreate = props => (
-    <Create {...props} title="Pet Create">
-        <SimpleForm validate={validationCreatePet}>
-            <TextInput source="name" />
-            <SelectInput source="status" />
-        </SimpleForm>
-    </Create>
-)
-
 export const PetEdit = props => (
     <Edit {...props} title="Pet Edit">
         <SimpleForm validate={validationCreatePet}>
@@ -64,10 +55,19 @@ export const PetEdit = props => (
 export const PetShow = props => (
     <Show {...props} title="Pet Show">
         <SimpleShowLayout>
-            <TextField source="name" />
             <NumberField source="id" />
+            <TextField source="name" />
             <SelectField source="status" />
         </SimpleShowLayout>
     </Show>
+)
+
+export const PetCreate = props => (
+    <Create {...props} title="Pet Create">
+        <SimpleForm validate={validationCreatePet}>
+            <TextInput source="name" />
+            <SelectInput source="status" />
+        </SimpleForm>
+    </Create>
 )
 

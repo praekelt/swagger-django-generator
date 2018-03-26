@@ -1,39 +1,39 @@
 import React from 'react';
-import { simpleRestClient, Admin, Resource } from 'admin-on-rest';
-import { Delete } from 'admin-on-rest/lib/mui';
+import { Admin, Delete, Resource } from 'admin-on-rest';
+import swaggerRestServer from './swaggerRestServer';
 
 import {
-    CategoryList,
-    CategoryCreate,
-    CategoryShow,
-} from './Category';
+    PetEdit,
+    PetShow,
+    PetCreate,
+} from './Pet';
 
 import {
     List,
 } from './';
 
 import {
-    UserList,
-    UserEdit,
-    UserShow,
-    UserCreate,
-} from './User';
+    CategoryList,
+    CategoryShow,
+    CategoryCreate,
+} from './Category';
 
 import {
-    PetCreate,
-    PetEdit,
-    PetShow,
-} from './Pet';
+    UserList,
+    UserShow,
+    UserCreate,
+    UserEdit,
+} from './User';
 
 
 
 const App = () => (
-    <Admin title={"demo"} restClient={simpleRestClient}>
+    <Admin title={"demo"} restClient={swaggerRestServer('rest-url:port')}>
         <Resource
-            name="categorys"
-            list={ CategoryList }
-            create={ CategoryCreate }
-            show={ CategoryShow }
+            name="pets"
+            edit={ PetEdit }
+            show={ PetShow }
+            create={ PetCreate }
             remove={Delete}
         />
         <Resource
@@ -42,18 +42,18 @@ const App = () => (
             remove={Delete}
         />
         <Resource
-            name="users"
-            list={ UserList }
-            edit={ UserEdit }
-            show={ UserShow }
-            create={ UserCreate }
+            name="categories"
+            list={ CategoryList }
+            show={ CategoryShow }
+            create={ CategoryCreate }
             remove={Delete}
         />
         <Resource
-            name="pets"
-            create={ PetCreate }
-            edit={ PetEdit }
-            show={ PetShow }
+            name="users"
+            list={ UserList }
+            show={ UserShow }
+            create={ UserCreate }
+            edit={ UserEdit }
             remove={Delete}
         />
     </Admin>

@@ -7,8 +7,8 @@ import {
     Datagrid,
     SimpleShowLayout,
     SimpleForm,
-    TextField,
     NumberField,
+    TextField,
     TextInput,
     DisabledInput,
     DeleteButton,
@@ -27,13 +27,22 @@ const validationCreateCategory = values => {
 export const CategoryList = props => (
     <List {...props} title="Category List">
         <Datagrid>
-            <TextField source="name" />
             <NumberField source="id" />
+            <TextField source="name" />
             <EditButton />
             <ShowButton />
             <DeleteButton />
         </Datagrid>
     </List>
+)
+
+export const CategoryShow = props => (
+    <Show {...props} title="Category Show">
+        <SimpleShowLayout>
+            <NumberField source="id" />
+            <TextField source="name" />
+        </SimpleShowLayout>
+    </Show>
 )
 
 export const CategoryCreate = props => (
@@ -42,14 +51,5 @@ export const CategoryCreate = props => (
             <TextInput source="name" />
         </SimpleForm>
     </Create>
-)
-
-export const CategoryShow = props => (
-    <Show {...props} title="Category Show">
-        <SimpleShowLayout>
-            <TextField source="name" />
-            <NumberField source="id" />
-        </SimpleShowLayout>
-    </Show>
 )
 

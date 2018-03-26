@@ -309,11 +309,15 @@ class Generator(object):
         # Go through each resources components and check if they are
         # Composite parameters.
         for resource in self._resources.values():
+            composites = composite_parameters.get(resource["path"], None)
+            if composites is None:
+                continue
+            resource["composite_parameters"] = composites
             for action, attributes in resource.items():
                 if action in SUPPORTED_COMPONENTS:
                     suffix = COMPONENT_SUFFIX[action]
                     for attribute in attributes:
-                        if attribute["source"] in composite_parameters[resource["path"]]:
+                        if attribute["source"] in composites:
                             old_component = attribute["component"]
                             attribute["component"] = "Reference" + suffix
                             relation = attribute["source"].replace("_id", "")
@@ -342,6 +346,11 @@ class Generator(object):
                     param = parameter
                 if "id" in param.get("name", []) and param.get("name", None) != "id":
                     composite_parameters[base_path][param["name"]] = param["type"]
+
+            # If there is only one ID parameter, it is not a group of composites.
+            # Therefore clear it.
+            if len(composite_parameters[base_path]) < 2:
+                composite_parameters.pop(base_path)
 
             for verb, io in verbs.items():
 
@@ -398,13 +407,8 @@ class Generator(object):
                         head_component=head_component,
                         definition=definition
                     )
-        print("yo")
-        print(composite_parameters)
 
         self._fix_composite_ids(composite_parameters=composite_parameters)
-
-        print("here")
-
         self.aor_generation()
 
     def _make_django_class_definitions(self):
@@ -612,6 +616,22 @@ class Generator(object):
             "supported_components": SUPPORTED_COMPONENTS
         })
 
+    def generate_swagger_rest_server_js(self):
+        """
+        Generate a generic swagger rest server file.
+        :return: str
+        """
+        # Check if there are composite ids in any resource.
+        has_composites = False
+        for resource in self._resources.values():
+            if "composite_parameters" in resource:
+                has_composites = True
+                break
+        return render_to_string(self.backend, "swaggerRestServer.js", {
+            "resources": self._resources,
+            "has_composites": has_composites
+        })
+
     def aor_generation(self):
         click.secho("Generating App.js component file...", fg="green")
         with open(os.path.join(self.output_dir, "App.js"), "w") as f:
@@ -629,6 +649,12 @@ class Generator(object):
                     f.write(data)
                     if self.verbose:
                         print(data)
+        click.secho("Generating basic swagger rest server file...", fg="green")
+        with open(os.path.join(self.output_dir, "swaggerRestServer.js"), "w") as f:
+            data = self.generate_swagger_rest_server_js()
+            f.write(data)
+            if self.verbose:
+                print(data)
 
     def django_aiohttp_generation(self):
         click.secho("Generating URLs file...", fg="green")
