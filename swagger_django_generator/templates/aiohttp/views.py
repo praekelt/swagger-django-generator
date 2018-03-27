@@ -69,6 +69,9 @@ class {{ class_name }}(View, CorsViewMixin):
             {% else %}
             {{ ra.name }} = self.request.query["{{ ra.name }}"]
             {% endif %}
+            {% if ra.type == "boolean" %}
+            {{ ra.name }} = ({{ ra.name }}.lower() == "true")
+            {% endif %}
             {% if ra.type == "integer" %}
             {{ ra.name }} = int({{ ra.name }})
             {% if "minimum" in ra %}
@@ -96,6 +99,9 @@ class {{ class_name }}(View, CorsViewMixin):
             {{ oa.name }} = self.request.query.get("{{ oa.name }}", None)
             {% endif %}
             if {{ oa.name }} is not None:
+                {% if oa.type == "boolean" %}
+                {{ oa.name }} = ({{ oa.name }}.lower() == "true")
+                {% endif %}
                 {% if oa.type == "integer" %}
                 {{ oa.name }} = int({{ oa.name }})
                 {% if "minimum" in oa %}
