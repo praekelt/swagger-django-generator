@@ -14,6 +14,7 @@ class AbstractStubClass(object):
 {% for class_name, verbs in classes|dictsort(true) %}
     {% for verb, info in verbs|dictsort(true) %}
 
+    # {{ info.operation }} -- Synchronisation point for meld
     @staticmethod
     async def {{ info.operation }}(request, {% if info.body %}body, {% endif %}{% if info.form_data %}form_data, {% endif %}
         {% for ra in info.required_args %}{{ ra.name }}, {% endfor %}**kwargs):
