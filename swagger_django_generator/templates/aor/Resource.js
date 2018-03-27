@@ -1,3 +1,7 @@
+/** 
+ * Generated {{ resource.title }}.js code. Edit at own risk.
+ * When regenerated the changes will be lost.
+**/
 import React from 'react';
 import {
     List,
@@ -105,3 +109,4 @@ export const {{ resource.title }}{{ component|title }} = props => (
 
 {% endif %}
 {% endfor %}
+/** End of Generated Code **/

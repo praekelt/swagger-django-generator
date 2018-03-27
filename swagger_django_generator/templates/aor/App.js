@@ -1,4 +1,10 @@
+/** 
+ * Generated App.js code. Edit at own risk.
+ * When regenerated the changes will be lost.
+**/
 import React from 'react';
+import { cyan500, cyan300 } from 'material-ui/styles/colors';
+import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import { Admin, Delete, Resource } from 'admin-on-rest';
 import swaggerRestServer from './swaggerRestServer';
 
@@ -17,7 +23,7 @@ import {
 
 
 const App = () => (
-    <Admin title={"{{ title }}"} restClient={swaggerRestServer('rest-url:port')}>
+    <Admin title="{{ title }}" theme={getMuiTheme(muiTheme)} restClient={swaggerRestServer('rest-url:port')}>
     {% for name, actions in resources.items() %}
     {% if actions.has_methods %}
         <Resource
@@ -34,4 +40,12 @@ const App = () => (
     </Admin>
 )
 
+const muiTheme = getMuiTheme({
+    palette: {
+        primary1Color: cyan500,
+        accent1Color: cyan300
+    }
+});
+
 export default App;
+/** End of Generated Code **/

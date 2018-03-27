@@ -1,3 +1,7 @@
+/** 
+ * Generated swaggerRestServer.js code. Edit at own risk.
+ * When regenerated the changes will be lost.
+**/
 import { stringify } from 'query-string';
 import { fetchUtils } from 'admin-on-rest';
 
@@ -176,3 +180,4 @@ export default (apiUrl, httpClient = fetchUtils.fetchJson) => {
         );
     };
 };
+/** End of Generated Code **/

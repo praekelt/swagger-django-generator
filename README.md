@@ -42,7 +42,7 @@ Usage: generator.py [OPTIONS] SPECIFICATION
 
 Options:
   --spec-format [json|yaml]
-  --backend [django|aiohttp]
+  --backend [django|aiohttp|aor]
   --verbose / --no-verbose
   --output-dir DIRECTORY
   --module-name TEXT         The name of the module where the generated code
@@ -60,6 +60,157 @@ By default the generated `views.py` will call a generated mock implementation, w
 STUBS_CLASS = "myproject.implementation.Implementation"
 ```
 The code generated for `aiohttp` uses a `STUBS_CLASS` environment variable.
+
+## Admin On Rest Client Generation
+The Admin on Rest portion of work is simple a basic working Admin on Rest client that can be modified for custom requirements.
+In order for the generation to behave as desired, the swagger specification is required to follow a certain configuration. Note, this generated code
+comes along with a generic swaggerRestServer implementation.
+
+Here is a configuration of paths for a single model to be implemented on the Admin on Rest interface.
+
+```
+"/pets": {
+  "get": {
+    "operationId": "pet_list",
+    "parameters": [],
+    "produces": [
+      "application/json"
+    ],
+    "responses": {
+      "200": {
+        "description": "",
+        "schema": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/pet"
+          }
+        }
+      }
+    },
+    "tags": []
+  },
+  "post": {
+    "consumes": [
+      "application/json"
+    ],
+    "operationId": "pet_create",
+    "parameters": [
+      {
+        "in": "body",
+        "name": "data",
+        "schema": {
+          "$ref": "#/definitions/pet_create"
+        }
+      }
+    ],
+    "produces": [
+      "application/json"
+    ],
+    "responses": {
+      "201": {
+        "description": "",
+        "schema": {
+          "$ref": "#/definitions/pet"
+        }
+      }
+    },
+    "tags": []
+  }
+},
+"/pets/{pet_id}": {
+  "parameters": [
+    {
+      "$ref": "#/parameters/pet_id"
+    }
+  ],
+  "delete": {
+    "operationId": "pet_delete",
+    "responses": {
+      "204": {
+        "description": ""
+      }
+    },
+    "tags": []
+  },
+  "get": {
+    "operationId": "pet_read",
+    "produces": [
+      "application/json"
+    ],
+    "responses": {
+      "200": {
+        "description": "",
+        "schema": {
+          "$ref": "#/definitions/pet"
+        }
+      }
+    },
+    "tags": []
+  },
+  "put": {
+    "consumes": [
+      "application/json"
+    ],
+    "operationId": "pet_update",
+    "parameters": [
+      {
+        "in": "body",
+        "name": "data",
+        "schema": {
+          "$ref": "#/definitions/pet_update"
+        }
+      }
+    ],
+    "produces": [
+      "application/json"
+    ],
+    "responses": {
+      "200": {
+        "description": "",
+        "schema": {
+          "$ref": "#/definitions/pet"
+        }
+      }
+    },
+    "tags": []
+  }
+}
+```
+
+This is a suitable layout for the endpoints of the Pet Model. The important attribute of each path/method pair is its
+operationId. The trailing word of each operationId describes which AOR component the generator is looking at to generate.
+
+Each trailing word correlates to a given AOR component as listed below:
+```
+list - List Component
+create - Create Component
+read - Show Component
+update - Edit Component
+```
+
+Here we can go over the endpoints and how they will be used in generation.
+
+`/pets GET`: This path method will be used for the List component of the Pet model. The operationId must contain the suffix
+             "list". Here the generator will build a List component for Pet based on the definition or schema provided in the 200 response for a SINGLE item of the array.
+             In this example it will look at `"$ref": "#/definitions/pet"`
+
+`/pets POST`: This path method will be used for the Create component of the Pet Model. The operationId must contain the suffix "create". Here the
+              generator will build a Create component for Pet based on the definition or schema provided in the body parameter. In this example it will look at `"$ref": "#/definitions/pet_create"`.
+
+`/pets/{pet_id} GET`: This path method will be used for the Show component of the Pet Model. The operationId must contain the suffix "read". Here the generator
+                      will build a Show component for the Pet based on the definition or schema provided in the 200 response. In this example it will look at `"$ref": "#/definitions/pet"`.
+
+`/pets/{pet_id} PUT`: This path method will be used for the Edit component of the Pet Model. The operationId must contain the suffix "update". Here the generator will
+                      build an Edit component for the Pet based on the definition or schema provided in the body parameter. In this example it will look at `"$ref": "#/definitions/pet_create"`.
+
+The delete method is not used as a standard delete component is used in the generated Admin on Rest client.
+
+COMPOSITE IDS:
+
+In the event that your models require composite IDs that will be handled in the swaggerRestServer.js, they can be picked up in the path containing the GET (Show) method.
+
+eg.
+`/pettag/{pet_id}/{tag_id}`: This model will have composite ID pair of pet_id and tag_id.
 
 ## Examples
 
