@@ -349,7 +349,9 @@ class Generator(object):
                     param = self.parser.specification["parameters"][ref]
                 else:
                     param = parameter
-                if "id" in param.get("name", []) and param.get("name", None) != "id":
+                if "id" in param.get("name", []) \
+                        and param.get("name", None) != "id" \
+                        and param.get("in", None) == "path":
                     composite_parameters[base_path][param["name"]] = param["type"]
 
             # If there is only one ID parameter, it is not a group of composites.
@@ -394,6 +396,22 @@ class Generator(object):
                         definition=io["responses"]["200"]["schema"]["items"]
                     )
                     head_component = "list"
+                    filters = []
+                    # Get all method filters
+                    for parameter in io.get("parameters", []):
+                        if "$ref" in parameter:
+                            ref = parameter["$ref"].split("/")[2]
+                            param = self.parser.specification["parameters"][ref]
+                        else:
+                            param = parameter
+                        if param["in"] == "query" \
+                                and param["type"] in COMPONENT_MAPPING:
+                            filters.append({
+                                "source": param["name"],
+                                "label": param["name"].replace("_", " ").title(),
+                                "component": COMPONENT_MAPPING[param["type"]]
+                            })
+                    self._resources[name]["filters"] = filters
                 elif _create or _update:
                     for parameter in io.get("parameters", []):
                         param = parameter["$ref"] \
@@ -619,6 +637,15 @@ class Generator(object):
             "supported_components": SUPPORTED_COMPONENTS
         })
 
+    def generate_filters_js(self):
+        """
+        Generate a filter components file.
+        :return: str
+        """
+        return render_to_string(self.backend, "Filters.js", {
+            "resources": self._resources
+        })
+
     def generate_swagger_rest_server_js(self):
         """
         Generate a generic swagger rest server file.
@@ -652,6 +679,12 @@ class Generator(object):
                     f.write(data)
                     if self.verbose:
                         print(data)
+        click.secho("Generating Filters.js file...", fg="green")
+        with open(os.path.join(self.output_dir, "Filters.js"), "w") as f:
+            data = self.generate_filters_js()
+            f.write(data)
+            if self.verbose:
+                print(data)
         click.secho("Generating basic swagger rest server file...", fg="green")
         with open(os.path.join(self.output_dir, "swaggerRestServer.js"), "w") as f:
             data = self.generate_swagger_rest_server_js()

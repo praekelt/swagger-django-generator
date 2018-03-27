@@ -16,7 +16,7 @@ export const DELETE = 'DELETE';
 {% if has_composites %}
 const COMPOSITE_KEY_RESOURSES = {
     {% for name, resource in resources.items() %}
-    {% if resource.composite_parameters %}
+    {% if resource.composite_parameters and resource.has_methods %}
     {{ name }}: [
         {% for param, param_type in resource.composite_parameters.items() %}
         '{{ param }}',

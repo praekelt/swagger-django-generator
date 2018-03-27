@@ -19,6 +19,11 @@ import {
     EditButton,
     ShowButton
 } from 'admin-on-rest';
+{% if resource.filters %}
+import {
+    {{ resource.title }}Filter
+} from './Filter';
+{% endif %}
 
 {% if resource.create %}
 const validationCreate{{ name }} = values => {
@@ -87,7 +92,7 @@ const editchoice{{ attribute.source }} = [
 {% for component, attributes in resource.items() %}
 {% if component in supported_components and attributes|length > 0 %}
 export const {{ resource.title }}{{ component|title }} = props => (
-    <{{ component|title }} {...props} title="{{ resource.title }} {{ component|title }}">
+    <{{ component|title }} {...props} title="{{ resource.title }} {{ component|title }}"{% if component == "list" and resource.filters %} filters={<{{ resource.title }}Filter />}{% endif %}>
         <{% if component == "list" %}Datagrid{% elif component == "show" %}SimpleShowLayout{% else %}SimpleForm validate={validationCreate{{ name }}}{% endif %}>
             {% for attribute in attributes %}
             {% if attribute.related_component %}
