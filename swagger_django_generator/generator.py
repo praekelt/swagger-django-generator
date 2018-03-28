@@ -314,7 +314,7 @@ class Generator(object):
 
     def _fix_composite_ids(self, composite_parameters):
         # Go through each resources components and check if they are
-        # Composite parameters.
+        # Composite parameters. If they are, replace with reference components.
         for resource in self._resources.values():
             composites = composite_parameters.get(resource["path"], None)
             if composites is None:
@@ -327,6 +327,11 @@ class Generator(object):
                         if attribute["source"] in composites:
                             old_component = attribute["component"]
                             attribute["component"] = "Reference" + suffix
+                            # Add Reference Component to imports if not there.
+                            if attribute["component"] not in resource["imports"]:
+                                resource["imports"].append(
+                                    attribute["component"]
+                                )
                             relation = attribute["source"].replace("_id", "")
                             attribute["label"] = relation.title()
                             attribute["reference"] = words.plural(relation)
@@ -334,6 +339,12 @@ class Generator(object):
                                 attribute["related_component"] = old_component
                             else:
                                 attribute["related_component"] = "SelectInput"
+                            # Add related component if not in imports.
+                            if attribute["related_component"] \
+                                    not in resource["imports"]:
+                                resource["imports"].append(
+                                    attribute["related_component"]
+                                )
 
     def _make_aor_resource_definitions(self):
         self._resources = {}
