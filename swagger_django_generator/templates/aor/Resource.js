@@ -1,4 +1,4 @@
-/** 
+/**
  * Generated {{ resource.title }}.js code. Edit at own risk.
  * When regenerated the changes will be lost.
 **/

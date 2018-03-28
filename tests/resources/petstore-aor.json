@@ -19,6 +19,20 @@
     "http"
   ],
   "parameters": {
+    "optional_pet_id": {
+      "description": "An Optional Filter by pet_id.",
+      "in": "query",
+      "name": "pet_id",
+      "required": true,
+      "type": "integer"
+    },
+    "optional_user_id": {
+      "description": "An Optional Filter by user_id.",
+      "in": "query",
+      "name": "user_id",
+      "required": true,
+      "type": "integer"
+    },
     "pet_id": {
       "description": "A unique integer value identifying the pet.",
       "in": "path",
@@ -46,6 +60,9 @@
       "get": {
         "operationId": "pet_list",
         "parameters": [
+          {
+            "$ref": "#/parameters/optional_pet_id"
+          },
           {
             "name": "pet_ids",
             "description": "An optional list of pet ids",
@@ -176,6 +193,9 @@
       "get": {
         "operationId": "user_list",
         "parameters": [
+          {
+            "$ref": "#/parameters/optional_user_id"
+          },
           {
             "name": "user_ids",
             "description": "An optional list of user ids",

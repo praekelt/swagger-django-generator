@@ -1,3 +1,7 @@
+/**
+ * Generated Pet.js code. Edit at own risk.
+ * When regenerated the changes will be lost.
+**/
 import React from 'react';
 import {
     List,
@@ -17,6 +21,9 @@ import {
     EditButton,
     ShowButton
 } from 'admin-on-rest';
+import {
+    PetFilter
+} from './Filter';
 
 const validationCreatePet = values => {
     const errors = {};
@@ -44,7 +51,7 @@ const editchoicestatus = [
 ];
 
 export const PetList = props => (
-    <List {...props} title="Pet List">
+    <List {...props} title="Pet List" filters={<PetFilter />}>
         <Datagrid>
             <NumberField source="id" />
             <TextField source="name" />
@@ -54,6 +61,15 @@ export const PetList = props => (
             <DeleteButton />
         </Datagrid>
     </List>
+)
+
+export const PetCreate = props => (
+    <Create {...props} title="Pet Create">
+        <SimpleForm validate={validationCreatePet}>
+            <TextInput source="name" />
+            <SelectInput source="status" />
+        </SimpleForm>
+    </Create>
 )
 
 export const PetShow = props => (
@@ -75,12 +91,4 @@ export const PetEdit = props => (
     </Edit>
 )
 
-export const PetCreate = props => (
-    <Create {...props} title="Pet Create">
-        <SimpleForm validate={validationCreatePet}>
-            <TextInput source="name" />
-            <SelectInput source="status" />
-        </SimpleForm>
-    </Create>
-)
-
+/** End of Generated Code **/

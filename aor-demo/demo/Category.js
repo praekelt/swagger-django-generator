@@ -1,3 +1,7 @@
+/**
+ * Generated Category.js code. Edit at own risk.
+ * When regenerated the changes will be lost.
+**/
 import React from 'react';
 import {
     List,
@@ -36,6 +40,14 @@ export const CategoryList = props => (
     </List>
 )
 
+export const CategoryCreate = props => (
+    <Create {...props} title="Category Create">
+        <SimpleForm validate={validationCreateCategory}>
+            <TextInput source="name" />
+        </SimpleForm>
+    </Create>
+)
+
 export const CategoryShow = props => (
     <Show {...props} title="Category Show">
         <SimpleShowLayout>
@@ -45,11 +57,4 @@ export const CategoryShow = props => (
     </Show>
 )
 
-export const CategoryCreate = props => (
-    <Create {...props} title="Category Create">
-        <SimpleForm validate={validationCreateCategory}>
-            <TextInput source="name" />
-        </SimpleForm>
-    </Create>
-)
-
+/** End of Generated Code **/
