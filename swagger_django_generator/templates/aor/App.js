@@ -24,7 +24,7 @@ import {
 
 
 const App = () => (
-    <Admin title="{{ title }}" theme={getMuiTheme(muiTheme)} restClient={swaggerRestServer('rest-url:port')} authClient={authClient}>
+    <Admin title="{{ title }}" theme={getMuiTheme(muiTheme)} restClient={swaggerRestServer('{{ rest_server_url }}')} authClient={authClient}>
     {% for name, actions in resources.items() %}
     {% if actions.has_methods %}
         <Resource

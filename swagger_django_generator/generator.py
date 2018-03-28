@@ -191,7 +191,8 @@ class Generator(object):
     PATH_VERB_OPERATION_MAP = {}
 
     def __init__(self, backend, output_dir, urls_file, views_file, schemas_file,
-                 utils_file, stubs_file, module_name=DEFAULT_MODULE, verbose=False):
+                 utils_file, stubs_file, module_name=DEFAULT_MODULE, verbose=False,
+                 rest_server_url=None):
         self.backend = backend
         self.parser = None
         self.module_name = module_name
@@ -204,6 +205,7 @@ class Generator(object):
         self.schemas_file = schemas_file
         self.utils_file = utils_file
         self.stubs_file = stubs_file
+        self.rest_server_url = rest_server_url
 
     def load_specification(self, specification_path, spec_format=None):
         # If the swagger spec format is not specified explicitly, we try to
@@ -622,6 +624,7 @@ class Generator(object):
         """
         return render_to_string(self.backend, "App.js", {
             "title": self.module_name,
+            "rest_server_url": self.rest_server_url,
             "resources": self._resources,
             "supported_components": SUPPORTED_COMPONENTS
         })
@@ -765,12 +768,17 @@ class Generator(object):
               help="Use an alternative filename for the utilities.")
 @click.option("--stubs-file", type=str,  default="stubs.py",
               help="Use an alternative filename for the stubs.")
+@click.option("--rest_server_url", type=str,
+              default="http://localhost:8000/api/v1",
+              help="Use a desired rest server URL rather than "
+                   "'http://localhost:8000/api/v1'")
 def main(specification_path, spec_format, backend, verbose, output_dir, module_name,
-         urls_file, views_file, schemas_file, utils_file, stubs_file):
+         urls_file, views_file, schemas_file, utils_file, stubs_file, rest_server_url):
 
     generator = Generator(
         backend, output_dir, urls_file, views_file, schemas_file,
-        utils_file, stubs_file, module_name=module_name, verbose=verbose
+        utils_file, stubs_file, module_name=module_name,
+        verbose=verbose, rest_server_url=rest_server_url
     )
     try:
         click.secho("Loading specification file...", fg="green")

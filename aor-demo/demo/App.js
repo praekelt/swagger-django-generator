@@ -32,7 +32,7 @@ import {
 
 
 const App = () => (
-    <Admin title="demo" theme={getMuiTheme(muiTheme)} restClient={swaggerRestServer('rest-url:port')} authClient={authClient}>
+    <Admin title="demo" theme={getMuiTheme(muiTheme)} restClient={swaggerRestServer('http://localhost:8000/api/v1')} authClient={authClient}>
         <Resource
             name="pets"
             list={ PetList }
