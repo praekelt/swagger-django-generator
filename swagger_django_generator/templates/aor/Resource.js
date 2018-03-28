@@ -22,7 +22,7 @@ import {
 {% if resource.filters %}
 import {
     {{ resource.title }}Filter
-} from './Filter';
+} from './Filters';
 {% endif %}
 
 {% if resource.create %}
@@ -93,7 +93,7 @@ const editchoice{{ attribute.source }} = [
 {% if component in supported_components and attributes|length > 0 %}
 export const {{ resource.title }}{{ component|title }} = props => (
     <{{ component|title }} {...props} title="{{ resource.title }} {{ component|title }}"{% if component == "list" and resource.filters %} filters={<{{ resource.title }}Filter />}{% endif %}>
-        <{% if component == "list" %}Datagrid{% elif component == "show" %}SimpleShowLayout{% else %}SimpleForm validate={validationCreate{{ name }}}{% endif %}>
+        <{% if component == "list" %}Datagrid{% elif component == "show" %}SimpleShowLayout{% else %}SimpleForm validate={validation{{ component|title }}{{ name }}}{% endif %}>
             {% for attribute in attributes %}
             {% if attribute.related_component %}
             <{{ attribute.component }} label="{{ attribute.label }}" source="{{ attribute.source }}" reference="{{ attribute.reference }}" {% if "Field" in attribute.component %}linkType="show" {% endif %}allowEmpty>

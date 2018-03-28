@@ -422,7 +422,9 @@ class Generator(object):
                             filters.append({
                                 "source": param["name"],
                                 "label": param["name"].replace("_", " ").title(),
-                                "component": COMPONENT_MAPPING[param["type"]]
+                                "component": "{}{}".format(
+                                    COMPONENT_MAPPING[param["type"]], "Input"
+                                )
                             })
                     self._resources[name]["filters"] = filters
                 elif _create or _update:
