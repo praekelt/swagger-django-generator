@@ -661,11 +661,11 @@ class Generator(object):
             "resources": self._resources,
             "has_composites": has_composites
         })
-    
+
     def add_additional_file(self, filename):
         """
-        Add an additional file, that does not require context, 
-        to the generated admin. 
+        Add an additional file, that does not require context,
+        to the generated admin.
         :return: str
         """
         return render_to_string(self.backend, filename, {})
@@ -703,7 +703,7 @@ class Generator(object):
         with open(os.path.join(self.output_dir, "authClient.js"), "w") as f:
             data = self.add_additional_file("authClient.js")
             f.write(data)
-            if verbose:
+            if self.verbose:
                 print(data)
 
     def django_aiohttp_generation(self):
