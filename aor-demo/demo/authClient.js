@@ -17,7 +17,7 @@ export default (type, params) => {
                 if (response.status < 200 || response.status >= 300) {
                     throw new Error(response.statusText);
                 }
-                return response;
+                return response.json();
             })
             .then(({ token }) => {
                 localStorage.setItem('token', token);
