@@ -661,6 +661,14 @@ class Generator(object):
             "resources": self._resources,
             "has_composites": has_composites
         })
+    
+    def add_additional_file(self, filename):
+        """
+        Add an additional file, that does not require context, 
+        to the generated admin. 
+        :return: str
+        """
+        return render_to_string(self.backend, filename, {})
 
     def aor_generation(self):
         click.secho("Generating App.js component file...", fg="green")
@@ -690,6 +698,12 @@ class Generator(object):
             data = self.generate_swagger_rest_server_js()
             f.write(data)
             if self.verbose:
+                print(data)
+        click.secho("Adding authClient.js file...", fg="green")
+        with open(os.path.join(self.output_dir, "authClient.js"), "w") as f:
+            data = self.add_additional_file("authClient.js")
+            f.write(data)
+            if verbose:
                 print(data)
 
     def django_aiohttp_generation(self):
