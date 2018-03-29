@@ -97,10 +97,10 @@ export const {{ resource.title }}{{ component|title }} = props => (
             {% for attribute in attributes %}
             {% if attribute.related_component %}
             <{{ attribute.component }} label="{{ attribute.label }}" source="{{ attribute.source }}" reference="{{ attribute.reference }}" {% if "Field" in attribute.component %}linkType="show" {% endif %}allowEmpty>
-                <{{ attribute.related_component }} source="id" />
+                <{% if attribute.read_only %}DisabledInput{% else %}{{ attribute.related_component }}{% endif %} source={% if "Input" in attribute.related_component %}"{{ attribute.related_field }}" optionText="{{ attribute.option_text }}"{% else %}"{{ attribute.option_text }}"{% endif %} />
             </{{ attribute.component }}>
             {% else %}
-            <{{ attribute.component }} source="{{ attribute.source }}" />
+            <{% if attribute.read_only %}DisabledInput{% else %}{{ attribute.component }}{% endif %} source="{{ attribute.source }}" />
             {% endif %}
             {% endfor %}
             {% if component == "list" %}

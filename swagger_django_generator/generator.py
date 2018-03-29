@@ -39,7 +39,8 @@ COMPONENT_MAPPING = {
     "string": "Text",
     "boolean": "Boolean",
     "date-time": "Date",
-    "enum": "Select"
+    "enum": "Select",
+    "relation": "Reference"
 }
 
 COMPONENT_SUFFIX = {
@@ -281,24 +282,68 @@ class Generator(object):
         suffix = COMPONENT_SUFFIX[head_component]
         properties = OrderedDict(definition.get("properties", {}))
         for name, details in properties.items():
+            # Handle reference definition
+            _property, title = self._get_definition_from_ref(details)
+            # Don't handle referenced objects yet.
+            if _property.get("properties", None) is not None:
+                continue
             attribute = {
                 "source": name,
-                "type": details.get("type", None),
+                "type": _property.get("type", None),
                 "required": name in definition.get("required", []),
-                "read_only": details.get("readOnly", False)
+                "read_only": _property.get("readOnly", False)
+                if suffix == "Input" else False
             }
             # Based on the type/format combination get the correct
             # AOR component to use.
-            if details.get("format", None) in COMPONENT_MAPPING:
-                attribute["component"] = \
-                    COMPONENT_MAPPING[details["format"]] + suffix
-            elif attribute["type"] in COMPONENT_MAPPING:
-                attribute["component"] = \
-                    COMPONENT_MAPPING[attribute["type"]] + suffix
+            related_field = False
+            if attribute["type"] in COMPONENT_MAPPING:
+                # Check if it is a related field or not
+                if _property.get("x-related-info", None) is not None:
+                    related_info = _property["x-related-info"]
+                    model = related_info.get("model", None)
+                    # Check if there is no related model.
+                    if model != "No Model":
+                        related_field = True
+                        if model is None:
+                            model = attribute["source"].rsplit("_", 1)[0]
+                        attribute["label"] = model.replace("_", " ").title()
+                        attribute["reference"] = words.plural(model)
+                        field = related_info.get("field", None)
+                        if field is None:
+                            field = attribute["source"].rsplit("_", 1)[1]
+                        attribute["related_field"] = field
+                        attribute["option_text"] = related_info.get("label", None)
+
+                elif attribute["source"].endswith("_id"):
+                    related_field = True
+                    relation = attribute["source"].replace("_id", "")
+                    attribute["label"] = relation.title()
+                    attribute["reference"] = words.plural(relation)
+                    attribute["related_field"] = "id"
+
+            # Handle component after figuring out if a related field or not.
+            if _property.get("type", None) in COMPONENT_MAPPING:
+                if not related_field:
+                    if _property.get("format", None) in COMPONENT_MAPPING:
+                        attribute["component"] = \
+                            COMPONENT_MAPPING[_property["format"]] + suffix
+                    else:
+                        attribute["component"] = \
+                            COMPONENT_MAPPING[attribute["type"]] + suffix
+                else:
+                    attribute["component"] = \
+                        COMPONENT_MAPPING["relation"] + suffix
+                    if suffix != "Input":
+                        attribute["related_component"] = \
+                            COMPONENT_MAPPING[attribute["type"]] + suffix
+                    else:
+                        attribute["related_component"] = "SelectInput"
+
             # Handle an enum possibility
-            if details.get("enum", None) is not None:
+            if _property.get("enum", None) is not None:
                 attribute["component"] = COMPONENT_MAPPING["enum"] + suffix
-                attribute["choices"] = details["enum"]
+                attribute["choices"] = _property["enum"]
 
             if attribute.get("component", None) is not None:
                 # Add component to resource imports if not there.
@@ -307,71 +352,22 @@ class Generator(object):
                     self._resources[resource_name]["imports"].append(
                         attribute["component"]
                     )
+                # Add related component to resource imports if not there.
+                if attribute.get("related_component", None) is not None:
+                    if attribute["related_component"] not in \
+                            self._resources[resource_name]["imports"]:
+                        self._resources[resource_name]["imports"].append(
+                            attribute["related_component"]
+                        )
                 resource.append(attribute)
         # Only add if there is something in resource
         if resource:
             self._resources[resource_name][head_component] = resource
 
-    def _fix_composite_ids(self, composite_parameters):
-        # Go through each resources components and check if they are
-        # Composite parameters. If they are, replace with reference components.
-        for resource in self._resources.values():
-            composites = composite_parameters.get(resource["path"], None)
-            if composites is None:
-                continue
-            resource["composite_parameters"] = composites
-            for action, attributes in resource.items():
-                if action in SUPPORTED_COMPONENTS:
-                    suffix = COMPONENT_SUFFIX[action]
-                    for attribute in attributes:
-                        if attribute["source"] in composites:
-                            old_component = attribute["component"]
-                            attribute["component"] = "Reference" + suffix
-                            # Add Reference Component to imports if not there.
-                            if attribute["component"] not in resource["imports"]:
-                                resource["imports"].append(
-                                    attribute["component"]
-                                )
-                            relation = attribute["source"].replace("_id", "")
-                            attribute["label"] = relation.title()
-                            attribute["reference"] = words.plural(relation)
-                            if suffix != "Input":
-                                attribute["related_component"] = old_component
-                            else:
-                                attribute["related_component"] = "SelectInput"
-                            # Add related component if not in imports.
-                            if attribute["related_component"] \
-                                    not in resource["imports"]:
-                                resource["imports"].append(
-                                    attribute["related_component"]
-                                )
-
     def _make_aor_resource_definitions(self):
         self._resources = {}
-        # Get all composite ID parameters for each resource.
-        composite_parameters = {}
+
         for path, verbs in self.parser.specification["paths"].items():
-            # Get base path and load all composite parameters for the same
-            # base_path.
-            base_path = path[1:].split("/")[0]
-            if base_path not in composite_parameters:
-                composite_parameters[base_path] = {}
-            for parameter in verbs.get("parameters", []):
-                if "$ref" in parameter:
-                    ref = parameter["$ref"].split("/")[2]
-                    param = self.parser.specification["parameters"][ref]
-                else:
-                    param = parameter
-                if "id" in param.get("name", []) \
-                        and param.get("name", None) != "id" \
-                        and param.get("in", None) == "path":
-                    composite_parameters[base_path][param["name"]] = param["type"]
-
-            # If there is only one ID parameter, it is not a group of composites.
-            # Therefore clear it.
-            if len(composite_parameters[base_path]) < 2:
-                composite_parameters.pop(base_path)
-
             for verb, io in verbs.items():
 
                 # Check if this is not a method.
@@ -386,7 +382,7 @@ class Generator(object):
                 name = operation_id.split("_")[0]
                 if name not in self._resources:
                     self._resources[name] = {
-                        "path": base_path,
+                        "path": path[1:].split("/")[0],
                         "imports": [],
                         "has_methods": False
                     }
@@ -445,8 +441,6 @@ class Generator(object):
                         head_component=head_component,
                         definition=definition
                     )
-
-        self._fix_composite_ids(composite_parameters=composite_parameters)
 
     def _make_django_class_definitions(self):
         self._classes = {}

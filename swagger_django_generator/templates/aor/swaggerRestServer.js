@@ -86,7 +86,7 @@ export const convertRESTRequestToHTTP = ({
             options.body = JSON.stringify(params.data);
             break;
         case CREATE:
-            url = `${apiUrl}/${resource}/`;
+            url = `${apiUrl}/${resource}`;
             options.method = 'POST';
             options.body = JSON.stringify(params.data);
             break;
