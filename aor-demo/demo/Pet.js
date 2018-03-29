@@ -23,7 +23,7 @@ import {
 } from 'admin-on-rest';
 import {
     PetFilter
-} from './Filter';
+} from './Filters';
 
 const validationCreatePet = values => {
     const errors = {};
@@ -84,7 +84,7 @@ export const PetShow = props => (
 
 export const PetEdit = props => (
     <Edit {...props} title="Pet Edit">
-        <SimpleForm validate={validationCreatePet}>
+        <SimpleForm validate={validationEditPet}>
             <TextInput source="name" />
             <SelectInput source="status" />
         </SimpleForm>

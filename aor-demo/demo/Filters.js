@@ -12,13 +12,13 @@ import {
 
 export const PetFilter = props => (
     <Filter {...props}>
-        <Number label="Pet Id" source="pet_id" />
+        <NumberInput label="Pet Id" source="pet_id" />
     </Filter>
 );
 
 export const UserFilter = props => (
     <Filter {...props}>
-        <Number label="User Id" source="user_id" />
+        <NumberInput label="User Id" source="user_id" />
     </Filter>
 );
 
