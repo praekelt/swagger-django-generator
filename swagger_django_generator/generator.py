@@ -37,10 +37,13 @@ if major > 3 or major == 3 and minor >= 5:
 COMPONENT_MAPPING = {
     "integer": "Number",
     "string": "Text",
+    "object": "LongText",
     "boolean": "Boolean",
-    "date-time": "Date",
+    "date-time": "DateTime",
+    "date": "Date",
     "enum": "Select",
-    "relation": "Reference"
+    "relation": "Reference",
+    "many": "ReferenceMany"
 }
 
 COMPONENT_SUFFIX = {
@@ -276,12 +279,14 @@ class Generator(object):
         else:
             return definition, None
 
-    def _get_resource_from_definition(self, resource_name, head_component,
-                                      definition):
-        resource = []
-        suffix = COMPONENT_SUFFIX[head_component]
-        properties = OrderedDict(definition.get("properties", {}))
+    def _get_resource_attributes(self, resource_name, properties,
+                                 definition, suffix, fields=None):
+        attributes = []
         for name, details in properties.items():
+            # Check for desired fields and continue if not in there.
+            if fields is not None:
+                if name not in fields:
+                    continue
             # Handle reference definition
             _property, title = self._get_definition_from_ref(details)
             # Don't handle referenced objects yet.
@@ -301,23 +306,23 @@ class Generator(object):
                 # Check if it is a related field or not
                 if _property.get("x-related-info", None) is not None:
                     related_info = _property["x-related-info"]
-                    model = related_info.get("model", None)
+                    model = related_info.get("model", False)
                     # Check if there is no related model.
-                    if model != "No Model":
+                    if model is not None:
                         related_field = True
-                        if model is None:
-                            model = attribute["source"].rsplit("_", 1)[0]
+                        if not model:
+                            model = name.rsplit("_", 1)[0]
                         attribute["label"] = model.replace("_", " ").title()
                         attribute["reference"] = words.plural(model)
                         field = related_info.get("field", None)
                         if field is None:
-                            field = attribute["source"].rsplit("_", 1)[1]
+                            field = name.rsplit("_", 1)[1]
                         attribute["related_field"] = field
                         attribute["option_text"] = related_info.get("label", None)
 
-                elif attribute["source"].endswith("_id"):
+                elif name.endswith("_id"):
                     related_field = True
-                    relation = attribute["source"].replace("_id", "")
+                    relation = name.replace("_id", "")
                     attribute["label"] = relation.title()
                     attribute["reference"] = words.plural(relation)
                     attribute["related_field"] = "id"
@@ -326,8 +331,13 @@ class Generator(object):
             if _property.get("type", None) in COMPONENT_MAPPING:
                 if not related_field:
                     if _property.get("format", None) in COMPONENT_MAPPING:
+                        # DateTimeField is currently not supported.
+                        if suffix == "Field" and _property["format"] == "date-time":
+                            _type = "date"
+                        else:
+                            _type = _property["format"]
                         attribute["component"] = \
-                            COMPONENT_MAPPING[_property["format"]] + suffix
+                            COMPONENT_MAPPING[_type] + suffix
                     else:
                         attribute["component"] = \
                             COMPONENT_MAPPING[attribute["type"]] + suffix
@@ -359,10 +369,55 @@ class Generator(object):
                         self._resources[resource_name]["imports"].append(
                             attribute["related_component"]
                         )
-                resource.append(attribute)
+                attributes.append(attribute)
+        return attributes
+
+    def _get_resource_from_definition(self, resource_name, head_component,
+                                      definition):
+        self._resources[resource_name][head_component] = {}
+        suffix = COMPONENT_SUFFIX[head_component]
+        properties = OrderedDict(definition.get("properties", {}))
+        resource = self._get_resource_attributes(
+            resource_name, properties, definition, suffix
+        )
         # Only add if there is something in resource
         if resource:
-            self._resources[resource_name][head_component] = resource
+            self._resources[resource_name][head_component]["fields"] = resource
+
+        # Check if there are inline models for the given resource.
+        inlines = self.parser.specification.get(
+            "x-detail-page-definitions", None
+        )
+        if inlines is not None and head_component in ["show", "edit"]:
+            if resource_name in inlines:
+                self._resources[resource_name][head_component]["inlines"] = []
+                inlines = inlines[resource_name]["inlines"]
+                for inline in inlines:
+                    model = inline["model"]
+                    label = inline.get("label", None)
+                    reference = words.plural(model.replace("_", ""))
+                    fields = inline.get("fields", None)
+                    many_field = {
+                        "label": label or model.replace("_", " ").title(),
+                        "reference": reference,
+                        "target": inline["key"],
+                        "component": COMPONENT_MAPPING["many"] + "Field",
+                    }
+                    # Add ReferenceMany component to imports
+                    if many_field["component"] not in \
+                            self._resources[resource_name]["imports"]:
+                        self._resources[resource_name]["imports"].append(
+                            many_field["component"]
+                        )
+                    inline_def = \
+                        self.parser.specification["definitions"][inline["model"]]
+                    properties = inline_def.get("properties", {})
+                    many_field["fields"] = self._get_resource_attributes(
+                        resource_name, properties, inline_def, suffix, fields=fields
+                    )
+                    self._resources[resource_name][head_component]["inlines"].append(
+                        many_field
+                    )
 
     def _make_aor_resource_definitions(self):
         self._resources = {}
@@ -400,11 +455,19 @@ class Generator(object):
                     )
                     self._resources[name]["title"] = title or name
                     head_component = "show"
+                    # Add show imports
+                    if "Show" not in self._resources[name]["imports"]:
+                        self._resources[name]["imports"].append("Show")
+                        self._resources[name]["imports"].append("SimpleShowLayout")
                 elif "list" in operation_id:
                     definition, title = self._get_definition_from_ref(
                         definition=io["responses"]["200"]["schema"]["items"]
                     )
                     head_component = "list"
+                    # Add list imports
+                    if "List" not in self._resources[name]["imports"]:
+                        self._resources[name]["imports"].append("List")
+                        self._resources[name]["imports"].append("Datagrid")
                     filters = []
                     # Get all method filters
                     for parameter in io.get("parameters", []):
@@ -433,6 +496,12 @@ class Generator(object):
                                 definition=param["schema"]
                             )
                     head_component = "create" if _create else "edit"
+                    # Add SimpleForm and the head component to the imports
+                    if "SimpleForm" not in self._resources[name]["imports"]:
+                        self._resources[name]["imports"].append("SimpleForm")
+                    the_import = head_component.title()
+                    if the_import not in self._resources[name]["imports"]:
+                        self._resources[name]["imports"].append(the_import)
                 if head_component and definition:
                     # Toggle to be included in AOR if it has a single method.
                     self._resources[name]["has_methods"] = True

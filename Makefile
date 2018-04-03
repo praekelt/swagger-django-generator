@@ -35,5 +35,9 @@ aordemo:
 	mkdir -p aor-demo/demo
 	$(PYTHON) swagger_django_generator/generator.py tests/resources/petstore-aor.json --output-dir aor-demo/demo --module-name demo --backend=aor
 
+ge:
+	mkdir -p aor-demo/temp
+	$(PYTHON) swagger_django_generator/generator.py tests/resources/manage.yml --output-dir aor-demo/temp --module-name "Girl Effect Management Portal" --backend=aor --rest_server_url="//core-management-layer:8000"
+
 clean-demo:
 	rm -rf demo
