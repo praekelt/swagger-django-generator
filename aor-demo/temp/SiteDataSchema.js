@@ -8,7 +8,6 @@ import {
     Datagrid,
     ReferenceField,
     NumberField,
-    LongTextField,
     DateField,
     SimpleForm,
     Create,
@@ -18,11 +17,13 @@ import {
     Show,
     SimpleShowLayout,
     Edit,
-    DisabledInput,
     DeleteButton,
     EditButton,
     ShowButton
 } from 'admin-on-rest';
+import {
+    ObjectField
+} from './CustomFields';
 import {
     SiteDataSchemaFilter
 } from './Filters';
@@ -49,7 +50,7 @@ export const SiteDataSchemaList = props => (
             <ReferenceField label="Site" source="site_id" reference="sites" linkType="show" allowEmpty>
                 <NumberField source="name" />
             </ReferenceField>
-            <LongTextField source="schema" />
+            <ObjectField source="schema" addLabel />
             <DateField source="created_at" />
             <DateField source="updated_at" />
             <EditButton />
@@ -65,7 +66,7 @@ export const SiteDataSchemaCreate = props => (
             <ReferenceInput label="Site" source="site_id" reference="sites" allowEmpty>
                 <SelectInput source="id" optionText="name" />
             </ReferenceInput>
-            <LongTextInput source="schema" format={value => value instanceof Object ? JSON.stringify(value) : value} parse={v => { try { return JSON.parse(v); } catch (e) { return v; } }} />
+            <LongTextInput source="schema" format={value => value instanceof Object ? JSON.stringify(value) : value} parse={value => { try { return JSON.parse(value); } catch (e) { return value; } }} />
         </SimpleForm>
     </Create>
 )
@@ -76,7 +77,7 @@ export const SiteDataSchemaShow = props => (
             <ReferenceField label="Site" source="site_id" reference="sites" linkType="show" allowEmpty>
                 <NumberField source="name" />
             </ReferenceField>
-            <LongTextField source="schema" />
+            <ObjectField source="schema" addLabel />
             <DateField source="created_at" />
             <DateField source="updated_at" />
         </SimpleShowLayout>
@@ -86,7 +87,7 @@ export const SiteDataSchemaShow = props => (
 export const SiteDataSchemaEdit = props => (
     <Edit {...props} title="SiteDataSchema Edit">
         <SimpleForm validate={validationEditSiteDataSchema}>
-            <LongTextInput source="schema" format={value => value instanceof Object ? JSON.stringify(value) : value} parse={v => { try { return JSON.parse(v); } catch (e) { return v; } }} />
+            <LongTextInput source="schema" format={value => value instanceof Object ? JSON.stringify(value) : value} parse={value => { try { return JSON.parse(value); } catch (e) { return value; } }} />
         </SimpleForm>
     </Edit>
 )

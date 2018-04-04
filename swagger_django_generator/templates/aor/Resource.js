@@ -5,17 +5,21 @@
 import React from 'react';
 import {
     {% for import in resource.imports %}
-    {% if import != "DateTimeInput" %}
+    {% if import not in ["DateTimeInput", "ObjectField"] %}
     {{ import }},
     {% endif %}
     {% endfor %}
-    DisabledInput,
     DeleteButton,
     EditButton,
     ShowButton
 } from 'admin-on-rest';
 {% if "DateTimeInput" in resource.imports %}
 import DateTimeInput from 'aor-datetime-input';
+{% endif %}
+{% if "ObjectField" in resource.imports %}
+import {
+    ObjectField
+} from './CustomFields';
 {% endif %}
 {% if resource.filters %}
 import {
@@ -98,7 +102,7 @@ export const {{ resource.title }}{{ component|title }} = props => (
                 <{% if attribute.read_only %}DisabledInput{% else %}{{ attribute.related_component }}{% endif %} source={% if "Input" in attribute.related_component %}"{{ attribute.related_field }}" optionText="{% if attribute.option_text %}{{ attribute.option_text }}{% endif %}"{% else %}"{% if attribute.option_text %}{{ attribute.option_text }}{% else %}id{% endif %}"{% endif %} />
             </{{ attribute.component }}>
             {% else %}
-            <{% if attribute.read_only %}DisabledInput{% else %}{{ attribute.component }}{% endif %} source="{{ attribute.source }}"{% if attribute.type == "object" and "Input" in attribute.component %} format={value => value instanceof Object ? JSON.stringify(value) : value} parse={v => { try { return JSON.parse(v); } catch (e) { return v; } }}{% endif %} />
+            <{% if attribute.read_only %}DisabledInput{% else %}{{ attribute.component }}{% endif %} source="{{ attribute.source }}"{% if attribute.type == "object" and "Input" in attribute.component %} format={value => value instanceof Object ? JSON.stringify(value) : value} parse={value => { try { return JSON.parse(value); } catch (e) { return value; } }}{% endif %}{% if attribute.component == "ObjectField" %} addLabel{% endif %} />
             {% endif %}
             {% endfor %}
             {% for inline in entries.inlines %}
@@ -110,9 +114,12 @@ export const {{ resource.title }}{{ component|title }} = props => (
                         <{% if attribute.read_only %}DisabledInput{% else %}{{ attribute.related_component }}{% endif %} source={% if "Input" in attribute.related_component %}"{{ attribute.related_field }}" optionText="{% if attribute.option_text %}{{ attribute.option_text }}{% endif %}"{% else %}"{% if attribute.option_text %}{{ attribute.option_text }}{% else %}id{% endif %}"{% endif %} />
                     </{{ attribute.component }}>
                     {% else %}
-                    <{% if attribute.read_only %}DisabledInput{% else %}{{ attribute.component }}{% endif %} source="{{ attribute.source }}"{% if attribute.type == "object" and "Input" in attribute.component %} format={value => value instanceof Object ? JSON.stringify(value) : value} parse={v => { try { return JSON.parse(v); } catch (e) { return v; } }}{% endif %} />
+                    <{% if attribute.read_only %}DisabledInput{% else %}{{ attribute.component }}{% endif %} source="{{ attribute.source }}"{% if attribute.type == "object" and "Input" in attribute.component %} format={value => value instanceof Object ? JSON.stringify(value) : value} parse={value => { try { return JSON.parse(value); } catch (e) { return value; } }}{% endif %}{% if attribute.component == "ObjectField" %} addLabel{% endif %} />
                     {% endif %}
                     {% endfor %}
+                    {% if component == "edit" %}
+                    <EditButton />
+                    {% endif %}
                 </Datagrid>
             </{{ inline.component }}>
             {% endfor %}

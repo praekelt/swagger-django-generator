@@ -19,14 +19,10 @@ import {
     TextInput,
     BooleanInput,
     DateInput,
-    ReferenceInput,
-    SelectInput,
-    DisabledInput,
     DeleteButton,
     EditButton,
     ShowButton
 } from 'admin-on-rest';
-import DateTimeInput from 'aor-datetime-input';
 import {
     UserFilter
 } from './Filters';
@@ -127,26 +123,28 @@ export const UserEdit = props => (
             <TextInput source="country_code" />
             <ReferenceManyField label="Site Roles" reference="usersiteroles" target="user_id">
                 <Datagrid>
-                    <ReferenceInput label="Site" source="site_id" reference="sites" allowEmpty>
-                        <SelectInput source="id" optionText="name" />
-                    </ReferenceInput>
-                    <ReferenceInput label="Role" source="role_id" reference="roles" allowEmpty>
-                        <SelectInput source="id" optionText="label" />
-                    </ReferenceInput>
-                    <DisabledInput source="created_at" />
-                    <DisabledInput source="updated_at" />
+                    <ReferenceField label="Site" source="site_id" reference="sites" linkType="show" allowEmpty>
+                        <NumberField source="name" />
+                    </ReferenceField>
+                    <ReferenceField label="Role" source="role_id" reference="roles" linkType="show" allowEmpty>
+                        <NumberField source="label" />
+                    </ReferenceField>
+                    <DateField source="created_at" />
+                    <DateField source="updated_at" />
+                    <EditButton />
                 </Datagrid>
             </ReferenceManyField>
             <ReferenceManyField label="Domain Roles" reference="userdomainroles" target="user_id">
                 <Datagrid>
-                    <ReferenceInput label="Domain" source="domain_id" reference="domains" allowEmpty>
-                        <SelectInput source="id" optionText="name" />
-                    </ReferenceInput>
-                    <ReferenceInput label="Role" source="role_id" reference="roles" allowEmpty>
-                        <SelectInput source="id" optionText="label" />
-                    </ReferenceInput>
-                    <DisabledInput source="created_at" />
-                    <DisabledInput source="updated_at" />
+                    <ReferenceField label="Domain" source="domain_id" reference="domains" linkType="show" allowEmpty>
+                        <NumberField source="name" />
+                    </ReferenceField>
+                    <ReferenceField label="Role" source="role_id" reference="roles" linkType="show" allowEmpty>
+                        <NumberField source="label" />
+                    </ReferenceField>
+                    <DateField source="created_at" />
+                    <DateField source="updated_at" />
+                    <EditButton />
                 </Datagrid>
             </ReferenceManyField>
         </SimpleForm>

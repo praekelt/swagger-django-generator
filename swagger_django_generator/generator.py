@@ -35,15 +35,28 @@ if major > 3 or major == 3 and minor >= 5:
 
 # Component Mapping for swagger types to AOR components
 COMPONENT_MAPPING = {
-    "integer": "Number",
-    "string": "Text",
-    "object": "LongText",
-    "boolean": "Boolean",
-    "date-time": "DateTime",
-    "date": "Date",
-    "enum": "Select",
-    "relation": "Reference",
-    "many": "ReferenceMany"
+    "Field": {
+        "integer": "NumberField",
+        "string": "TextField",
+        "object": "ObjectField",
+        "boolean": "BooleanField",
+        "date-time": "DateTimeField",
+        "date": "DateField",
+        "enum": "SelectField",
+        "relation": "ReferenceField",
+        "many": "ReferenceManyField"
+    },
+    "Input": {
+        "integer": "NumberInput",
+        "string": "TextInput",
+        "object": "LongTextInput",
+        "boolean": "BooleanInput",
+        "date-time": "DateTimeInput",
+        "date": "DateInput",
+        "enum": "SelectInput",
+        "relation": "ReferenceInput",
+        "many": "ReferenceManyField"
+    }
 }
 
 COMPONENT_SUFFIX = {
@@ -279,7 +292,7 @@ class Generator(object):
         else:
             return definition, None
 
-    def _get_resource_attributes(self, resource_name, properties,
+    def _get_resource_attributes(self, resource_name, properties, head_component,
                                  definition, suffix, fields=None):
         attributes = []
         for name, details in properties.items():
@@ -299,10 +312,15 @@ class Generator(object):
                 "read_only": _property.get("readOnly", False)
                 if suffix == "Input" else False
             }
+            # Add DisabledInput to Imports if read_only is true.
+            if attribute["read_only"] and "DisabledInput" \
+                    not in self._resources[resource_name]["imports"]:
+                self._resources[resource_name]["imports"].append("DisabledInput")
+
             # Based on the type/format combination get the correct
             # AOR component to use.
             related_field = False
-            if attribute["type"] in COMPONENT_MAPPING:
+            if attribute["type"] in COMPONENT_MAPPING[suffix]:
                 # Check if it is a related field or not
                 if _property.get("x-related-info", None) is not None:
                     related_info = _property["x-related-info"]
@@ -327,32 +345,32 @@ class Generator(object):
                     attribute["reference"] = words.plural(relation)
                     attribute["related_field"] = "id"
 
-            # Handle component after figuring out if a related field or not.
-            if _property.get("type", None) in COMPONENT_MAPPING:
+                # LongTextFields don't exist
+                # Handle component after figuring out if a related field or not.
                 if not related_field:
-                    if _property.get("format", None) in COMPONENT_MAPPING:
+                    if _property.get("format", None) in COMPONENT_MAPPING[suffix]:
                         # DateTimeField is currently not supported.
                         if suffix == "Field" and _property["format"] == "date-time":
                             _type = "date"
                         else:
                             _type = _property["format"]
                         attribute["component"] = \
-                            COMPONENT_MAPPING[_type] + suffix
+                            COMPONENT_MAPPING[suffix][_type]
                     else:
                         attribute["component"] = \
-                            COMPONENT_MAPPING[attribute["type"]] + suffix
+                            COMPONENT_MAPPING[suffix][attribute["type"]]
                 else:
                     attribute["component"] = \
-                        COMPONENT_MAPPING["relation"] + suffix
+                        COMPONENT_MAPPING[suffix]["relation"]
                     if suffix != "Input":
                         attribute["related_component"] = \
-                            COMPONENT_MAPPING[attribute["type"]] + suffix
+                            COMPONENT_MAPPING[suffix][attribute["type"]]
                     else:
                         attribute["related_component"] = "SelectInput"
 
             # Handle an enum possibility
             if _property.get("enum", None) is not None:
-                attribute["component"] = COMPONENT_MAPPING["enum"] + suffix
+                attribute["component"] = COMPONENT_MAPPING[suffix]["enum"]
                 attribute["choices"] = _property["enum"]
 
             if attribute.get("component", None) is not None:
@@ -378,7 +396,11 @@ class Generator(object):
         suffix = COMPONENT_SUFFIX[head_component]
         properties = OrderedDict(definition.get("properties", {}))
         resource = self._get_resource_attributes(
-            resource_name, properties, definition, suffix
+            resource_name=resource_name,
+            properties=properties,
+            head_component=head_component,
+            definition=definition,
+            suffix=suffix
         )
         # Only add if there is something in resource
         if resource:
@@ -401,7 +423,7 @@ class Generator(object):
                         "label": label or model.replace("_", " ").title(),
                         "reference": reference,
                         "target": inline["key"],
-                        "component": COMPONENT_MAPPING["many"] + "Field",
+                        "component": COMPONENT_MAPPING[suffix]["many"]
                     }
                     # Add ReferenceMany component to imports
                     if many_field["component"] not in \
@@ -413,7 +435,12 @@ class Generator(object):
                         self.parser.specification["definitions"][inline["model"]]
                     properties = inline_def.get("properties", {})
                     many_field["fields"] = self._get_resource_attributes(
-                        resource_name, properties, inline_def, suffix, fields=fields
+                        resource_name=resource_name,
+                        properties=properties,
+                        definition=inline_def,
+                        head_component="show",
+                        suffix="Field",
+                        fields=fields
                     )
                     self._resources[resource_name][head_component]["inlines"].append(
                         many_field
@@ -477,13 +504,11 @@ class Generator(object):
                         else:
                             param = parameter
                         if param["in"] == "query" \
-                                and param["type"] in COMPONENT_MAPPING:
+                                and param["type"] in COMPONENT_MAPPING["Input"]:
                             filters.append({
                                 "source": param["name"],
                                 "label": param["name"].replace("_", " ").title(),
-                                "component": "{}{}".format(
-                                    COMPONENT_MAPPING[param["type"]], "Input"
-                                )
+                                "component": COMPONENT_MAPPING["Input"][param["type"]]
                             })
                     self._resources[name]["filters"] = filters
                 elif _create or _update:
@@ -781,6 +806,12 @@ class Generator(object):
         click.secho("Adding authClient.js file...", fg="green")
         with open(os.path.join(self.output_dir, "authClient.js"), "w") as f:
             data = self.add_additional_file("authClient.js")
+            f.write(data)
+            if self.verbose:
+                print(data)
+        click.secho("Adding CustomFields.js file...", fg="green")
+        with open(os.path.join(self.output_dir, "CustomFields.js"), "w") as f:
+            data = self.add_additional_file("CustomFields.js")
             f.write(data)
             if self.verbose:
                 print(data)

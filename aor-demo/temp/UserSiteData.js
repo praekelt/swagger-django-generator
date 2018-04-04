@@ -10,7 +10,6 @@ import {
     TextField,
     NumberField,
     DateField,
-    LongTextField,
     BooleanField,
     SimpleForm,
     Create,
@@ -21,12 +20,14 @@ import {
     Show,
     SimpleShowLayout,
     Edit,
-    DisabledInput,
     DeleteButton,
     EditButton,
     ShowButton
 } from 'admin-on-rest';
 import DateTimeInput from 'aor-datetime-input';
+import {
+    ObjectField
+} from './CustomFields';
 import {
     UserSiteDataFilter
 } from './Filters';
@@ -60,7 +61,7 @@ export const UserSiteDataList = props => (
                 <NumberField source="name" />
             </ReferenceField>
             <DateField source="consented_at" />
-            <LongTextField source="data" />
+            <ObjectField source="data" addLabel />
             <BooleanField source="blocked" />
             <DateField source="created_at" />
             <DateField source="updated_at" />
@@ -82,7 +83,7 @@ export const UserSiteDataCreate = props => (
             </ReferenceInput>
             <DateTimeInput source="consented_at" />
             <BooleanInput source="blocked" />
-            <LongTextInput source="data" format={value => value instanceof Object ? JSON.stringify(value) : value} parse={v => { try { return JSON.parse(v); } catch (e) { return v; } }} />
+            <LongTextInput source="data" format={value => value instanceof Object ? JSON.stringify(value) : value} parse={value => { try { return JSON.parse(value); } catch (e) { return value; } }} />
         </SimpleForm>
     </Create>
 )
@@ -97,7 +98,7 @@ export const UserSiteDataShow = props => (
                 <NumberField source="name" />
             </ReferenceField>
             <DateField source="consented_at" />
-            <LongTextField source="data" />
+            <ObjectField source="data" addLabel />
             <BooleanField source="blocked" />
             <DateField source="created_at" />
             <DateField source="updated_at" />
@@ -110,7 +111,7 @@ export const UserSiteDataEdit = props => (
         <SimpleForm validate={validationEditUserSiteData}>
             <DateTimeInput source="consented_at" />
             <BooleanInput source="blocked" />
-            <LongTextInput source="data" format={value => value instanceof Object ? JSON.stringify(value) : value} parse={v => { try { return JSON.parse(v); } catch (e) { return v; } }} />
+            <LongTextInput source="data" format={value => value instanceof Object ? JSON.stringify(value) : value} parse={value => { try { return JSON.parse(value); } catch (e) { return value; } }} />
         </SimpleForm>
     </Edit>
 )

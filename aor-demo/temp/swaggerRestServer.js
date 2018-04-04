@@ -34,6 +34,7 @@ export const convertRESTRequestToHTTP = ({
     switch (type) {
         case GET_MANY_REFERENCE: {
             query[params.target] = params.id;
+            url = `${apiUrl}/${resource}?${stringify(query)}`;
             break;
         }
         case GET_LIST: {

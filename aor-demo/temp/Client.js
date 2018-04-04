@@ -11,7 +11,6 @@ import {
     BooleanField,
     Show,
     SimpleShowLayout,
-    DisabledInput,
     DeleteButton,
     EditButton,
     ShowButton

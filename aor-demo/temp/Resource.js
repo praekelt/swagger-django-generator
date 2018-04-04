@@ -15,7 +15,6 @@ import {
     Show,
     SimpleShowLayout,
     Edit,
-    DisabledInput,
     DeleteButton,
     EditButton,
     ShowButton
