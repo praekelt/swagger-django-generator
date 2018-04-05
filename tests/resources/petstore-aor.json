@@ -1,0 +1,645 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "This is a sample server Petstore server.  You can find out more about Swagger at <a href=\"http://swagger.io\">http://swagger.io</a> or on irc.freenode.net, #swagger.  For this sample, you can use the api key \"special-key\" to test the authorization filters",
+    "version": "1.0.0",
+    "title": "Swagger Petstore",
+    "termsOfService": "http://helloreverb.com/terms/",
+    "contact": {
+      "email": "apiteam@wordnik.com"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "host": "petstore.swagger.io",
+  "basePath": "/v2",
+  "schemes": [
+    "http"
+  ],
+  "parameters": {
+    "optional_pet_id": {
+      "description": "An Optional Filter by pet_id.",
+      "in": "query",
+      "name": "pet_id",
+      "required": true,
+      "type": "integer"
+    },
+    "optional_user_id": {
+      "description": "An Optional Filter by user_id.",
+      "in": "query",
+      "name": "user_id",
+      "required": true,
+      "type": "integer"
+    },
+    "pet_id": {
+      "description": "A unique integer value identifying the pet.",
+      "in": "path",
+      "name": "pet_id",
+      "required": true,
+      "type": "integer"
+    },
+    "user_id": {
+      "description": "A unique integer value identifying the user.",
+      "in": "path",
+      "name": "user_id",
+      "required": true,
+      "type": "integer"
+    },
+    "category_id": {
+      "description": "A unique integer value identifying the category.",
+      "in": "path",
+      "name": "category_id",
+      "required": true,
+      "type": "integer"
+    }
+  },
+  "paths": {
+    "/pets": {
+      "get": {
+        "operationId": "pet_list",
+        "parameters": [
+          {
+            "$ref": "#/parameters/optional_pet_id"
+          },
+          {
+            "name": "pet_ids",
+            "description": "An optional list of pet ids",
+            "in": "query",
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "required": false,
+            "minItems": 0,
+            "collectionFormat": "multi",
+            "uniqueItems": true
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/pet"
+              }
+            }
+          }
+        },
+        "tags": [
+          "access_control"
+        ]
+      },
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "operationId": "pet_create",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "data",
+            "schema": {
+              "$ref": "#/definitions/pet_create"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/pet"
+            }
+          }
+        },
+        "tags": [
+          "access_control"
+        ]
+      }
+    },
+    "/pets/{pet_id}": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/pet_id"
+        }
+      ],
+      "delete": {
+        "operationId": "pet_delete",
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "access_control"
+        ]
+      },
+      "get": {
+        "operationId": "pet_read",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/pet"
+            }
+          }
+        },
+        "tags": [
+          "access_control"
+        ]
+      },
+      "put": {
+        "consumes": [
+          "application/json"
+        ],
+        "operationId": "pet_update",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "data",
+            "schema": {
+              "$ref": "#/definitions/pet_update"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/pet"
+            }
+          }
+        },
+        "tags": [
+          "access_control"
+        ]
+      }
+    },
+    "/users": {
+      "get": {
+        "operationId": "user_list",
+        "parameters": [
+          {
+            "$ref": "#/parameters/optional_user_id"
+          },
+          {
+            "name": "user_ids",
+            "description": "An optional list of user ids",
+            "in": "query",
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "required": false,
+            "minItems": 0,
+            "collectionFormat": "multi",
+            "uniqueItems": true
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/user"
+              }
+            }
+          }
+        },
+        "tags": [
+          "access_control"
+        ]
+      },
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "operationId": "user_create",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "data",
+            "schema": {
+              "$ref": "#/definitions/user_create"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/user"
+            }
+          }
+        },
+        "tags": [
+          "access_control"
+        ]
+      }
+    },
+    "/users/{user_id}": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/user_id"
+        }
+      ],
+      "delete": {
+        "operationId": "user_delete",
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "access_control"
+        ]
+      },
+      "get": {
+        "operationId": "user_read",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/user"
+            }
+          }
+        },
+        "tags": [
+          "access_control"
+        ]
+      },
+      "put": {
+        "consumes": [
+          "application/json"
+        ],
+        "operationId": "user_update",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "data",
+            "schema": {
+              "$ref": "#/definitions/user_update"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/user"
+            }
+          }
+        },
+        "tags": [
+          "access_control"
+        ]
+      }
+    },
+    "/categories": {
+      "get": {
+        "operationId": "category_list",
+        "parameters": [
+          {
+            "name": "category_ids",
+            "description": "An optional list of category ids",
+            "in": "query",
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "required": false,
+            "minItems": 0,
+            "collectionFormat": "multi",
+            "uniqueItems": true
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/category"
+              }
+            }
+          }
+        },
+        "tags": [
+          "access_control"
+        ]
+      },
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "operationId": "category_create",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "data",
+            "schema": {
+              "$ref": "#/definitions/category_create"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/category"
+            }
+          }
+        },
+        "tags": [
+          "access_control"
+        ]
+      }
+    },
+    "/categories/{category_id}": {
+      "parameters": [
+        {
+          "$ref": "#/parameters/category_id"
+        }
+      ],
+      "delete": {
+        "operationId": "category_delete",
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "access_control"
+        ]
+      },
+      "get": {
+        "operationId": "category_read",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/category"
+            }
+          }
+        },
+        "tags": [
+          "access_control"
+        ]
+      }
+    }
+  },
+  "securityDefinitions": {
+    "api_key": {
+      "type": "apiKey",
+      "name": "api_key",
+      "in": "header"
+    },
+    "petstore_auth": {
+      "type": "oauth2",
+      "authorizationUrl": "http://petstore.swagger.io/api/oauth/dialog",
+      "flow": "implicit",
+      "scopes": {
+        "write:pets": "modify pets in your account",
+        "read:pets": "read your pets"
+      }
+    }
+  },
+  "definitions": {
+    "user": {
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        },
+        "username": {
+          "type": "string"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "userStatus": {
+          "type": "integer",
+          "format": "int32",
+          "description": "User Status"
+        }
+      },
+      "xml": {
+        "name": "User"
+      }
+    },
+    "user_create": {
+      "properties": {
+        "username": {
+          "type": "string"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        }
+      },
+      "required": ["username", "firstName", "lastName", "email", "password"]
+    },
+    "user_update": {
+      "properties": {
+        "username": {
+          "type": "string"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        }
+      },
+      "required": ["username", "firstName", "lastName", "email"]
+    },
+    "category": {
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "xml": {
+        "name": "Category"
+      }
+    },
+    "category_create": {
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": ["name"]
+    },
+    "pet": {
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "readOnly": true
+        },
+        "category": {
+          "$ref": "#/definitions/category"
+        },
+        "name": {
+          "type": "string",
+          "example": "doggie"
+        },
+        "photoUrls": {
+          "type": "array",
+          "xml": {
+            "name": "photoUrl",
+            "wrapped": true
+          },
+          "items": {
+            "type": "string"
+          }
+        },
+        "status": {
+          "type": "string",
+          "description": "pet status in the store",
+          "enum": [
+            "available",
+            "pending",
+            "sold"
+          ]
+        }
+      },
+      "xml": {
+        "name": "Pet"
+      }
+    },
+    "pet_create": {
+      "properties": {
+        "category": {
+          "$ref": "#/definitions/category"
+        },
+        "name": {
+          "type": "string",
+          "example": "doggie"
+        },
+        "photoUrls": {
+          "type": "array",
+          "xml": {
+            "name": "photoUrl",
+            "wrapped": true
+          },
+          "items": {
+            "type": "string"
+          }
+        },
+        "status": {
+          "type": "string",
+          "description": "pet status in the store",
+          "enum": [
+            "available",
+            "pending",
+            "sold"
+          ]
+        }
+      },
+      "required": ["name"]
+    },
+    "pet_update": {
+      "properties": {
+        "category": {
+          "$ref": "#/definitions/category"
+        },
+        "name": {
+          "type": "string",
+          "example": "doggie"
+        },
+        "photoUrls": {
+          "type": "array",
+          "xml": {
+            "name": "photoUrl",
+            "wrapped": true
+          },
+          "items": {
+            "type": "string"
+          }
+        },
+        "status": {
+          "type": "string",
+          "description": "pet status in the store",
+          "enum": [
+            "available",
+            "pending",
+            "sold"
+          ]
+        }
+      }
+    }
+  }
+}
