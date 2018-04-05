@@ -3,7 +3,6 @@
  * Change/add at your own risk! 
 **/
 import React from 'react';
-import PropTypes from 'prop-types';
 import {
     TextField
 } from 'admin-on-rest';

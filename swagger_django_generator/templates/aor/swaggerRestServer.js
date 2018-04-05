@@ -13,19 +13,7 @@ export const CREATE = 'CREATE';
 export const UPDATE = 'UPDATE';
 export const DELETE = 'DELETE';
 
-{% if has_composites %}
-const COMPOSITE_KEY_RESOURSES = {
-    {% for name, resource in resources.items() %}
-    {% if resource.composite_parameters and resource.has_methods %}
-    {{ name }}: [
-        {% for param, param_type in resource.composite_parameters.items() %}
-        '{{ param }}',
-        {% endfor %}
-    ],
-    {% endif %}
-    {% endfor %}
-}
-{% endif %}
+const COMPOSITE_KEY_RESOURSES = {}
 
 /**
  * @param {String} apiUrl The base API url
@@ -110,18 +98,15 @@ export const convertRESTRequestToHTTP = ({
  */
 const convertHTTPResponseToREST = ({ response, type, resource, params }) => {
     const { headers, json } = response;
+    let keys = COMPOSITE_KEY_RESOURSES[resource];
 
     switch (type) {
-
         // Total required by AOR for all list operations
         case GET_LIST:
-            if (resource in COMPOSITE_KEY_RESOURSES) {
-                let keys = COMPOSITE_KEY_RESOURSES[resource];
-                return {
-                    data: json ? json.map(res => ({ ...res, id: `${keys.map(key => res[key]).join('/')}` })) : json,
-                    total: 10
-                }
-            }
+            return {
+                data: keys ? json.map(res => ({ ...res, id: `${keys.map(key => res[key]).join('/')}` })) : json,
+                total: 10
+            };
         case GET_MANY_REFERENCE:
             if (!headers.has('x-total-count')) {
                 throw new Error(
@@ -129,7 +114,7 @@ const convertHTTPResponseToREST = ({ response, type, resource, params }) => {
                 );
             }
             return {
-                data: json,
+                data: keys ? json.map(res => ({ ...res, id: `${keys.map(key => res[key]).join('/')}` })) : json,
                 total: parseInt(
                     headers
                         .get('x-total-count')

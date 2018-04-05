@@ -16,6 +16,8 @@ import {
     BooleanInput,
     Show,
     SimpleShowLayout,
+    ReferenceManyField,
+    ReferenceField,
     Edit,
     DeleteButton,
     EditButton,
@@ -76,6 +78,18 @@ export const RoleShow = props => (
             <TextField source="description" />
             <DateField source="created_at" />
             <DateField source="updated_at" />
+            <ReferenceManyField label="Resource Permissions" reference="roleresourcepermissions" target="role_id">
+                <Datagrid>
+                    <ReferenceField label="Resource" source="resource_id" reference="resources" linkType="show" allowEmpty>
+                        <NumberField source="urn" />
+                    </ReferenceField>
+                    <ReferenceField label="Permission" source="permission_id" reference="permissions" linkType="show" allowEmpty>
+                        <NumberField source="name" />
+                    </ReferenceField>
+                    <DateField source="created_at" />
+                    <DateField source="updated_at" />
+                </Datagrid>
+            </ReferenceManyField>
         </SimpleShowLayout>
     </Show>
 )
@@ -86,6 +100,19 @@ export const RoleEdit = props => (
             <TextInput source="label" />
             <BooleanInput source="requires_2fa" />
             <TextInput source="description" />
+            <ReferenceManyField label="Resource Permissions" reference="roleresourcepermissions" target="role_id">
+                <Datagrid>
+                    <ReferenceField label="Resource" source="resource_id" reference="resources" linkType="show" allowEmpty>
+                        <NumberField source="urn" />
+                    </ReferenceField>
+                    <ReferenceField label="Permission" source="permission_id" reference="permissions" linkType="show" allowEmpty>
+                        <NumberField source="name" />
+                    </ReferenceField>
+                    <DateField source="created_at" />
+                    <DateField source="updated_at" />
+                    <EditButton />
+                </Datagrid>
+            </ReferenceManyField>
         </SimpleForm>
     </Edit>
 )

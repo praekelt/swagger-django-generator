@@ -24,6 +24,9 @@ import {
     ShowButton
 } from 'admin-on-rest';
 import {
+    ObjectField
+} from './CustomFields';
+import {
     UserFilter
 } from './Filters';
 
@@ -79,9 +82,9 @@ export const UserShow = props => (
             <TextField source="country_code" />
             <DateField source="created_at" />
             <DateField source="updated_at" />
-            <ReferenceManyField label="Site Roles" reference="usersiteroles" target="user_id">
+            <ReferenceManyField label="Domain Roles" reference="userdomainroles" target="user_id">
                 <Datagrid>
-                    <ReferenceField label="Site" source="site_id" reference="sites" linkType="show" allowEmpty>
+                    <ReferenceField label="Domain" source="domain_id" reference="domains" linkType="show" allowEmpty>
                         <NumberField source="name" />
                     </ReferenceField>
                     <ReferenceField label="Role" source="role_id" reference="roles" linkType="show" allowEmpty>
@@ -91,9 +94,21 @@ export const UserShow = props => (
                     <DateField source="updated_at" />
                 </Datagrid>
             </ReferenceManyField>
-            <ReferenceManyField label="Domain Roles" reference="userdomainroles" target="user_id">
+            <ReferenceManyField label="Site Data" reference="usersitedata" target="user_id">
                 <Datagrid>
-                    <ReferenceField label="Domain" source="domain_id" reference="domains" linkType="show" allowEmpty>
+                    <ReferenceField label="Site" source="site_id" reference="sites" linkType="show" allowEmpty>
+                        <NumberField source="name" />
+                    </ReferenceField>
+                    <DateField source="consented_at" />
+                    <ObjectField source="data" addLabel />
+                    <BooleanField source="blocked" />
+                    <DateField source="created_at" />
+                    <DateField source="updated_at" />
+                </Datagrid>
+            </ReferenceManyField>
+            <ReferenceManyField label="Site Roles" reference="usersiteroles" target="user_id">
+                <Datagrid>
+                    <ReferenceField label="Site" source="site_id" reference="sites" linkType="show" allowEmpty>
                         <NumberField source="name" />
                     </ReferenceField>
                     <ReferenceField label="Role" source="role_id" reference="roles" linkType="show" allowEmpty>
@@ -121,9 +136,9 @@ export const UserEdit = props => (
             <DateInput source="birth_date" />
             <TextInput source="avatar" />
             <TextInput source="country_code" />
-            <ReferenceManyField label="Site Roles" reference="usersiteroles" target="user_id">
+            <ReferenceManyField label="Domain Roles" reference="userdomainroles" target="user_id">
                 <Datagrid>
-                    <ReferenceField label="Site" source="site_id" reference="sites" linkType="show" allowEmpty>
+                    <ReferenceField label="Domain" source="domain_id" reference="domains" linkType="show" allowEmpty>
                         <NumberField source="name" />
                     </ReferenceField>
                     <ReferenceField label="Role" source="role_id" reference="roles" linkType="show" allowEmpty>
@@ -134,9 +149,22 @@ export const UserEdit = props => (
                     <EditButton />
                 </Datagrid>
             </ReferenceManyField>
-            <ReferenceManyField label="Domain Roles" reference="userdomainroles" target="user_id">
+            <ReferenceManyField label="Site Data" reference="usersitedata" target="user_id">
                 <Datagrid>
-                    <ReferenceField label="Domain" source="domain_id" reference="domains" linkType="show" allowEmpty>
+                    <ReferenceField label="Site" source="site_id" reference="sites" linkType="show" allowEmpty>
+                        <NumberField source="name" />
+                    </ReferenceField>
+                    <DateField source="consented_at" />
+                    <ObjectField source="data" addLabel />
+                    <BooleanField source="blocked" />
+                    <DateField source="created_at" />
+                    <DateField source="updated_at" />
+                    <EditButton />
+                </Datagrid>
+            </ReferenceManyField>
+            <ReferenceManyField label="Site Roles" reference="usersiteroles" target="user_id">
+                <Datagrid>
+                    <ReferenceField label="Site" source="site_id" reference="sites" linkType="show" allowEmpty>
                         <NumberField source="name" />
                     </ReferenceField>
                     <ReferenceField label="Role" source="role_id" reference="roles" linkType="show" allowEmpty>

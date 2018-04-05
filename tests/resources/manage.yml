@@ -198,6 +198,7 @@ definitions:
         type: integer
         x-related-info:
           model: domain
+          label: name
       name:
         type: string
         maxLength: 100
@@ -224,6 +225,7 @@ definitions:
         type: integer
         x-related-info:
           model: domain
+          label: name
       name:
         type: string
         maxLength: 100
@@ -239,6 +241,7 @@ definitions:
         type: integer
         x-related-info:
           model: domain
+          label: name
       name:
         type: string
         maxLength: 100
@@ -3000,21 +3003,60 @@ paths:
            description: Site not found
 
 x-detail-page-definitions:
-  user:
+  invitation:
     inlines:
-    - model: user_site_role
+    - model: invitation_domain_role
+      label: Domain Roles
+      key: invitation_id
+      fields:
+        - domain_id
+        - role_id
+        - created_at
+        - updated_at
+    - model: invitation_site_role
       label: Site Roles
-      key: user_id
+      key: invitation_id
       fields:
         - site_id
         - role_id
         - created_at
         - updated_at
+  role:
+    inlines:
+    - model: role_resource_permission
+      label: Resource Permissions
+      key: role_id
+      fields:
+        - resource_id
+        - permission_id
+        - created_at
+        - updated_at
+  user:
+    inlines:
     - model: user_domain_role
       label: Domain Roles
       key: user_id
       fields:
         - domain_id
+        - role_id
+        - created_at
+        - updated_at
+    - model: user_site_data
+      rest_resource_name: usersitedata
+      label: Site Data
+      key: user_id
+      fields:
+        - site_id
+        - data
+        - consented_at
+        - blocked
+        - created_at
+        - updated_at
+    - model: user_site_role
+      label: Site Roles
+      key: user_id
+      fields:
+        - site_id
         - role_id
         - created_at
         - updated_at

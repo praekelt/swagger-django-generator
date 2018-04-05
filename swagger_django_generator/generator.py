@@ -292,7 +292,7 @@ class Generator(object):
         else:
             return definition, None
 
-    def _get_resource_attributes(self, resource_name, properties, head_component,
+    def _get_resource_attributes(self, resource_name, properties,
                                  definition, suffix, fields=None):
         attributes = []
         for name, details in properties.items():
@@ -325,13 +325,23 @@ class Generator(object):
                 if _property.get("x-related-info", None) is not None:
                     related_info = _property["x-related-info"]
                     model = related_info.get("model", False)
-                    # Check if there is no related model.
+                    # Check if related model is not set to None.
                     if model is not None:
                         related_field = True
+                        # If model didn't even exist then attempt to guess the model
+                        # from the substring before the last "_".
                         if not model:
                             model = name.rsplit("_", 1)[0]
                         attribute["label"] = model.replace("_", " ").title()
-                        attribute["reference"] = words.plural(model)
+                        # If a custom base path has been given set the reference to it
+                        # else attempt to get the plural of the given model.
+                        if related_info.get("rest_resource_name", None) is not None:
+                            reference = related_info["rest_resource_name"]
+                        else:
+                            reference = words.plural(model.replace("_", ""))
+                        attribute["reference"] = reference
+                        # Get the related model field from the specification or
+                        # attempt to guess it from the substring after the last "_".
                         field = related_info.get("field", None)
                         if field is None:
                             field = name.rsplit("_", 1)[1]
@@ -398,7 +408,6 @@ class Generator(object):
         resource = self._get_resource_attributes(
             resource_name=resource_name,
             properties=properties,
-            head_component=head_component,
             definition=definition,
             suffix=suffix
         )
@@ -410,6 +419,7 @@ class Generator(object):
         inlines = self.parser.specification.get(
             "x-detail-page-definitions", None
         )
+        # Inlines are only shown on the Show and Edit components.
         if inlines is not None and head_component in ["show", "edit"]:
             if resource_name in inlines:
                 self._resources[resource_name][head_component]["inlines"] = []
@@ -417,7 +427,11 @@ class Generator(object):
                 for inline in inlines:
                     model = inline["model"]
                     label = inline.get("label", None)
-                    reference = words.plural(model.replace("_", ""))
+                    # If a custom base path has been given.
+                    if inline.get("rest_resource_name", None) is not None:
+                        reference = inline["rest_resource_name"]
+                    else:
+                        reference = words.plural(model.replace("_", ""))
                     fields = inline.get("fields", None)
                     many_field = {
                         "label": label or model.replace("_", " ").title(),
@@ -438,7 +452,6 @@ class Generator(object):
                         resource_name=resource_name,
                         properties=properties,
                         definition=inline_def,
-                        head_component="show",
                         suffix="Field",
                         fields=fields
                     )
@@ -452,7 +465,7 @@ class Generator(object):
         for path, verbs in self.parser.specification["paths"].items():
             for verb, io in verbs.items():
 
-                # Check if this is not a method.
+                # Check if this is not a valid path method then skip it.
                 if verb == "parameters":
                     continue
                 elif not io.get("operationId", None):
@@ -482,7 +495,7 @@ class Generator(object):
                     )
                     self._resources[name]["title"] = title or name
                     head_component = "show"
-                    # Add show imports
+                    # Add show component imports
                     if "Show" not in self._resources[name]["imports"]:
                         self._resources[name]["imports"].append("Show")
                         self._resources[name]["imports"].append("SimpleShowLayout")
@@ -491,18 +504,21 @@ class Generator(object):
                         definition=io["responses"]["200"]["schema"]["items"]
                     )
                     head_component = "list"
-                    # Add list imports
+                    # Add list component imports
                     if "List" not in self._resources[name]["imports"]:
                         self._resources[name]["imports"].append("List")
                         self._resources[name]["imports"].append("Datagrid")
                     filters = []
-                    # Get all method filters
+                    # Get all method filters for the list component.
                     for parameter in io.get("parameters", []):
+                        # If the parameter is a reference, get the actual parameter.
                         if "$ref" in parameter:
                             ref = parameter["$ref"].split("/")[2]
                             param = self.parser.specification["parameters"][ref]
                         else:
                             param = parameter
+                        # Filters are only in the query string and their type needs
+                        # to be a supported component.
                         if param["in"] == "query" \
                                 and param["type"] in COMPONENT_MAPPING["Input"]:
                             filters.append({
@@ -513,8 +529,12 @@ class Generator(object):
                     self._resources[name]["filters"] = filters
                 elif _create or _update:
                     for parameter in io.get("parameters", []):
-                        param = parameter["$ref"] \
-                            if "$ref" in parameter else parameter
+                        # If the parameter is a reference, get the actual parameter.
+                        if "$ref" in parameter:
+                            ref = parameter["$ref"].split("/")[2]
+                            param = self.parser.specification["parameters"][ref]
+                        else:
+                            param = parameter
                         # Grab the body parameter as the create definition
                         if param["in"] == "body":
                             definition, title = self._get_definition_from_ref(
@@ -750,22 +770,6 @@ class Generator(object):
             "resources": self._resources
         })
 
-    def generate_swagger_rest_server_js(self):
-        """
-        Generate a generic swagger rest server file.
-        :return: str
-        """
-        # Check if there are composite ids in any resource.
-        has_composites = False
-        for resource in self._resources.values():
-            if "composite_parameters" in resource:
-                has_composites = True
-                break
-        return render_to_string(self.backend, "swaggerRestServer.js", {
-            "resources": self._resources,
-            "has_composites": has_composites
-        })
-
     def add_additional_file(self, filename):
         """
         Add an additional file, that does not require context,
@@ -797,9 +801,9 @@ class Generator(object):
             f.write(data)
             if self.verbose:
                 print(data)
-        click.secho("Generating basic swagger rest server file...", fg="green")
+        click.secho("Adding basic swagger rest server file...", fg="green")
         with open(os.path.join(self.output_dir, "swaggerRestServer.js"), "w") as f:
-            data = self.generate_swagger_rest_server_js()
+            data = self.add_additional_file("swaggerRestServer.js")
             f.write(data)
             if self.verbose:
                 print(data)

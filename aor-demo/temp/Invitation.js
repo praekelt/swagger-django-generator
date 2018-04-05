@@ -16,6 +16,8 @@ import {
     TextInput,
     Show,
     SimpleShowLayout,
+    ReferenceManyField,
+    NumberField,
     Edit,
     DeleteButton,
     EditButton,
@@ -95,6 +97,30 @@ export const InvitationShow = props => (
             <DateField source="expires_at" />
             <DateField source="created_at" />
             <DateField source="updated_at" />
+            <ReferenceManyField label="Domain Roles" reference="invitationdomainroles" target="invitation_id">
+                <Datagrid>
+                    <ReferenceField label="Domain" source="domain_id" reference="domains" linkType="show" allowEmpty>
+                        <NumberField source="name" />
+                    </ReferenceField>
+                    <ReferenceField label="Role" source="role_id" reference="roles" linkType="show" allowEmpty>
+                        <NumberField source="label" />
+                    </ReferenceField>
+                    <DateField source="created_at" />
+                    <DateField source="updated_at" />
+                </Datagrid>
+            </ReferenceManyField>
+            <ReferenceManyField label="Site Roles" reference="invitationsiteroles" target="invitation_id">
+                <Datagrid>
+                    <ReferenceField label="Site" source="site_id" reference="sites" linkType="show" allowEmpty>
+                        <NumberField source="name" />
+                    </ReferenceField>
+                    <ReferenceField label="Role" source="role_id" reference="roles" linkType="show" allowEmpty>
+                        <NumberField source="label" />
+                    </ReferenceField>
+                    <DateField source="created_at" />
+                    <DateField source="updated_at" />
+                </Datagrid>
+            </ReferenceManyField>
         </SimpleShowLayout>
     </Show>
 )
@@ -106,6 +132,32 @@ export const InvitationEdit = props => (
             <TextInput source="last_name" />
             <TextInput source="email" />
             <DateTimeInput source="expires_at" />
+            <ReferenceManyField label="Domain Roles" reference="invitationdomainroles" target="invitation_id">
+                <Datagrid>
+                    <ReferenceField label="Domain" source="domain_id" reference="domains" linkType="show" allowEmpty>
+                        <NumberField source="name" />
+                    </ReferenceField>
+                    <ReferenceField label="Role" source="role_id" reference="roles" linkType="show" allowEmpty>
+                        <NumberField source="label" />
+                    </ReferenceField>
+                    <DateField source="created_at" />
+                    <DateField source="updated_at" />
+                    <EditButton />
+                </Datagrid>
+            </ReferenceManyField>
+            <ReferenceManyField label="Site Roles" reference="invitationsiteroles" target="invitation_id">
+                <Datagrid>
+                    <ReferenceField label="Site" source="site_id" reference="sites" linkType="show" allowEmpty>
+                        <NumberField source="name" />
+                    </ReferenceField>
+                    <ReferenceField label="Role" source="role_id" reference="roles" linkType="show" allowEmpty>
+                        <NumberField source="label" />
+                    </ReferenceField>
+                    <DateField source="created_at" />
+                    <DateField source="updated_at" />
+                    <EditButton />
+                </Datagrid>
+            </ReferenceManyField>
         </SimpleForm>
     </Edit>
 )
