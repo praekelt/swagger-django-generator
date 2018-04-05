@@ -124,8 +124,12 @@ export const {{ resource.title }}{{ component|title }} = props => (
             </{{ inline.component }}>
             {% endfor %}
             {% if component == "list" %}
+            {% if resource.edit %}
             <EditButton />
+            {% endif %}
+            {% if resource.show %}
             <ShowButton />
+            {% endif %}
             <DeleteButton />
             {% endif %}
         </{% if component == "list" %}Datagrid{% elif component == "show" %}SimpleShowLayout{% else %}SimpleForm{% endif %}>
