@@ -4,17 +4,17 @@ Do not modify this file. It is generated from the Swagger specification.
 If you need to tweak the functionality in this file, you can replace it
 with your own.
 """
+from functools import wraps
 import base64
 import json
-from functools import wraps
-
 import jsonschema
 import os
+import sys
+
 from django.contrib.auth import authenticate, login
 from django.core.exceptions import SuspiciousOperation
 from django.http import HttpResponse
-
-ALLOWED_API_KEYS = set(os.getenv("ALLOWED_API_KEYS").split(","))
+from django.conf import settings
 
 
 def body_to_dict(body, schema):
@@ -53,7 +53,11 @@ def login_required_no_redirect(view_func):
             if len(auth) == 2:
                 # NOTE: We only support basic authentication for now.
                 if auth[0].lower() == "basic":
-                    uname, passwd = base64.b64decode(auth[1]).split(":")
+                    base_val = base64.b64decode(auth[1])
+                    if sys.version_info[0] > 2:
+                        uname, passwd = base_val.split(b":")
+                    else:
+                        uname, passwd = base_val.split(":")
                     user = authenticate(username=uname, password=passwd)
                     if user and user.is_active:
                         login(request, user)
@@ -62,7 +66,7 @@ def login_required_no_redirect(view_func):
 
         if "HTTP_X_API_KEY" in request.META:
             key = request.META["HTTP_X_API_KEY"]
-            if key in ALLOWED_API_KEYS:
+            if key in settings.ALLOWED_API_KEYS:
                 return view_func(request, *args, **kwargs)
 
         return HttpResponse("Unauthorized", status=401)
