@@ -14,7 +14,7 @@ import sys
 from django.contrib.auth import authenticate, login
 from django.core.exceptions import SuspiciousOperation
 from django.http import HttpResponse
-from django.conf impor settings
+from django.conf import settings
 
 
 def body_to_dict(body, schema):
