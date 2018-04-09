@@ -118,9 +118,17 @@ class {{ class_name }}(View):
         result = Stubs.{{ info.operation }}(request, {% if info.body %}body, {% endif %}{% if info.form_data %}form_data, {% endif %}
             {% for ra in info.required_args %}{{ ra.name }}, {% endfor %}
             {% for oa in info.optional_args if oa.in == "query" %}{{ oa.name }}, {% endfor %})
+
+        if type(result) is tuple:
+            result, headers = result
+        else:
+            headers = {}
         maybe_validate_result(result, self.{{ verb|upper }}_RESPONSE_SCHEMA)
 
-        return JsonResponse(result, safe=False)
+        response = JsonResponse(result, safe=False)
+        for key, val in headers.items():
+            response[key] = val
+        return response
    {% if not loop.last %}
 
    {% endif %}
