@@ -54,7 +54,7 @@ def login_required_no_redirect(view_func):
                 # NOTE: We only support basic authentication for now.
                 if auth[0].lower() == "basic":
                     base_val = base64.b64decode(auth[1])
-                    if sys.version_info[0] > 3:
+                    if sys.version_info[0] > 2:
                         uname, passwd = base_val.split(b":")
                     else:
                         uname, passwd = base_val.split(":")
