@@ -101,10 +101,3 @@ ve/
 
 # mypy
 .mypy_cache/
-
-# Demo Files
-demo/demo/urls.py
-demo/demo/stubs.py
-demo/demo/schemas.py
-demo/demo/utils.py
-demo/demo/views.py
