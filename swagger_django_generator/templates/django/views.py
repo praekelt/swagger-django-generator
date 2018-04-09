@@ -127,8 +127,7 @@ class {{ class_name }}(View):
 
         response = JsonResponse(result, safe=False)
         for key, val in headers.items():
-            # setitem already does character conversion.
-            response.__setitem__(key, val)
+            response[key] = val
         return response
    {% if not loop.last %}
 
