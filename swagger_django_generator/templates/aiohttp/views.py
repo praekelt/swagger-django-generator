@@ -174,7 +174,7 @@ class {{ class_name }}(View, CorsViewMixin):
         {% if verb|lower == "delete" %}
         return HTTPNoContent()
         {% else %}
-        return json_response(result{% if verb|lower == "post" %}, status=201{% endif %}, headers=headers)
+        return json_response(result{% if verb|lower == "post" and info.operation.endswith("_create") %}, status=201{% endif %}, headers=headers)
         {% endif %}
    {% if not loop.last %}
 
