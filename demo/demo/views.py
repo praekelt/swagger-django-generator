@@ -385,11 +385,11 @@ class PetPetId(View):
         :param petId: string ID of pet that needs to be updated
         """
         form_data = {}
-        status = request.POST.get("status", None)
-        form_data["status"] = status
-
         name = request.POST.get("name", None)
         form_data["name"] = name
+
+        status = request.POST.get("status", None)
+        form_data["status"] = status
 
         result = Stubs.updatePetWithForm(request, form_data, petId, )
 
@@ -418,11 +418,11 @@ class PetPetIdUploadImage(View):
         :param petId: integer ID of pet to update
         """
         form_data = {}
-        file = request.FILES.get("file", None)
-        form_data["file"] = file
-
         additionalMetadata = request.POST.get("additionalMetadata", None)
         form_data["additionalMetadata"] = additionalMetadata
+
+        file = request.FILES.get("file", None)
+        form_data["file"] = file
 
         result = Stubs.uploadFile(request, form_data, petId, )
 
@@ -720,11 +720,11 @@ class UserLogin(View):
         :param self: A UserLogin instance
         :param request: An HttpRequest
         """
-        # password (optional): string The password for login in clear text
-        password = request.GET.get("password", None)
         # username (optional): string The user name for login
         username = request.GET.get("username", None)
-        result = Stubs.loginUser(request, password, username, )
+        # password (optional): string The password for login in clear text
+        password = request.GET.get("password", None)
+        result = Stubs.loginUser(request, username, password, )
 
         if type(result) is tuple:
             result, headers = result

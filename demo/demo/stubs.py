@@ -12,6 +12,7 @@ class AbstractStubClass(object):
     Implementations need to be derived from this class.
     """
 
+    # addPet -- Synchronisation point for meld
     @staticmethod
     def addPet(request, body, *args, **kwargs):
         """
@@ -20,6 +21,7 @@ class AbstractStubClass(object):
         """
         raise NotImplementedError()
 
+    # updatePet -- Synchronisation point for meld
     @staticmethod
     def updatePet(request, body, *args, **kwargs):
         """
@@ -28,6 +30,7 @@ class AbstractStubClass(object):
         """
         raise NotImplementedError()
 
+    # findPetsByStatus -- Synchronisation point for meld
     @staticmethod
     def findPetsByStatus(request, status=None, *args, **kwargs):
         """
@@ -35,6 +38,7 @@ class AbstractStubClass(object):
         """
         raise NotImplementedError()
 
+    # findPetsByTags -- Synchronisation point for meld
     @staticmethod
     def findPetsByTags(request, tags=None, *args, **kwargs):
         """
@@ -42,6 +46,7 @@ class AbstractStubClass(object):
         """
         raise NotImplementedError()
 
+    # deletePet -- Synchronisation point for meld
     @staticmethod
     def deletePet(request, petId, *args, **kwargs):
         """
@@ -50,6 +55,7 @@ class AbstractStubClass(object):
         """
         raise NotImplementedError()
 
+    # getPetById -- Synchronisation point for meld
     @staticmethod
     def getPetById(request, petId, *args, **kwargs):
         """
@@ -58,6 +64,7 @@ class AbstractStubClass(object):
         """
         raise NotImplementedError()
 
+    # updatePetWithForm -- Synchronisation point for meld
     @staticmethod
     def updatePetWithForm(request, form_data, petId, *args, **kwargs):
         """
@@ -67,6 +74,7 @@ class AbstractStubClass(object):
         """
         raise NotImplementedError()
 
+    # uploadFile -- Synchronisation point for meld
     @staticmethod
     def uploadFile(request, form_data, petId, *args, **kwargs):
         """
@@ -76,6 +84,7 @@ class AbstractStubClass(object):
         """
         raise NotImplementedError()
 
+    # getInventory -- Synchronisation point for meld
     @staticmethod
     def getInventory(request, *args, **kwargs):
         """
@@ -83,6 +92,7 @@ class AbstractStubClass(object):
         """
         raise NotImplementedError()
 
+    # placeOrder -- Synchronisation point for meld
     @staticmethod
     def placeOrder(request, body, *args, **kwargs):
         """
@@ -91,6 +101,7 @@ class AbstractStubClass(object):
         """
         raise NotImplementedError()
 
+    # deleteOrder -- Synchronisation point for meld
     @staticmethod
     def deleteOrder(request, orderId, *args, **kwargs):
         """
@@ -99,6 +110,7 @@ class AbstractStubClass(object):
         """
         raise NotImplementedError()
 
+    # getOrderById -- Synchronisation point for meld
     @staticmethod
     def getOrderById(request, orderId, *args, **kwargs):
         """
@@ -107,6 +119,7 @@ class AbstractStubClass(object):
         """
         raise NotImplementedError()
 
+    # createUser -- Synchronisation point for meld
     @staticmethod
     def createUser(request, body, *args, **kwargs):
         """
@@ -115,6 +128,7 @@ class AbstractStubClass(object):
         """
         raise NotImplementedError()
 
+    # createUsersWithArrayInput -- Synchronisation point for meld
     @staticmethod
     def createUsersWithArrayInput(request, body, *args, **kwargs):
         """
@@ -123,6 +137,7 @@ class AbstractStubClass(object):
         """
         raise NotImplementedError()
 
+    # createUsersWithListInput -- Synchronisation point for meld
     @staticmethod
     def createUsersWithListInput(request, body, *args, **kwargs):
         """
@@ -131,13 +146,15 @@ class AbstractStubClass(object):
         """
         raise NotImplementedError()
 
+    # loginUser -- Synchronisation point for meld
     @staticmethod
-    def loginUser(request, password=None, username=None, *args, **kwargs):
+    def loginUser(request, username=None, password=None, *args, **kwargs):
         """
         :param request: An HttpRequest
         """
         raise NotImplementedError()
 
+    # logoutUser -- Synchronisation point for meld
     @staticmethod
     def logoutUser(request, *args, **kwargs):
         """
@@ -145,6 +162,7 @@ class AbstractStubClass(object):
         """
         raise NotImplementedError()
 
+    # deleteUser -- Synchronisation point for meld
     @staticmethod
     def deleteUser(request, username, *args, **kwargs):
         """
@@ -153,6 +171,7 @@ class AbstractStubClass(object):
         """
         raise NotImplementedError()
 
+    # getUserByName -- Synchronisation point for meld
     @staticmethod
     def getUserByName(request, username, *args, **kwargs):
         """
@@ -161,6 +180,7 @@ class AbstractStubClass(object):
         """
         raise NotImplementedError()
 
+    # updateUser -- Synchronisation point for meld
     @staticmethod
     def updateUser(request, body, username, *args, **kwargs):
         """
@@ -580,7 +600,7 @@ class MockedStubClass(AbstractStubClass):
         return MockedStubClass.GENERATOR.random_value(response_schema)
 
     @staticmethod
-    def loginUser(request, password=None, username=None, *args, **kwargs):
+    def loginUser(request, username=None, password=None, *args, **kwargs):
         """
         :param request: An HttpRequest
         """
