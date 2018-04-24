@@ -85,7 +85,23 @@ class {{ class_name }}(View):
             return HttpResponseBadRequest("{{ ra.name }} required")
 
         {% if ra.type == "array" %}
-        {{ ra.name }} = request.GET.getlist("{{ ra.name }}")
+        {% if ra.collectionFormat == "multi" %}
+        {{ ra.name }} = request.GET.getlist("{{ ra.name }}", None)
+        {% else %}
+        {{ ra.name }} = request.GET.get("{{ ra.name }}", None)
+        if {{ ra.name }} is not None:
+        {% if ra.collectionFormat == "pipes" %}
+            {{ ra.name }} = {{ ra.name }}.split("|")
+        {% elif ra.collectionFormat == "tsv" %}
+            {{ ra.name }} = {{ ra.name }}.split("\t")
+        {% elif ra.collectionFormat == "ssv" %}
+            {{ ra.name }} = {{ ra.name }}.split(" ")
+        {% elif ra.collectionFormat == "csv" %}
+            {{ ra.name }} = {{ ra.name }}.split(",")
+        {% else %}
+            {{ ra.name }} = {{ ra.name }}.split(",")
+        {% endif %}
+        {% endif %}
         {% else %}
         {{ ra.name }} = request.GET.get("{{ ra.name }}")
         {% endif %}
@@ -94,7 +110,23 @@ class {{ class_name }}(View):
         {% for oa in info.optional_args if oa.in == "query" %}
         # {{ oa.name }} (optional): {{ oa.type }} {{ oa.description }}
         {% if oa.type == "array" %}
+        {% if oa.collectionFormat == "multi" %}
         {{ oa.name }} = request.GET.getlist("{{ oa.name }}", None)
+        {% else %}
+        {{ oa.name }} = request.GET.get("{{ oa.name }}", None)
+        if {{ oa.name }} is not None:
+        {% if oa.collectionFormat == "pipes" %}
+            {{ oa.name }} = {{ oa.name }}.split("|")
+        {% elif oa.collectionFormat == "tsv" %}
+            {{ oa.name }} = {{ oa.name }}.split("\t")
+        {% elif oa.collectionFormat == "ssv" %}
+            {{ oa.name }} = {{ oa.name }}.split(" ")
+        {% elif oa.collectionFormat == "csv" %}
+            {{ oa.name }} = {{ oa.name }}.split(",")
+        {% else %}
+            {{ oa.name }} = {{ oa.name }}.split(",")
+        {% endif %}
+        {% endif %}
         {% else %}
         {{ oa.name }} = request.GET.get("{{ oa.name }}", None)
         {% endif %}
