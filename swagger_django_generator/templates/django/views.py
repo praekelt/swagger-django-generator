@@ -41,10 +41,10 @@ Module = importlib.import_module(module_name)
 Stubs = getattr(Module, class_name)
 
 
-def maybe_validate_result(result, schema):
+def maybe_validate_result(result_string, schema):
     if VALIDATE_RESPONSES:
         try:
-            jsonschema.validate(result, schema)
+            jsonschema.validate(json.loads(result_string, encoding="utf8"), schema)
         except ValidationError as e:
             LOGGER.error(e.message)
 
@@ -155,11 +155,17 @@ class {{ class_name }}(View):
             result, headers = result
         else:
             headers = {}
-        maybe_validate_result(result, self.{{ verb|upper }}_RESPONSE_SCHEMA)
 
+        # The result may contain fields with date or datetime values that will not
+        # pass JSON validation. We first create the response, and then maybe validate
+        # the response content against the schema.
         response = JsonResponse(result, safe=False)
+
+        maybe_validate_result(response.content, self.{{ verb|upper }}_RESPONSE_SCHEMA)
+
         for key, val in headers.items():
             response[key] = val
+
         return response
    {% if not loop.last %}
 

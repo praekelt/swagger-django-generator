@@ -41,10 +41,10 @@ Module = importlib.import_module(module_name)
 Stubs = getattr(Module, class_name)
 
 
-def maybe_validate_result(result, schema):
+def maybe_validate_result(result_string, schema):
     if VALIDATE_RESPONSES:
         try:
-            jsonschema.validate(result, schema)
+            jsonschema.validate(json.loads(result_string, encoding="utf8"), schema)
         except ValidationError as e:
             LOGGER.error(e.message)
 
@@ -74,11 +74,17 @@ class Pet(View):
             result, headers = result
         else:
             headers = {}
-        maybe_validate_result(result, self.POST_RESPONSE_SCHEMA)
 
+        # The result may contain fields with date or datetime values that will not
+        # pass JSON validation. We first create the response, and then maybe validate
+        # the response content against the schema.
         response = JsonResponse(result, safe=False)
+
+        maybe_validate_result(response.content, self.POST_RESPONSE_SCHEMA)
+
         for key, val in headers.items():
             response[key] = val
+
         return response
 
     def put(self, request, *args, **kwargs):
@@ -96,11 +102,17 @@ class Pet(View):
             result, headers = result
         else:
             headers = {}
-        maybe_validate_result(result, self.PUT_RESPONSE_SCHEMA)
 
+        # The result may contain fields with date or datetime values that will not
+        # pass JSON validation. We first create the response, and then maybe validate
+        # the response content against the schema.
         response = JsonResponse(result, safe=False)
+
+        maybe_validate_result(response.content, self.PUT_RESPONSE_SCHEMA)
+
         for key, val in headers.items():
             response[key] = val
+
         return response
 
 
@@ -209,11 +221,17 @@ class PetFindByStatus(View):
             result, headers = result
         else:
             headers = {}
-        maybe_validate_result(result, self.GET_RESPONSE_SCHEMA)
 
+        # The result may contain fields with date or datetime values that will not
+        # pass JSON validation. We first create the response, and then maybe validate
+        # the response content against the schema.
         response = JsonResponse(result, safe=False)
+
+        maybe_validate_result(response.content, self.GET_RESPONSE_SCHEMA)
+
         for key, val in headers.items():
             response[key] = val
+
         return response
 
 
@@ -322,11 +340,17 @@ class PetFindByTags(View):
             result, headers = result
         else:
             headers = {}
-        maybe_validate_result(result, self.GET_RESPONSE_SCHEMA)
 
+        # The result may contain fields with date or datetime values that will not
+        # pass JSON validation. We first create the response, and then maybe validate
+        # the response content against the schema.
         response = JsonResponse(result, safe=False)
+
+        maybe_validate_result(response.content, self.GET_RESPONSE_SCHEMA)
+
         for key, val in headers.items():
             response[key] = val
+
         return response
 
 
@@ -352,11 +376,17 @@ class PetPetId(View):
             result, headers = result
         else:
             headers = {}
-        maybe_validate_result(result, self.DELETE_RESPONSE_SCHEMA)
 
+        # The result may contain fields with date or datetime values that will not
+        # pass JSON validation. We first create the response, and then maybe validate
+        # the response content against the schema.
         response = JsonResponse(result, safe=False)
+
+        maybe_validate_result(response.content, self.DELETE_RESPONSE_SCHEMA)
+
         for key, val in headers.items():
             response[key] = val
+
         return response
 
     def get(self, request, petId, *args, **kwargs):
@@ -371,11 +401,17 @@ class PetPetId(View):
             result, headers = result
         else:
             headers = {}
-        maybe_validate_result(result, self.GET_RESPONSE_SCHEMA)
 
+        # The result may contain fields with date or datetime values that will not
+        # pass JSON validation. We first create the response, and then maybe validate
+        # the response content against the schema.
         response = JsonResponse(result, safe=False)
+
+        maybe_validate_result(response.content, self.GET_RESPONSE_SCHEMA)
+
         for key, val in headers.items():
             response[key] = val
+
         return response
 
     def post(self, request, petId, *args, **kwargs):
@@ -397,11 +433,17 @@ class PetPetId(View):
             result, headers = result
         else:
             headers = {}
-        maybe_validate_result(result, self.POST_RESPONSE_SCHEMA)
 
+        # The result may contain fields with date or datetime values that will not
+        # pass JSON validation. We first create the response, and then maybe validate
+        # the response content against the schema.
         response = JsonResponse(result, safe=False)
+
+        maybe_validate_result(response.content, self.POST_RESPONSE_SCHEMA)
+
         for key, val in headers.items():
             response[key] = val
+
         return response
 
 
@@ -430,11 +472,17 @@ class PetPetIdUploadImage(View):
             result, headers = result
         else:
             headers = {}
-        maybe_validate_result(result, self.POST_RESPONSE_SCHEMA)
 
+        # The result may contain fields with date or datetime values that will not
+        # pass JSON validation. We first create the response, and then maybe validate
+        # the response content against the schema.
         response = JsonResponse(result, safe=False)
+
+        maybe_validate_result(response.content, self.POST_RESPONSE_SCHEMA)
+
         for key, val in headers.items():
             response[key] = val
+
         return response
 
 
@@ -461,11 +509,17 @@ class StoreInventory(View):
             result, headers = result
         else:
             headers = {}
-        maybe_validate_result(result, self.GET_RESPONSE_SCHEMA)
 
+        # The result may contain fields with date or datetime values that will not
+        # pass JSON validation. We first create the response, and then maybe validate
+        # the response content against the schema.
         response = JsonResponse(result, safe=False)
+
+        maybe_validate_result(response.content, self.GET_RESPONSE_SCHEMA)
+
         for key, val in headers.items():
             response[key] = val
+
         return response
 
 
@@ -490,11 +544,17 @@ class StoreOrder(View):
             result, headers = result
         else:
             headers = {}
-        maybe_validate_result(result, self.POST_RESPONSE_SCHEMA)
 
+        # The result may contain fields with date or datetime values that will not
+        # pass JSON validation. We first create the response, and then maybe validate
+        # the response content against the schema.
         response = JsonResponse(result, safe=False)
+
+        maybe_validate_result(response.content, self.POST_RESPONSE_SCHEMA)
+
         for key, val in headers.items():
             response[key] = val
+
         return response
 
 
@@ -516,11 +576,17 @@ class StoreOrderOrderId(View):
             result, headers = result
         else:
             headers = {}
-        maybe_validate_result(result, self.DELETE_RESPONSE_SCHEMA)
 
+        # The result may contain fields with date or datetime values that will not
+        # pass JSON validation. We first create the response, and then maybe validate
+        # the response content against the schema.
         response = JsonResponse(result, safe=False)
+
+        maybe_validate_result(response.content, self.DELETE_RESPONSE_SCHEMA)
+
         for key, val in headers.items():
             response[key] = val
+
         return response
 
     def get(self, request, orderId, *args, **kwargs):
@@ -535,11 +601,17 @@ class StoreOrderOrderId(View):
             result, headers = result
         else:
             headers = {}
-        maybe_validate_result(result, self.GET_RESPONSE_SCHEMA)
 
+        # The result may contain fields with date or datetime values that will not
+        # pass JSON validation. We first create the response, and then maybe validate
+        # the response content against the schema.
         response = JsonResponse(result, safe=False)
+
+        maybe_validate_result(response.content, self.GET_RESPONSE_SCHEMA)
+
         for key, val in headers.items():
             response[key] = val
+
         return response
 
 
@@ -564,11 +636,17 @@ class User(View):
             result, headers = result
         else:
             headers = {}
-        maybe_validate_result(result, self.POST_RESPONSE_SCHEMA)
 
+        # The result may contain fields with date or datetime values that will not
+        # pass JSON validation. We first create the response, and then maybe validate
+        # the response content against the schema.
         response = JsonResponse(result, safe=False)
+
+        maybe_validate_result(response.content, self.POST_RESPONSE_SCHEMA)
+
         for key, val in headers.items():
             response[key] = val
+
         return response
 
 
@@ -632,11 +710,17 @@ class UserCreateWithArray(View):
             result, headers = result
         else:
             headers = {}
-        maybe_validate_result(result, self.POST_RESPONSE_SCHEMA)
 
+        # The result may contain fields with date or datetime values that will not
+        # pass JSON validation. We first create the response, and then maybe validate
+        # the response content against the schema.
         response = JsonResponse(result, safe=False)
+
+        maybe_validate_result(response.content, self.POST_RESPONSE_SCHEMA)
+
         for key, val in headers.items():
             response[key] = val
+
         return response
 
 
@@ -700,11 +784,17 @@ class UserCreateWithList(View):
             result, headers = result
         else:
             headers = {}
-        maybe_validate_result(result, self.POST_RESPONSE_SCHEMA)
 
+        # The result may contain fields with date or datetime values that will not
+        # pass JSON validation. We first create the response, and then maybe validate
+        # the response content against the schema.
         response = JsonResponse(result, safe=False)
+
+        maybe_validate_result(response.content, self.POST_RESPONSE_SCHEMA)
+
         for key, val in headers.items():
             response[key] = val
+
         return response
 
 
@@ -730,11 +820,17 @@ class UserLogin(View):
             result, headers = result
         else:
             headers = {}
-        maybe_validate_result(result, self.GET_RESPONSE_SCHEMA)
 
+        # The result may contain fields with date or datetime values that will not
+        # pass JSON validation. We first create the response, and then maybe validate
+        # the response content against the schema.
         response = JsonResponse(result, safe=False)
+
+        maybe_validate_result(response.content, self.GET_RESPONSE_SCHEMA)
+
         for key, val in headers.items():
             response[key] = val
+
         return response
 
 
@@ -754,11 +850,17 @@ class UserLogout(View):
             result, headers = result
         else:
             headers = {}
-        maybe_validate_result(result, self.GET_RESPONSE_SCHEMA)
 
+        # The result may contain fields with date or datetime values that will not
+        # pass JSON validation. We first create the response, and then maybe validate
+        # the response content against the schema.
         response = JsonResponse(result, safe=False)
+
+        maybe_validate_result(response.content, self.GET_RESPONSE_SCHEMA)
+
         for key, val in headers.items():
             response[key] = val
+
         return response
 
 
@@ -782,11 +884,17 @@ class UserUsername(View):
             result, headers = result
         else:
             headers = {}
-        maybe_validate_result(result, self.DELETE_RESPONSE_SCHEMA)
 
+        # The result may contain fields with date or datetime values that will not
+        # pass JSON validation. We first create the response, and then maybe validate
+        # the response content against the schema.
         response = JsonResponse(result, safe=False)
+
+        maybe_validate_result(response.content, self.DELETE_RESPONSE_SCHEMA)
+
         for key, val in headers.items():
             response[key] = val
+
         return response
 
     def get(self, request, username, *args, **kwargs):
@@ -801,11 +909,17 @@ class UserUsername(View):
             result, headers = result
         else:
             headers = {}
-        maybe_validate_result(result, self.GET_RESPONSE_SCHEMA)
 
+        # The result may contain fields with date or datetime values that will not
+        # pass JSON validation. We first create the response, and then maybe validate
+        # the response content against the schema.
         response = JsonResponse(result, safe=False)
+
+        maybe_validate_result(response.content, self.GET_RESPONSE_SCHEMA)
+
         for key, val in headers.items():
             response[key] = val
+
         return response
 
     def put(self, request, username, *args, **kwargs):
@@ -824,11 +938,17 @@ class UserUsername(View):
             result, headers = result
         else:
             headers = {}
-        maybe_validate_result(result, self.PUT_RESPONSE_SCHEMA)
 
+        # The result may contain fields with date or datetime values that will not
+        # pass JSON validation. We first create the response, and then maybe validate
+        # the response content against the schema.
         response = JsonResponse(result, safe=False)
+
+        maybe_validate_result(response.content, self.PUT_RESPONSE_SCHEMA)
+
         for key, val in headers.items():
             response[key] = val
+
         return response
 
 
