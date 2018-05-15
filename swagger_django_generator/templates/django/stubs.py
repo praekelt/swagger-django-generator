@@ -28,8 +28,8 @@ class AbstractStubClass(object):
         {% for ra in info.required_args %}
         :param {{ ra.name }}: {{ ra.type }} {{ ra.description }}
         {% endfor %}
-        {% for ra in info.option_args %}
-        :param {{ ra.name }} (optional): {{ ra.type }} {{ ra.description }}
+        {% for oa in info.optional_args %}
+        :param {{ oa.name }} (optional): {{ oa.type }} {{ oa.description }}
         {% endfor %}
         """
         raise NotImplementedError()
@@ -58,8 +58,8 @@ class MockedStubClass(AbstractStubClass):
         {% for ra in info.required_args %}
         :param {{ ra.name }}: {{ ra.type }} {{ ra.description }}
         {% endfor %}
-        {% for ra in info.option_args %}
-        :param {{ ra.name }} (optional): {{ ra.type }} {{ ra.description }}
+        {% for oa in info.optional_args %}
+        :param {{ oa.name }} (optional): {{ oa.type }} {{ oa.description }}
         {% endfor %}
         """
         response_schema = {{ info.response_schema }}
