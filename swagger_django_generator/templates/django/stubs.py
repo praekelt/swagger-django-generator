@@ -20,16 +20,20 @@ class AbstractStubClass(object):
         """
         :param request: An HttpRequest
         {% if info.body %}
-        :param body: dict A dictionary containing the parsed and validated body
+        :param body: A dictionary containing the parsed and validated body
+        :type body: dict
         {% endif %}
         {% if info.form_data %}
-        :param form_data: dict A dictionary containing form fields and their values. In the case where the form fields refer to uploaded files, the values will be instances of `django.core.files.uploadedfile.UploadedFile`
+        :param form_data: A dictionary containing form fields and their values. In the case where the form fields refer to uploaded files, the values will be instances of `django.core.files.uploadedfile.UploadedFile`
+        :type form_data: dict
         {% endif %}
         {% for ra in info.required_args %}
-        :param {{ ra.name }}: {{ ra.type }} {{ ra.description }}
+        :param {{ ra.name }}: {{ ra.description }}
+        :type {{ ra.name }}: {{ ra.type }}
         {% endfor %}
         {% for oa in info.optional_args %}
-        :param {{ oa.name }} (optional): {{ oa.type }} {{ oa.description }}
+        :param {{ oa.name }}: (optional) {{ oa.description }}
+        :type {{ oa.name }}: {{ oa.type }}
         {% endfor %}
         """
         raise NotImplementedError()
@@ -50,16 +54,20 @@ class MockedStubClass(AbstractStubClass):
         """
         :param request: An HttpRequest
         {% if info.body %}
-        :param body: dict A dictionary containing the parsed and validated body
+        :param body: A dictionary containing the parsed and validated body
+        :type body: dict
         {% endif %}
         {% if info.form_data %}
-        :param form_data: dict A dictionary containing form fields and their values. In the case where the form fields refer to uploaded files, the values will be instances of `django.core.files.uploadedfile.UploadedFile`
+        :param form_data: A dictionary containing form fields and their values. In the case where the form fields refer to uploaded files, the values will be instances of `django.core.files.uploadedfile.UploadedFile`
+        :type form_data: dict
         {% endif %}
         {% for ra in info.required_args %}
-        :param {{ ra.name }}: {{ ra.type }} {{ ra.description }}
+        :param {{ ra.name }}: {{ ra.description }}
+        :type {{ ra.name }}: {{ ra.type }}
         {% endfor %}
         {% for oa in info.optional_args %}
-        :param {{ oa.name }} (optional): {{ oa.type }} {{ oa.description }}
+        :param {{ oa.name }}: (optional) {{ oa.description }}
+        :type {{ oa.name }}: {{ oa.type }}
         {% endfor %}
         """
         response_schema = {{ info.response_schema }}

@@ -17,7 +17,8 @@ class AbstractStubClass(object):
     def addPet(request, body, *args, **kwargs):
         """
         :param request: An HttpRequest
-        :param body: dict A dictionary containing the parsed and validated body
+        :param body: A dictionary containing the parsed and validated body
+        :type body: dict
         """
         raise NotImplementedError()
 
@@ -26,7 +27,8 @@ class AbstractStubClass(object):
     def updatePet(request, body, *args, **kwargs):
         """
         :param request: An HttpRequest
-        :param body: dict A dictionary containing the parsed and validated body
+        :param body: A dictionary containing the parsed and validated body
+        :type body: dict
         """
         raise NotImplementedError()
 
@@ -35,7 +37,8 @@ class AbstractStubClass(object):
     def findPetsByStatus(request, status=None, *args, **kwargs):
         """
         :param request: An HttpRequest
-        :param status (optional): array Status values that need to be considered for filter
+        :param status: (optional) Status values that need to be considered for filter
+        :type status: array
         """
         raise NotImplementedError()
 
@@ -44,7 +47,8 @@ class AbstractStubClass(object):
     def findPetsByTags(request, tags=None, *args, **kwargs):
         """
         :param request: An HttpRequest
-        :param tags (optional): array Tags to filter by
+        :param tags: (optional) Tags to filter by
+        :type tags: array
         """
         raise NotImplementedError()
 
@@ -53,7 +57,8 @@ class AbstractStubClass(object):
     def deletePet(request, petId, *args, **kwargs):
         """
         :param request: An HttpRequest
-        :param petId: integer Pet id to delete
+        :param petId: Pet id to delete
+        :type petId: integer
         """
         raise NotImplementedError()
 
@@ -62,7 +67,8 @@ class AbstractStubClass(object):
     def getPetById(request, petId, *args, **kwargs):
         """
         :param request: An HttpRequest
-        :param petId: integer ID of pet that needs to be fetched
+        :param petId: ID of pet that needs to be fetched
+        :type petId: integer
         """
         raise NotImplementedError()
 
@@ -71,8 +77,10 @@ class AbstractStubClass(object):
     def updatePetWithForm(request, form_data, petId, *args, **kwargs):
         """
         :param request: An HttpRequest
-        :param form_data: dict A dictionary containing form fields and their values. In the case where the form fields refer to uploaded files, the values will be instances of `django.core.files.uploadedfile.UploadedFile`
-        :param petId: string ID of pet that needs to be updated
+        :param form_data: A dictionary containing form fields and their values. In the case where the form fields refer to uploaded files, the values will be instances of `django.core.files.uploadedfile.UploadedFile`
+        :type form_data: dict
+        :param petId: ID of pet that needs to be updated
+        :type petId: string
         """
         raise NotImplementedError()
 
@@ -81,8 +89,10 @@ class AbstractStubClass(object):
     def uploadFile(request, form_data, petId, *args, **kwargs):
         """
         :param request: An HttpRequest
-        :param form_data: dict A dictionary containing form fields and their values. In the case where the form fields refer to uploaded files, the values will be instances of `django.core.files.uploadedfile.UploadedFile`
-        :param petId: integer ID of pet to update
+        :param form_data: A dictionary containing form fields and their values. In the case where the form fields refer to uploaded files, the values will be instances of `django.core.files.uploadedfile.UploadedFile`
+        :type form_data: dict
+        :param petId: ID of pet to update
+        :type petId: integer
         """
         raise NotImplementedError()
 
@@ -99,7 +109,8 @@ class AbstractStubClass(object):
     def placeOrder(request, body, *args, **kwargs):
         """
         :param request: An HttpRequest
-        :param body: dict A dictionary containing the parsed and validated body
+        :param body: A dictionary containing the parsed and validated body
+        :type body: dict
         """
         raise NotImplementedError()
 
@@ -108,7 +119,8 @@ class AbstractStubClass(object):
     def deleteOrder(request, orderId, *args, **kwargs):
         """
         :param request: An HttpRequest
-        :param orderId: string ID of the order that needs to be deleted
+        :param orderId: ID of the order that needs to be deleted
+        :type orderId: string
         """
         raise NotImplementedError()
 
@@ -117,7 +129,8 @@ class AbstractStubClass(object):
     def getOrderById(request, orderId, *args, **kwargs):
         """
         :param request: An HttpRequest
-        :param orderId: string ID of pet that needs to be fetched
+        :param orderId: ID of pet that needs to be fetched
+        :type orderId: string
         """
         raise NotImplementedError()
 
@@ -126,7 +139,8 @@ class AbstractStubClass(object):
     def createUser(request, body, *args, **kwargs):
         """
         :param request: An HttpRequest
-        :param body: dict A dictionary containing the parsed and validated body
+        :param body: A dictionary containing the parsed and validated body
+        :type body: dict
         """
         raise NotImplementedError()
 
@@ -135,7 +149,8 @@ class AbstractStubClass(object):
     def createUsersWithArrayInput(request, body, *args, **kwargs):
         """
         :param request: An HttpRequest
-        :param body: dict A dictionary containing the parsed and validated body
+        :param body: A dictionary containing the parsed and validated body
+        :type body: dict
         """
         raise NotImplementedError()
 
@@ -144,7 +159,8 @@ class AbstractStubClass(object):
     def createUsersWithListInput(request, body, *args, **kwargs):
         """
         :param request: An HttpRequest
-        :param body: dict A dictionary containing the parsed and validated body
+        :param body: A dictionary containing the parsed and validated body
+        :type body: dict
         """
         raise NotImplementedError()
 
@@ -153,8 +169,10 @@ class AbstractStubClass(object):
     def loginUser(request, username=None, password=None, *args, **kwargs):
         """
         :param request: An HttpRequest
-        :param username (optional): string The user name for login
-        :param password (optional): string The password for login in clear text
+        :param username: (optional) The user name for login
+        :type username: string
+        :param password: (optional) The password for login in clear text
+        :type password: string
         """
         raise NotImplementedError()
 
@@ -171,7 +189,8 @@ class AbstractStubClass(object):
     def deleteUser(request, username, *args, **kwargs):
         """
         :param request: An HttpRequest
-        :param username: string The name that needs to be deleted
+        :param username: The name that needs to be deleted
+        :type username: string
         """
         raise NotImplementedError()
 
@@ -180,7 +199,8 @@ class AbstractStubClass(object):
     def getUserByName(request, username, *args, **kwargs):
         """
         :param request: An HttpRequest
-        :param username: string The name that needs to be fetched. Use user1 for testing. 
+        :param username: The name that needs to be fetched. Use user1 for testing. 
+        :type username: string
         """
         raise NotImplementedError()
 
@@ -189,8 +209,10 @@ class AbstractStubClass(object):
     def updateUser(request, body, username, *args, **kwargs):
         """
         :param request: An HttpRequest
-        :param body: dict A dictionary containing the parsed and validated body
-        :param username: string name that need to be deleted
+        :param body: A dictionary containing the parsed and validated body
+        :type body: dict
+        :param username: name that need to be deleted
+        :type username: string
         """
         raise NotImplementedError()
 
@@ -205,7 +227,8 @@ class MockedStubClass(AbstractStubClass):
     def addPet(request, body, *args, **kwargs):
         """
         :param request: An HttpRequest
-        :param body: dict A dictionary containing the parsed and validated body
+        :param body: A dictionary containing the parsed and validated body
+        :type body: dict
         """
         response_schema = schemas.__UNSPECIFIED__
         if "type" not in response_schema:
@@ -220,7 +243,8 @@ class MockedStubClass(AbstractStubClass):
     def updatePet(request, body, *args, **kwargs):
         """
         :param request: An HttpRequest
-        :param body: dict A dictionary containing the parsed and validated body
+        :param body: A dictionary containing the parsed and validated body
+        :type body: dict
         """
         response_schema = schemas.__UNSPECIFIED__
         if "type" not in response_schema:
@@ -235,7 +259,8 @@ class MockedStubClass(AbstractStubClass):
     def findPetsByStatus(request, status=None, *args, **kwargs):
         """
         :param request: An HttpRequest
-        :param status (optional): array Status values that need to be considered for filter
+        :param status: (optional) Status values that need to be considered for filter
+        :type status: array
         """
         response_schema = json.loads("""{
     "items": {
@@ -336,7 +361,8 @@ class MockedStubClass(AbstractStubClass):
     def findPetsByTags(request, tags=None, *args, **kwargs):
         """
         :param request: An HttpRequest
-        :param tags (optional): array Tags to filter by
+        :param tags: (optional) Tags to filter by
+        :type tags: array
         """
         response_schema = json.loads("""{
     "items": {
@@ -437,7 +463,8 @@ class MockedStubClass(AbstractStubClass):
     def deletePet(request, petId, *args, **kwargs):
         """
         :param request: An HttpRequest
-        :param petId: integer Pet id to delete
+        :param petId: Pet id to delete
+        :type petId: integer
         """
         response_schema = schemas.__UNSPECIFIED__
         if "type" not in response_schema:
@@ -452,7 +479,8 @@ class MockedStubClass(AbstractStubClass):
     def getPetById(request, petId, *args, **kwargs):
         """
         :param request: An HttpRequest
-        :param petId: integer ID of pet that needs to be fetched
+        :param petId: ID of pet that needs to be fetched
+        :type petId: integer
         """
         response_schema = schemas.Pet
         if "type" not in response_schema:
@@ -467,8 +495,10 @@ class MockedStubClass(AbstractStubClass):
     def updatePetWithForm(request, form_data, petId, *args, **kwargs):
         """
         :param request: An HttpRequest
-        :param form_data: dict A dictionary containing form fields and their values. In the case where the form fields refer to uploaded files, the values will be instances of `django.core.files.uploadedfile.UploadedFile`
-        :param petId: string ID of pet that needs to be updated
+        :param form_data: A dictionary containing form fields and their values. In the case where the form fields refer to uploaded files, the values will be instances of `django.core.files.uploadedfile.UploadedFile`
+        :type form_data: dict
+        :param petId: ID of pet that needs to be updated
+        :type petId: string
         """
         response_schema = schemas.__UNSPECIFIED__
         if "type" not in response_schema:
@@ -483,8 +513,10 @@ class MockedStubClass(AbstractStubClass):
     def uploadFile(request, form_data, petId, *args, **kwargs):
         """
         :param request: An HttpRequest
-        :param form_data: dict A dictionary containing form fields and their values. In the case where the form fields refer to uploaded files, the values will be instances of `django.core.files.uploadedfile.UploadedFile`
-        :param petId: integer ID of pet to update
+        :param form_data: A dictionary containing form fields and their values. In the case where the form fields refer to uploaded files, the values will be instances of `django.core.files.uploadedfile.UploadedFile`
+        :type form_data: dict
+        :param petId: ID of pet to update
+        :type petId: integer
         """
         response_schema = schemas.__UNSPECIFIED__
         if "type" not in response_schema:
@@ -519,7 +551,8 @@ class MockedStubClass(AbstractStubClass):
     def placeOrder(request, body, *args, **kwargs):
         """
         :param request: An HttpRequest
-        :param body: dict A dictionary containing the parsed and validated body
+        :param body: A dictionary containing the parsed and validated body
+        :type body: dict
         """
         response_schema = schemas.Order
         if "type" not in response_schema:
@@ -534,7 +567,8 @@ class MockedStubClass(AbstractStubClass):
     def deleteOrder(request, orderId, *args, **kwargs):
         """
         :param request: An HttpRequest
-        :param orderId: string ID of the order that needs to be deleted
+        :param orderId: ID of the order that needs to be deleted
+        :type orderId: string
         """
         response_schema = schemas.__UNSPECIFIED__
         if "type" not in response_schema:
@@ -549,7 +583,8 @@ class MockedStubClass(AbstractStubClass):
     def getOrderById(request, orderId, *args, **kwargs):
         """
         :param request: An HttpRequest
-        :param orderId: string ID of pet that needs to be fetched
+        :param orderId: ID of pet that needs to be fetched
+        :type orderId: string
         """
         response_schema = schemas.Order
         if "type" not in response_schema:
@@ -564,7 +599,8 @@ class MockedStubClass(AbstractStubClass):
     def createUser(request, body, *args, **kwargs):
         """
         :param request: An HttpRequest
-        :param body: dict A dictionary containing the parsed and validated body
+        :param body: A dictionary containing the parsed and validated body
+        :type body: dict
         """
         response_schema = schemas.__UNSPECIFIED__
         if "type" not in response_schema:
@@ -579,7 +615,8 @@ class MockedStubClass(AbstractStubClass):
     def createUsersWithArrayInput(request, body, *args, **kwargs):
         """
         :param request: An HttpRequest
-        :param body: dict A dictionary containing the parsed and validated body
+        :param body: A dictionary containing the parsed and validated body
+        :type body: dict
         """
         response_schema = schemas.__UNSPECIFIED__
         if "type" not in response_schema:
@@ -594,7 +631,8 @@ class MockedStubClass(AbstractStubClass):
     def createUsersWithListInput(request, body, *args, **kwargs):
         """
         :param request: An HttpRequest
-        :param body: dict A dictionary containing the parsed and validated body
+        :param body: A dictionary containing the parsed and validated body
+        :type body: dict
         """
         response_schema = schemas.__UNSPECIFIED__
         if "type" not in response_schema:
@@ -609,8 +647,10 @@ class MockedStubClass(AbstractStubClass):
     def loginUser(request, username=None, password=None, *args, **kwargs):
         """
         :param request: An HttpRequest
-        :param username (optional): string The user name for login
-        :param password (optional): string The password for login in clear text
+        :param username: (optional) The user name for login
+        :type username: string
+        :param password: (optional) The password for login in clear text
+        :type password: string
         """
         response_schema = json.loads("""{
     "type": "string"
@@ -641,7 +681,8 @@ class MockedStubClass(AbstractStubClass):
     def deleteUser(request, username, *args, **kwargs):
         """
         :param request: An HttpRequest
-        :param username: string The name that needs to be deleted
+        :param username: The name that needs to be deleted
+        :type username: string
         """
         response_schema = schemas.__UNSPECIFIED__
         if "type" not in response_schema:
@@ -656,7 +697,8 @@ class MockedStubClass(AbstractStubClass):
     def getUserByName(request, username, *args, **kwargs):
         """
         :param request: An HttpRequest
-        :param username: string The name that needs to be fetched. Use user1 for testing. 
+        :param username: The name that needs to be fetched. Use user1 for testing. 
+        :type username: string
         """
         response_schema = schemas.User
         if "type" not in response_schema:
@@ -671,8 +713,10 @@ class MockedStubClass(AbstractStubClass):
     def updateUser(request, body, username, *args, **kwargs):
         """
         :param request: An HttpRequest
-        :param body: dict A dictionary containing the parsed and validated body
-        :param username: string name that need to be deleted
+        :param body: A dictionary containing the parsed and validated body
+        :type body: dict
+        :param username: name that need to be deleted
+        :type username: string
         """
         response_schema = schemas.__UNSPECIFIED__
         if "type" not in response_schema:
