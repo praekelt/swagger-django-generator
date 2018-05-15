@@ -35,6 +35,7 @@ class AbstractStubClass(object):
     def findPetsByStatus(request, status=None, *args, **kwargs):
         """
         :param request: An HttpRequest
+        :param status (optional): array Status values that need to be considered for filter
         """
         raise NotImplementedError()
 
@@ -43,6 +44,7 @@ class AbstractStubClass(object):
     def findPetsByTags(request, tags=None, *args, **kwargs):
         """
         :param request: An HttpRequest
+        :param tags (optional): array Tags to filter by
         """
         raise NotImplementedError()
 
@@ -151,6 +153,8 @@ class AbstractStubClass(object):
     def loginUser(request, username=None, password=None, *args, **kwargs):
         """
         :param request: An HttpRequest
+        :param username (optional): string The user name for login
+        :param password (optional): string The password for login in clear text
         """
         raise NotImplementedError()
 
@@ -231,6 +235,7 @@ class MockedStubClass(AbstractStubClass):
     def findPetsByStatus(request, status=None, *args, **kwargs):
         """
         :param request: An HttpRequest
+        :param status (optional): array Status values that need to be considered for filter
         """
         response_schema = json.loads("""{
     "items": {
@@ -331,6 +336,7 @@ class MockedStubClass(AbstractStubClass):
     def findPetsByTags(request, tags=None, *args, **kwargs):
         """
         :param request: An HttpRequest
+        :param tags (optional): array Tags to filter by
         """
         response_schema = json.loads("""{
     "items": {
@@ -603,6 +609,8 @@ class MockedStubClass(AbstractStubClass):
     def loginUser(request, username=None, password=None, *args, **kwargs):
         """
         :param request: An HttpRequest
+        :param username (optional): string The user name for login
+        :param password (optional): string The password for login in clear text
         """
         response_schema = json.loads("""{
     "type": "string"
