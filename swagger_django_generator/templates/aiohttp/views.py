@@ -90,7 +90,22 @@ class {{ class_name }}(View, CorsViewMixin):
             {% for oa in info.optional_args if oa.in == "query" %}
             # {{ oa.name }} (optional): {{ oa.type }} {{ oa.description }}
             {% if oa.type == "array" %}
+            {% if oa.collectionFormat == "multi" %}
             {{ oa.name }} = self.request.query.getall("{{ oa.name }}", None)
+            {% else %}
+            {{oa.name}} = self.request.query.get("{{ oa.name }}", None)
+            if {{oa.name}} is not None:
+            { % if oa.collectionFormat == "pipes" %}
+                {{oa.name}} = {{ra.name}}.split("|")
+            { % elif oa.collectionFormat == "tsv" %}
+                {{oa.name}} = {{ra.name}}.split("\t")
+            { % elif oa.collectionFormat == "ssv" %}
+                {{oa.name}} = {{oa.name}}.split(" ")
+            { % elif ra.collectionFormat == "csv" %}
+                {{oa.name}} = {{oa.name}}.split(",")
+            { % else %}
+                {{oa.name}} = {{oa.name}}.split(",")
+            {% endif %}
             {% if oa["items"].type == "integer" %}
             if {{ oa.name }}:
                 {{ oa.name }} = [int(e) for e in {{ oa.name }}]
