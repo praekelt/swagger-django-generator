@@ -95,15 +95,15 @@ class {{ class_name }}(View, CorsViewMixin):
             {% else %}
             {{oa.name}} = self.request.query.get("{{ oa.name }}", None)
             if {{oa.name}} is not None:
-            { % if oa.collectionFormat == "pipes" %}
+            {% if oa.collectionFormat == "pipes" %}
                 {{oa.name}} = {{oa.name}}.split("|")
-            { % elif oa.collectionFormat == "tsv" %}
+            {% elif oa.collectionFormat == "tsv" %}
                 {{oa.name}} = {{oa.name}}.split("\t")
-            { % elif oa.collectionFormat == "ssv" %}
+            {% elif oa.collectionFormat == "ssv" %}
                 {{oa.name}} = {{oa.name}}.split(" ")
-            { % elif oa.collectionFormat == "csv" %}
+            {% elif oa.collectionFormat == "csv" %}
                 {{oa.name}} = {{oa.name}}.split(",")
-            { % else %}
+            {% else %}
                 {{oa.name}} = {{oa.name}}.split(",")
             {% endif %}
             {% if oa["items"].type == "integer" %}
