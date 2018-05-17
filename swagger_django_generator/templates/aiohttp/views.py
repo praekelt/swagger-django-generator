@@ -110,6 +110,7 @@ class {{ class_name }}(View, CorsViewMixin):
             if {{ oa.name }}:
                 {{ oa.name }} = [int(e) for e in {{ oa.name }}]
             {% endif %}
+            {% endif %}
             {% else %}
             {{ oa.name }} = self.request.query.get("{{ oa.name }}", None)
             {% endif %}
