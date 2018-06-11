@@ -75,14 +75,19 @@ class {{ class_name }}(View):
         {% endfor %}
         """
         {% if info.body %}
-        body = utils.body_to_dict(request.body, self.{{ verb|upper}}_BODY_SCHEMA)
+        body = utils.body_to_dict(request.body, self.{{ verb|upper }}_BODY_SCHEMA)
         if not body:
             return HttpResponseBadRequest("Body required")
 
         {% endif %}
-        {% for ra in info.required_args if ra.in == "query" %}
+        {% for ra in info.required_args %}
+        {% if ra.in == "query" %}
         if "{{ ra.name }}" not in request.GET:
             return HttpResponseBadRequest("{{ ra.name }} required")
+        {% elif ra.in == "header" %}
+        if "HTTP_{{ ra.name|upper }}" not in request.META:
+            return HttpResponseBadRequest("{{ ra.name }} required")
+        {% endif %}
 
         {% if ra.type == "array" %}
         {% if ra.collectionFormat == "multi" %}
@@ -102,12 +107,14 @@ class {{ class_name }}(View):
             {{ ra.name }} = {{ ra.name }}.split(",")
         {% endif %}
         {% endif %}
-        {% else %}
+        {% elif ra.in == "query" %}
         {{ ra.name }} = request.GET.get("{{ ra.name }}")
+        {% elif ra.in == "header" %}
+        {{ ra.name }} = request.META.get("HTTP_{{ ra.name|upper }}")
         {% endif %}
 
         {% endfor %}
-        {% for oa in info.optional_args if oa.in == "query" %}
+        {% for oa in info.optional_args %}
         # {{ oa.name }} (optional): {{ oa.type }} {{ oa.description }}
         {% if oa.type == "array" %}
         {% if oa.collectionFormat == "multi" %}
@@ -127,8 +134,10 @@ class {{ class_name }}(View):
             {{ oa.name }} = {{ oa.name }}.split(",")
         {% endif %}
         {% endif %}
-        {% else %}
+        {% elif oa.in == "query" %}
         {{ oa.name }} = request.GET.get("{{ oa.name }}", None)
+        {% elif oa.in == "header" %}
+        {{ oa.name }} = request.META.get("HTTP_{{ oa.name|upper }}", None)
         {% endif %}
         {% endfor %}
         {% if info.form_data %}
@@ -149,7 +158,7 @@ class {{ class_name }}(View):
         {% endif %}
         result = Stubs.{{ info.operation }}(request, {% if info.body %}body, {% endif %}{% if info.form_data %}form_data, {% endif %}
             {% for ra in info.required_args %}{{ ra.name }}, {% endfor %}
-            {% for oa in info.optional_args if oa.in == "query" %}{{ oa.name }}, {% endfor %})
+            {% for oa in info.optional_args %}{{ oa.name }}, {% endfor %})
 
         if type(result) is tuple:
             result, headers = result

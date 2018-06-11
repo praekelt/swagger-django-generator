@@ -54,11 +54,13 @@ class AbstractStubClass(object):
 
     # deletePet -- Synchronisation point for meld
     @staticmethod
-    def deletePet(request, petId, *args, **kwargs):
+    def deletePet(request, petId, api_key=None, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param petId: Pet id to delete
         :type petId: integer
+        :param api_key: (optional) 
+        :type api_key: string
         """
         raise NotImplementedError()
 
@@ -460,11 +462,13 @@ class MockedStubClass(AbstractStubClass):
         return MockedStubClass.GENERATOR.random_value(response_schema)
 
     @staticmethod
-    def deletePet(request, petId, *args, **kwargs):
+    def deletePet(request, petId, api_key=None, *args, **kwargs):
         """
         :param request: An HttpRequest
         :param petId: Pet id to delete
         :type petId: integer
+        :param api_key: (optional) 
+        :type api_key: string
         """
         response_schema = schemas.__UNSPECIFIED__
         if "type" not in response_schema:

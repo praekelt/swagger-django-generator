@@ -29,7 +29,7 @@ class AbstractStubClass(object):
         {% for ra in info.required_args %}
         :param {{ ra.name }}: {{ ra.type }} {{ ra.description }}
         {% endfor %}
-        {% for oa in info.optional_args if oa.in == "query" %}
+        {% for oa in info.optional_args %}
         :param {{ oa.name }} (optional): {{ oa.type }} {{ oa.description }}
         {% endfor %}
         :returns: result or (result, headers) tuple
@@ -62,7 +62,7 @@ class MockedStubClass(AbstractStubClass):
         {% for ra in info.required_args %}
         :param {{ ra.name }}: {{ ra.type }} {{ ra.description }}
         {% endfor %}
-        {% for oa in info.optional_args if oa.in == "query" %}
+        {% for oa in info.optional_args %}
         :param {{ oa.name }} (optional): {{ oa.type }} {{ oa.description }}
         {% endfor %}
         """

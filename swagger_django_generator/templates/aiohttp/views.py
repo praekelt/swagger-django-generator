@@ -65,9 +65,14 @@ class {{ class_name }}(View, CorsViewMixin):
             {% for ra in info.required_args %}
             # {{ ra.name }}: {{ ra.type }} {{ ra.description }}
             {% if ra.in == "path" %}
-            {{ ra.name }} = self.request.match_info["{{ ra.name}}"]
-            {% else %}
+            {{ ra.name }} = self.request.match_info["{{ ra.name }}"]
+            {% elif ra.in == "query" %}
             {{ ra.name }} = self.request.query["{{ ra.name }}"]
+            {% elif ra.in == "header" %}
+            # Header argument names are normalised to be valid variable names. We need to
+            # reverse this process when performing lookups. Header lookups in aiohttp is
+            # case insensitive.
+            {{ ra.name }} = self.request.headers["{{ ra.name }}".replace("_", "-")]  # Case insensitive lookup performed
             {% endif %}
             {% if ra.type == "boolean" %}
             {{ ra.name }} = ({{ ra.name }}.lower() == "true")
@@ -87,9 +92,9 @@ class {{ class_name }}(View, CorsViewMixin):
             {% endif %}
             {% endfor %}
             optional_args = {}
-            {% for oa in info.optional_args if oa.in == "query" %}
+            {% for oa in info.optional_args %}
             # {{ oa.name }} (optional): {{ oa.type }} {{ oa.description }}
-            {% if oa.type == "array" %}
+            {% if oa.type == "array" and oa.in == "query" %}
             {% if oa.collectionFormat == "multi" %}
             {{ oa.name }} = self.request.query.getall("{{ oa.name }}", None)
             {% else %}
@@ -111,8 +116,13 @@ class {{ class_name }}(View, CorsViewMixin):
                 {{ oa.name }} = [int(e) for e in {{ oa.name }}]
             {% endif %}
             {% endif %}
-            {% else %}
+            {% elif oa.in == "query" %}
             {{ oa.name }} = self.request.query.get("{{ oa.name }}", None)
+            {% elif oa.in == "header"%}
+            # Header argument names are normalised to be valid variable names. We need to
+            # reverse this process when performing lookups. Header lookups in aiohttp is
+            # case insensitive.
+            {{ oa.name }} = self.request.headers.get("{{ oa.name }}".replace("_", "-"), None)  # Case insensitive lookup performed
             {% endif %}
             if {{ oa.name }} is not None:
                 {% if oa.type == "boolean" %}
@@ -152,7 +162,7 @@ class {{ class_name }}(View, CorsViewMixin):
             if not body:
                 return Response(status=400, text="Body required")
 
-            jsonschema.validate(body, schema=self.{{ verb|upper}}_BODY_SCHEMA)
+            jsonschema.validate(body, schema=self.{{ verb|upper }}_BODY_SCHEMA)
         except ValidationError as ve:
             return Response(status=400, text="Body validation failed: {}".format(ve.message))
         except Exception:

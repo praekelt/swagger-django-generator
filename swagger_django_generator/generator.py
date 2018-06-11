@@ -246,11 +246,12 @@ class Generator(object):
                 # Add arguments
                 for name, detail in io["parameters"].items():
                     location = detail["in"]
-                    if location == "path":
-                        section = "required_args" if detail["required"] else \
-                            "optional_args"
-                        payload[section].append(detail)
-                    elif location == "query":
+                    if location in ["path", "query", "header"]:
+                        if location == "header":
+                            # We expect the name to have the form X-Foo-Bar, which will
+                            # be changed to "x_foo_bar".
+                            detail["name"] == name.lower().replace("-", "_")
+
                         section = "required_args" if detail["required"] else \
                             "optional_args"
                         payload[section].append(detail)

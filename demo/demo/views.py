@@ -370,7 +370,9 @@ class PetPetId(View):
         :param request: An HttpRequest
         :param petId: integer Pet id to delete
         """
-        result = Stubs.deletePet(request, petId, )
+
+
+        result = Stubs.deletePet(request, petId, api_key, )
 
         if type(result) is tuple:
             result, headers = result
@@ -395,6 +397,8 @@ class PetPetId(View):
         :param request: An HttpRequest
         :param petId: integer ID of pet that needs to be fetched
         """
+
+
         result = Stubs.getPetById(request, petId, )
 
         if type(result) is tuple:
@@ -420,6 +424,8 @@ class PetPetId(View):
         :param request: An HttpRequest
         :param petId: string ID of pet that needs to be updated
         """
+
+
         form_data = {}
         name = request.POST.get("name", None)
         form_data["name"] = name
@@ -459,6 +465,8 @@ class PetPetIdUploadImage(View):
         :param request: An HttpRequest
         :param petId: integer ID of pet to update
         """
+
+
         form_data = {}
         additionalMetadata = request.POST.get("additionalMetadata", None)
         form_data["additionalMetadata"] = additionalMetadata
@@ -570,6 +578,8 @@ class StoreOrderOrderId(View):
         :param request: An HttpRequest
         :param orderId: string ID of the order that needs to be deleted
         """
+
+
         result = Stubs.deleteOrder(request, orderId, )
 
         if type(result) is tuple:
@@ -595,6 +605,8 @@ class StoreOrderOrderId(View):
         :param request: An HttpRequest
         :param orderId: string ID of pet that needs to be fetched
         """
+
+
         result = Stubs.getOrderById(request, orderId, )
 
         if type(result) is tuple:
@@ -878,6 +890,8 @@ class UserUsername(View):
         :param request: An HttpRequest
         :param username: string The name that needs to be deleted
         """
+
+
         result = Stubs.deleteUser(request, username, )
 
         if type(result) is tuple:
@@ -903,6 +917,8 @@ class UserUsername(View):
         :param request: An HttpRequest
         :param username: string The name that needs to be fetched. Use user1 for testing. 
         """
+
+
         result = Stubs.getUserByName(request, username, )
 
         if type(result) is tuple:
@@ -931,6 +947,8 @@ class UserUsername(View):
         body = utils.body_to_dict(request.body, self.PUT_BODY_SCHEMA)
         if not body:
             return HttpResponseBadRequest("Body required")
+
+
 
         result = Stubs.updateUser(request, body, username, )
 
