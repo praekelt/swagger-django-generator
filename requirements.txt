@@ -1,3 +1,6 @@
+# Never versions invalidates some of the specs used for testing
+swagger-spec-validator==2.1.0
+
 -e git+https://github.com/praekelt/apitools@master#egg=apitools
 -e git+https://github.com/praekelt/swagger-parser@master#egg=swagger-parser
 click
@@ -6,9 +9,6 @@ parameterized
 django
 aiohttp
 aiohttp-cors
-
-# Never versions invalidates some of the specs used for testing
-swagger-spec-validator==2.1.0
 
 # The following requirements are required by jsonschema
 # in order to do proper validation of certain formats.
