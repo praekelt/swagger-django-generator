@@ -10,6 +10,7 @@ import json
 import jsonschema
 import os
 import sys
+import uuid
 
 from django.contrib.auth import authenticate, login
 from django.core.exceptions import SuspiciousOperation
@@ -72,3 +73,27 @@ def login_required_no_redirect(view_func):
         return HttpResponse("Unauthorized", status=401)
 
     return wrapper
+
+
+@jsonschema.FormatChecker.cls_checks("uuid")
+def check_uuid_format(instance):
+    try:
+        uuid.UUID(instance)
+        return True
+    except ValueError:
+        return False
+
+
+# The instance of the format checker must be created after
+# the UUID format checker was registered.
+_FORMAT_CHECKER = jsonschema.FormatChecker()
+
+# Be explicit about which formats are supported. More information can be found here:
+# http://python-jsonschema.readthedocs.io/en/stable/validate/#jsonschema.FormatChecker
+print("The following formats will be validated: {}".format(
+    ", ".join(_FORMAT_CHECKER.checkers.keys())))
+
+
+def validate(instance, schema):
+    jsonschema.validate(instance, schema=schema,
+                        format_checker=_FORMAT_CHECKER)

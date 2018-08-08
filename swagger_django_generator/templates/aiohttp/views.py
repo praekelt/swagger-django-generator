@@ -34,7 +34,7 @@ Stubs = getattr(Module, class_name)
 def maybe_validate_result(result, schema):
     if VALIDATE_RESPONSES:
         try:
-            jsonschema.validate(result, schema)
+            utils.validate(result, schema)
         except ValidationError as e:
             LOGGER.error(e.message)
 
@@ -83,7 +83,7 @@ class {{ class_name }}(View, CorsViewMixin):
                 raise ValidationError("{{ ra.name }} exceeds its maximum limit")
             {% endif %}
             {% else %}
-            jsonschema.validate({{ ra.name }}, {"type": "{{ ra.type }}"})
+            utils.validate({{ ra.name }}, {"type": "{{ ra.type }}"})
             {% endif %}
             {% endfor %}
             optional_args = {}
@@ -135,9 +135,9 @@ class {{ class_name }}(View, CorsViewMixin):
                     if field in schema:
                         del schema[field]
 
-                jsonschema.validate({{ oa.name }}, schema)
+                utils.validate({{ oa.name }}, schema)
                 {% else %}
-                jsonschema.validate({{ oa.name }}, {"type": "{{ oa.type }}"})
+                utils.validate({{ oa.name }}, {"type": "{{ oa.type }}"})
                 {% endif %}
                 optional_args["{{ oa.name }}"] = {{ oa.name }}
             {% endfor %}
@@ -152,7 +152,7 @@ class {{ class_name }}(View, CorsViewMixin):
             if not body:
                 return Response(status=400, text="Body required")
 
-            jsonschema.validate(body, schema=self.{{ verb|upper}}_BODY_SCHEMA)
+            utils.validate(body, schema=self.{{ verb|upper}}_BODY_SCHEMA)
         except ValidationError as ve:
             return Response(status=400, text="Body validation failed: {}".format(ve.message))
         except Exception:
