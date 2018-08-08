@@ -8,6 +8,7 @@ from functools import wraps
 import base64
 import json
 import jsonschema
+import logging
 import os
 import sys
 import uuid
@@ -16,6 +17,9 @@ from django.contrib.auth import authenticate, login
 from django.core.exceptions import SuspiciousOperation
 from django.http import HttpResponse
 from django.conf import settings
+
+
+_LOGGER = logging.getLogger(__name__)
 
 
 def body_to_dict(body, schema):
@@ -90,8 +94,8 @@ _FORMAT_CHECKER = jsonschema.FormatChecker()
 
 # Be explicit about which formats are supported. More information can be found here:
 # http://python-jsonschema.readthedocs.io/en/stable/validate/#jsonschema.FormatChecker
-print("The following formats will be validated: {}".format(
-    ", ".join(_FORMAT_CHECKER.checkers.keys())))
+_LOGGER.info("The following formats will be validated: {}".format(
+             ", ".join(_FORMAT_CHECKER.checkers.keys())))
 
 
 def validate(instance, schema):
