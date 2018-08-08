@@ -470,6 +470,10 @@ def main(specification_path, spec_format, backend, verbose, output_dir, module_n
             if verbose:
                 print(data)
 
+        click.secho("To perform validation for uri, date-time and color formats, install the "
+                    "packages indicated in the link below in YOUR project:")
+        click.secho("http://python-jsonschema.readthedocs.io/en/stable/validate/#jsonschema.FormatChecker")
+        click.secho("This tool adds validation for the UUID format in {}.".format(utils_file))
         click.secho("Done.", fg="green")
     except Exception as e:
         click.secho(str(e), fg="red")

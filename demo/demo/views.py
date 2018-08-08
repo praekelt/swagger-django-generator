@@ -5,7 +5,6 @@ Do not modify this file. It is generated from the Swagger specification.
 import importlib
 import logging
 import json
-import jsonschema
 from jsonschema import ValidationError
 
 from django.conf import settings
@@ -44,7 +43,7 @@ Stubs = getattr(Module, class_name)
 def maybe_validate_result(result_string, schema):
     if VALIDATE_RESPONSES:
         try:
-            jsonschema.validate(json.loads(result_string, encoding="utf8"), schema)
+            utils.validate(json.loads(result_string, encoding="utf8"), schema)
         except ValidationError as e:
             LOGGER.error(e.message)
 

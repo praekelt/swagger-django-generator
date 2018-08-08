@@ -15,33 +15,27 @@
     "http"
   ],
   "paths": {
-    "/tests/binaryResponse": {
+    "/tests/dateResponse": {
       "post": {
         "summary": "Echo test",
         "operationId": "echotest",
-        "consumes": [
-          "application/octet-stream"
-        ],
-        "produces": [
-          "application/octet-stream"
-        ],
         "parameters": [
           {
-            "name": "InputBinaryData",
+            "name": "InputDate",
             "in": "body",
             "required": true,
             "schema": {
               "type": "string",
-              "format": "binary"
+              "format": "date"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "OutputBinaryData",
+            "description": "OutputDate",
             "schema": {
               "type": "string",
-              "format": "binary"
+              "format": "date"
             }
           }
         }
