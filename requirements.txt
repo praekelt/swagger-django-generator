@@ -7,6 +7,9 @@ django
 aiohttp
 aiohttp-cors
 
+# Never versions invalidates some of the specs used for testing
+swagger-spec-validator==2.1.0
+
 # The following requirements are required by jsonschema
 # in order to do proper validation of certain formats.
 rfc3987
