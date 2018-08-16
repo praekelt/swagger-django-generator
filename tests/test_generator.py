@@ -37,6 +37,8 @@ ALL_TEST_SPECIFICATIONS = [
     # "tests/resources/v1beta3.json",
     # "tests/resources/wordnik.json",
     # "tests/resources/wordnik.yaml",
+    "tests/resources/management_layer.yml",
+    "tests/resources/authentication_service.yml"
 ]
 
 
