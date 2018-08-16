@@ -74,10 +74,12 @@ if major > 3 or major == 3 and minor >= 5:
 # * (path, http_verb) combinations map to operations.
 
 # Swagger fields used in parameter definition, but which are unknown to jsonschema.
-_SWAGGER_FIELDS = frozenset(["name", "in", "required", "collectionFormat"])
+_SWAGGER_FIELDS = frozenset(["name", "in", "required", "collectionFormat", "description"])
 
 
 def clean_schema(schema):
+    # type: (Dict) -> Dict
+    """Transform a Swagger parameter definition to a valid JSONSchema"""
     return {k: v for k, v in schema.items() if k not in _SWAGGER_FIELDS}
 
 
