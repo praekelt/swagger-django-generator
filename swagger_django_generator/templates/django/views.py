@@ -112,17 +112,19 @@ class {{ class_name }}(View):
 
       {% if ra.type == "boolean" %}
             {{ ra.name }} = ({{ ra.name }}.lower() == "true")
-      {% endif %}
-      {% if ra.type == "integer" %}
+      {% elif ra.type == "integer" %}
             {{ ra.name }} = int({{ ra.name }})
-            schema = {{ ra|clean_schema }}
-            utils.validate({{ ra.name }}, schema)
+            #schema = {{ ra|clean_schema }}
+            #utils.validate({{ ra.name }}, schema)
       {% elif ra.type == "string" %}
+            #schema = {{ ra|clean_schema }}
+            #utils.validate({{ ra.name }}, schema)
+      {% else %}
+            #utils.validate({{ ra.name }}, {"type": "{{ ra.type }}"})
+      {% endif %}
             schema = {{ ra|clean_schema }}
             utils.validate({{ ra.name }}, schema)
-      {% else %}
-            utils.validate({{ ra.name }}, {"type": "{{ ra.type }}"})
-      {% endif %}
+
     {% endfor %}
 
     {% for oa in info.optional_args if oa.in == "query" %}
@@ -155,18 +157,19 @@ class {{ class_name }}(View):
             if {{ oa.name }} is not None:
       {% if oa.type == "boolean" %}
                 {{ oa.name }} = ({{ oa.name }}.lower() == "true")
-      {% endif %}
-      {% if oa.type == "integer" %}
+      {% elif oa.type == "integer" %}
                 {{ oa.name }} = int({{ oa.name }})
       {% elif oa.type == "array" %}
-                schema = {{ oa|clean_schema }}
-                utils.validate({{ oa.name }}, schema)
+                #schema = {{ oa|clean_schema }}
+                #utils.validate({{ oa.name }}, schema)
       {% elif oa.type == "string" %}
+                #schema = {{ oa|clean_schema }}
+                #utils.validate({{ oa.name }}, schema)
+      {% else %}
+                #utils.validate({{ oa.name }}, {"type": "{{ oa.type }}"})
+      {% endif %}
                 schema = {{ oa|clean_schema }}
                 utils.validate({{ oa.name }}, schema)
-      {% else %}
-                utils.validate({{ oa.name }}, {"type": "{{ oa.type }}"})
-      {% endif %}
     {% endfor %}
     {% if info.form_data %}
             form_data = {}
