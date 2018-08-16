@@ -98,6 +98,9 @@ _FORMAT_CHECKER = jsonschema.FormatChecker()
 _LOGGER.info("The following formats will be validated: {}".format(
              ", ".join(_FORMAT_CHECKER.checkers.keys())))
 
+# Swagger fields used in parameter definition, but which are unknown to jsonschema.
+_SWAGGER_FIELDS = frozenset(["name", "in", "required", "collectionFormat"])
+
 
 def validate(instance, schema):
     jsonschema.validate(instance, schema=schema,
@@ -105,8 +108,4 @@ def validate(instance, schema):
 
 
 def clean_schema(schema):
-    result = copy.copy(schema)
-    for field in ["name", "in", "required", "collectionFormat"]:
-        del result[field]
-
-    return result
+    return {k: v for k, v in schema.items() if k not in _SWAGGER_FIELDS}

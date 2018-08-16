@@ -101,6 +101,10 @@ class {{ class_name }}(View):
           {% else %}
                 {{ ra.name }} = {{ ra.name }}.split(",")
           {% endif %}
+          {% if ra["items"].type == "integer" %}
+                if {{ ra.name }}:
+                    {{ ra.name }} = [int(e) for e in {{ ra.name }}]
+          {% endif %}
         {% endif %}
       {% else %}
             {{ ra.name }} = request.GET.get("{{ ra.name }}")
@@ -139,6 +143,10 @@ class {{ class_name }}(View):
                 {{ oa.name }} = {{ oa.name }}.split(",")
           {% else %}
                 {{ oa.name }} = {{ oa.name }}.split(",")
+          {% endif %}
+          {% if oa["items"].type == "integer" %}
+                if {{ oa.name }}:
+                    {{ oa.name }} = [int(e) for e in {{ oa.name }}]
           {% endif %}
         {% endif %}
       {% else %}
