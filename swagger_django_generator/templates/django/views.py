@@ -105,7 +105,9 @@ class {{ class_name }}(View):
         {{ ra.name }} = request.GET.get("{{ ra.name }}")
         {% endif %}
 
+        utils.validate({{ ra.name }}, {"type": "{{ ra.type }}"})
         {% endfor %}
+
         {% for oa in info.optional_args if oa.in == "query" %}
         # {{ oa.name }} (optional): {{ oa.type }} {{ oa.description }}
         {% if oa.type == "array" %}
@@ -129,6 +131,7 @@ class {{ class_name }}(View):
         {% else %}
         {{ oa.name }} = request.GET.get("{{ oa.name }}", None)
         {% endif %}
+        utils.validate({{ oa.name }}, {"type": "{{ oa.type }}"})
         {% endfor %}
         {% if info.form_data %}
         form_data = {}
