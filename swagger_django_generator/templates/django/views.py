@@ -90,6 +90,7 @@ class {{ class_name }}(View):
         {% else %}
             {{ ra.name }} = request.GET.get("{{ ra.name }}", None)
             if {{ ra.name }} is not None:
+                {{ ra|parse_array }}
           {% if ra.collectionFormat == "pipes" %}
                 {{ ra.name }} = {{ ra.name }}.split("|")
           {% elif ra.collectionFormat == "tsv" %}
@@ -114,13 +115,6 @@ class {{ class_name }}(View):
             {{ ra.name }} = ({{ ra.name }}.lower() == "true")
       {% elif ra.type == "integer" %}
             {{ ra.name }} = int({{ ra.name }})
-            #schema = {{ ra|clean_schema }}
-            #utils.validate({{ ra.name }}, schema)
-      {% elif ra.type == "string" %}
-            #schema = {{ ra|clean_schema }}
-            #utils.validate({{ ra.name }}, schema)
-      {% else %}
-            #utils.validate({{ ra.name }}, {"type": "{{ ra.type }}"})
       {% endif %}
             schema = {{ ra|clean_schema }}
             utils.validate({{ ra.name }}, schema)
@@ -159,14 +153,6 @@ class {{ class_name }}(View):
                 {{ oa.name }} = ({{ oa.name }}.lower() == "true")
       {% elif oa.type == "integer" %}
                 {{ oa.name }} = int({{ oa.name }})
-      {% elif oa.type == "array" %}
-                #schema = {{ oa|clean_schema }}
-                #utils.validate({{ oa.name }}, schema)
-      {% elif oa.type == "string" %}
-                #schema = {{ oa|clean_schema }}
-                #utils.validate({{ oa.name }}, schema)
-      {% else %}
-                #utils.validate({{ oa.name }}, {"type": "{{ oa.type }}"})
       {% endif %}
                 schema = {{ oa|clean_schema }}
                 utils.validate({{ oa.name }}, schema)

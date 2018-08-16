@@ -83,6 +83,19 @@ def clean_schema(schema):
     return {k: v for k, v in schema.items() if k not in _SWAGGER_FIELDS}
 
 
+def parse_array(schema):
+    separators = {
+        "pipes": "|",
+        "tsv": "\t",
+        "ssv": " ",
+        "csv": ","
+    }
+    return '{name} = {name}.split("{separator}")  # New'.format(
+        name=schema["name"],
+        separator=separators[schema["collectionFormat"]]
+    )
+
+
 def render_to_string(backend, filename, context):
     # type: (str, str, Dict) -> str
     """
@@ -106,6 +119,7 @@ def render_to_string(backend, filename, context):
         lstrip_blocks=True,
     )
     environment.filters["clean_schema"] = clean_schema
+    environment.filters["parse_array"] = parse_array
 
     return environment.get_template(filename).render(context)
 
