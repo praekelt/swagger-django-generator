@@ -79,8 +79,13 @@ _SWAGGER_FIELDS = frozenset(["name", "in", "required", "collectionFormat", "desc
 
 def clean_schema(schema):
     # type: (Dict) -> Dict
-    """Transform a Swagger parameter definition to a valid JSONSchema"""
-    return {k: v for k, v in schema.items() if k not in _SWAGGER_FIELDS}
+    """Transform a Swagger parameter definition to a valid JSONSchema
+
+    Remove known Swagger fields as well as any custom definitions
+    (starting with "x-").
+    """
+    return {k: v for k, v in schema.items()
+            if k not in _SWAGGER_FIELDS and not k.lower().startswith("x-")}
 
 
 SEPARATORS = {
