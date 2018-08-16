@@ -4,6 +4,7 @@ Do not modify this file. It is generated from the Swagger specification.
 If you need to tweak the functionality in this file, you can replace it
 with your own.
 """
+import copy
 from functools import wraps
 import base64
 import json
@@ -101,3 +102,11 @@ _LOGGER.info("The following formats will be validated: {}".format(
 def validate(instance, schema):
     jsonschema.validate(instance, schema=schema,
                         format_checker=_FORMAT_CHECKER)
+
+
+def clean_schema(schema):
+    result = copy.copy(schema)
+    for field in ["name", "in", "required", "collectionFormat"]:
+        del result[field]
+
+    return result

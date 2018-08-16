@@ -79,151 +79,127 @@ class {{ class_name }}(View):
             return HttpResponseBadRequest("Body required")
 
   {% endif %}
+        try:
     {% for ra in info.required_args if ra.in == "query" %}
-        if "{{ ra.name }}" not in request.GET:
-            return HttpResponseBadRequest("{{ ra.name }} required")
+            if "{{ ra.name }}" not in request.GET:
+                return HttpResponseBadRequest("{{ ra.name }} required")
 
       {% if ra.type == "array" %}
         {% if ra.collectionFormat == "multi" %}
-        {{ ra.name }} = request.GET.getlist("{{ ra.name }}", None)
+            {{ ra.name }} = request.GET.getlist("{{ ra.name }}", None)
         {% else %}
-        {{ ra.name }} = request.GET.get("{{ ra.name }}", None)
-        if {{ ra.name }} is not None:
+            {{ ra.name }} = request.GET.get("{{ ra.name }}", None)
+            if {{ ra.name }} is not None:
           {% if ra.collectionFormat == "pipes" %}
-            {{ ra.name }} = {{ ra.name }}.split("|")
+                {{ ra.name }} = {{ ra.name }}.split("|")
           {% elif ra.collectionFormat == "tsv" %}
-            {{ ra.name }} = {{ ra.name }}.split("\t")
+                {{ ra.name }} = {{ ra.name }}.split("\t")
           {% elif ra.collectionFormat == "ssv" %}
-            {{ ra.name }} = {{ ra.name }}.split(" ")
+                {{ ra.name }} = {{ ra.name }}.split(" ")
           {% elif ra.collectionFormat == "csv" %}
-            {{ ra.name }} = {{ ra.name }}.split(",")
+                {{ ra.name }} = {{ ra.name }}.split(",")
           {% else %}
-            {{ ra.name }} = {{ ra.name }}.split(",")
+                {{ ra.name }} = {{ ra.name }}.split(",")
           {% endif %}
         {% endif %}
       {% else %}
-        {{ ra.name }} = request.GET.get("{{ ra.name }}")
+            {{ ra.name }} = request.GET.get("{{ ra.name }}")
       {% endif %}
 
       {% if ra.type == "boolean" %}
-        {{ ra.name }} = ({{ ra.name }}.lower() == "true")
+            {{ ra.name }} = ({{ ra.name }}.lower() == "true")
       {% endif %}
       {% if ra.type == "integer" %}
-        {{ ra.name }} = int({{ ra.name }})
-        {% if "minimum" in ra %}
-        if {{ ra.name }} < {{ ra.minimum }}:
-            raise ValidationError("{{ ra.name }} exceeds its minimum limit")
-        {% endif %}
-        {% if "maximum" in ra %}
-        if {{ ra.maximum }} < {{ ra.name }}:
-            raise ValidationError("{{ ra.name }} exceeds its maximum limit")
-        {% endif %}
+            {{ ra.name }} = int({{ ra.name }})
+            schema = utils.clean_schema({{ ra }})
+            utils.validate({{ ra.name }}, schema)
       {% elif ra.type == "string" %}
-        schema = {{ ra }}
-        # Remove Swagger fields that clash with JSONSchema names at this level
-        for field in ["name", "in", "required"]:
-            if field in schema:
-                del schema[field]
-
-        utils.validate({{ ra.name }}, schema)
+            schema = utils.clean_schema({{ ra }})
+            utils.validate({{ ra.name }}, schema)
       {% else %}
-        utils.validate({{ ra.name }}, {"type": "{{ ra.type }}"})
+            utils.validate({{ ra.name }}, {"type": "{{ ra.type }}"})
       {% endif %}
     {% endfor %}
 
     {% for oa in info.optional_args if oa.in == "query" %}
-        # {{ oa.name }} (optional): {{ oa.type }} {{ oa.description }}
+            # {{ oa.name }} (optional): {{ oa.type }} {{ oa.description }}
       {% if oa.type == "array" %}
         {% if oa.collectionFormat == "multi" %}
-        {{ oa.name }} = request.GET.getlist("{{ oa.name }}", None)
+            {{ oa.name }} = request.GET.getlist("{{ oa.name }}", None)
         {% else %}
-        {{ oa.name }} = request.GET.get("{{ oa.name }}", None)
-        if {{ oa.name }} is not None:
+            {{ oa.name }} = request.GET.get("{{ oa.name }}", None)
+            if {{ oa.name }} is not None:
           {% if oa.collectionFormat == "pipes" %}
-            {{ oa.name }} = {{ oa.name }}.split("|")
+                {{ oa.name }} = {{ oa.name }}.split("|")
           {% elif oa.collectionFormat == "tsv" %}
-            {{ oa.name }} = {{ oa.name }}.split("\t")
+                {{ oa.name }} = {{ oa.name }}.split("\t")
           {% elif oa.collectionFormat == "ssv" %}
-            {{ oa.name }} = {{ oa.name }}.split(" ")
+                {{ oa.name }} = {{ oa.name }}.split(" ")
           {% elif oa.collectionFormat == "csv" %}
-            {{ oa.name }} = {{ oa.name }}.split(",")
+                {{ oa.name }} = {{ oa.name }}.split(",")
           {% else %}
-            {{ oa.name }} = {{ oa.name }}.split(",")
+                {{ oa.name }} = {{ oa.name }}.split(",")
           {% endif %}
         {% endif %}
       {% else %}
-        {{ oa.name }} = request.GET.get("{{ oa.name }}", None)
+            {{ oa.name }} = request.GET.get("{{ oa.name }}", None)
       {% endif %}
-        if {{ oa.name }} is not None:
+            if {{ oa.name }} is not None:
       {% if oa.type == "boolean" %}
-            {{ oa.name }} = ({{ oa.name }}.lower() == "true")
+                {{ oa.name }} = ({{ oa.name }}.lower() == "true")
       {% endif %}
       {% if oa.type == "integer" %}
-            {{ oa.name }} = int({{ oa.name }})
-        {% if "minimum" in oa %}
-            if {{ oa.name }} < {{ oa.minimum }}:
-                raise ValidationError("{{ oa.name }} exceeds its minimum limit")
-        {% endif %}
-        {% if "maximum" in oa %}
-            if {{ oa.maximum }} < {{ oa.name }}:
-                raise ValidationError("{{ oa.name }} exceeds its maximum limit")
-        {% endif %}
+                {{ oa.name }} = int({{ oa.name }})
       {% elif oa.type == "array" %}
-            schema = {{ oa }}
-            # Remove Swagger fields that clash with JSONSchema names at this level
-            for field in ["name", "in", "required", "collectionFormat"]:
-                if field in schema:
-                    del schema[field]
-
-            utils.validate({{ oa.name }}, schema)
+                schema = utils.clean_schema({{ oa }})
+                utils.validate({{ oa.name }}, schema)
       {% elif oa.type == "string" %}
-            schema = {{ oa }}
-            # Remove Swagger fields that clash with JSONSchema names at this level
-            for field in ["name", "in", "required"]:
-                if field in schema:
-                    del schema[field]
-
-            utils.validate({{ oa.name }}, schema)
+                schema = utils.clean_schema({{ oa }})
+                utils.validate({{ oa.name }}, schema)
       {% else %}
-            utils.validate({{ oa.name }}, {"type": "{{ oa.type }}"})
+                utils.validate({{ oa.name }}, {"type": "{{ oa.type }}"})
       {% endif %}
     {% endfor %}
     {% if info.form_data %}
-        form_data = {}
+            form_data = {}
       {% for data in info.form_data %}
         {% if data.type == "file" %}
-        {{ data.name }} = request.FILES.get("{{ data.name }}", None)
+            {{ data.name }} = request.FILES.get("{{ data.name }}", None)
         {% else %}
-        {{ data.name }} = request.POST.get("{{ data.name }}", None)
+            {{ data.name }} = request.POST.get("{{ data.name }}", None)
         {% endif %}
         {% if data.required %}
-        if not {{ data.name }}:
-            return HttpResponseBadRequest("Formdata field '{{ data.name }}' required.")
+            if not {{ data.name }}:
+                return HttpResponseBadRequest("Formdata field '{{ data.name }}' required.")
         {% endif %}
-        form_data["{{ data.name }}"] = {{ data.name }}
+            form_data["{{ data.name }}"] = {{ data.name }}
 
       {% endfor %}
     {% endif %}
-        result = Stubs.{{ info.operation }}(request, {% if info.body %}body, {% endif %}{% if info.form_data %}form_data, {% endif %}
-            {% for ra in info.required_args %}{{ ra.name }}, {% endfor %}
-            {% for oa in info.optional_args if oa.in == "query" %}{{ oa.name }}, {% endfor %})
+            result = Stubs.{{ info.operation }}(request, {% if info.body %}body, {% endif %}{% if info.form_data %}form_data, {% endif %}
+                {% for ra in info.required_args %}{{ ra.name }}, {% endfor %}
+                {% for oa in info.optional_args if oa.in == "query" %}{{ oa.name }}, {% endfor %})
 
-        if type(result) is tuple:
-            result, headers = result
-        else:
-            headers = {}
+            if type(result) is tuple:
+                result, headers = result
+            else:
+                headers = {}
 
-        # The result may contain fields with date or datetime values that will not
-        # pass JSON validation. We first create the response, and then maybe validate
-        # the response content against the schema.
-        response = JsonResponse(result, safe=False)
+            # The result may contain fields with date or datetime values that will not
+            # pass JSON validation. We first create the response, and then maybe validate
+            # the response content against the schema.
+            response = JsonResponse(result, safe=False)
 
-        maybe_validate_result(response.content, self.{{ verb|upper }}_RESPONSE_SCHEMA)
+            maybe_validate_result(response.content, self.{{ verb|upper }}_RESPONSE_SCHEMA)
 
-        for key, val in headers.items():
-            response[key] = val
+            for key, val in headers.items():
+                response[key] = val
 
-        return response
+            return response
+        except ValidationError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve.message))
+        except ValueError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve))
     {% if not loop.last %}
 
     {% endif %}
