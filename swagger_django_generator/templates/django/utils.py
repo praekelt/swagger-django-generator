@@ -4,7 +4,6 @@ Do not modify this file. It is generated from the Swagger specification.
 If you need to tweak the functionality in this file, you can replace it
 with your own.
 """
-import copy
 from functools import wraps
 import base64
 import json
@@ -98,14 +97,7 @@ _FORMAT_CHECKER = jsonschema.FormatChecker()
 _LOGGER.info("The following formats will be validated: {}".format(
              ", ".join(_FORMAT_CHECKER.checkers.keys())))
 
-# Swagger fields used in parameter definition, but which are unknown to jsonschema.
-_SWAGGER_FIELDS = frozenset(["name", "in", "required", "collectionFormat"])
-
 
 def validate(instance, schema):
     jsonschema.validate(instance, schema=schema,
                         format_checker=_FORMAT_CHECKER)
-
-
-def clean_schema(schema):
-    return {k: v for k, v in schema.items() if k not in _SWAGGER_FIELDS}

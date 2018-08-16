@@ -115,10 +115,10 @@ class {{ class_name }}(View):
       {% endif %}
       {% if ra.type == "integer" %}
             {{ ra.name }} = int({{ ra.name }})
-            schema = utils.clean_schema({{ ra }})
+            schema = {{ ra|clean_schema }}
             utils.validate({{ ra.name }}, schema)
       {% elif ra.type == "string" %}
-            schema = utils.clean_schema({{ ra }})
+            schema = {{ ra|clean_schema }}
             utils.validate({{ ra.name }}, schema)
       {% else %}
             utils.validate({{ ra.name }}, {"type": "{{ ra.type }}"})
@@ -159,10 +159,10 @@ class {{ class_name }}(View):
       {% if oa.type == "integer" %}
                 {{ oa.name }} = int({{ oa.name }})
       {% elif oa.type == "array" %}
-                schema = utils.clean_schema({{ oa }})
+                schema = {{ oa|clean_schema }}
                 utils.validate({{ oa.name }}, schema)
       {% elif oa.type == "string" %}
-                schema = utils.clean_schema({{ oa }})
+                schema = {{ oa|clean_schema }}
                 utils.validate({{ oa.name }}, schema)
       {% else %}
                 utils.validate({{ oa.name }}, {"type": "{{ oa.type }}"})
