@@ -131,10 +131,8 @@ class {{ class_name }}(View):
         {% else %}
         {{ oa.name }} = request.GET.get("{{ oa.name }}", None)
         {% endif %}
-        utils.validate({{ oa.name }}, {
-            "type": "{{ oa.type }}",
-            {% if oa.format %}"format": "{{ oa.format }}"{% endif %}
-        })
+        if {{ oa.name }} is not None:
+            utils.validate({{ oa.name }}, {"type": "{{ oa.type }}", {% if oa.format %}"format": "{{ oa.format }}"{% endif %} })
         {% endfor %}
         {% if info.form_data %}
         form_data = {}
