@@ -83,16 +83,19 @@ def clean_schema(schema):
     return {k: v for k, v in schema.items() if k not in _SWAGGER_FIELDS}
 
 
+SEPARATORS = {
+    "pipes": "|",
+    "tsv": "\t",
+    "ssv": " ",
+    "csv": ","
+}
+
+
 def parse_array(schema):
-    separators = {
-        "pipes": "|",
-        "tsv": "\t",
-        "ssv": " ",
-        "csv": ","
-    }
-    return '{name} = {name}.split("{separator}")  # New'.format(
+    # type: (Dict) -> string
+    return '{name} = {name}.split("{separator}")'.format(
         name=schema["name"],
-        separator=separators[schema["collectionFormat"]]
+        separator=SEPARATORS[schema.get("collectionFormat", ",")]
     )
 
 

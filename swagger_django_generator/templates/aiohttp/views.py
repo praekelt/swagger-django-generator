@@ -65,26 +65,29 @@ class {{ class_name }}(View, CorsViewMixin):
             {% for ra in info.required_args %}
             # {{ ra.name }}: {{ ra.type }} {{ ra.description }}
             {% if ra.in == "path" %}
-            {{ ra.name }} = self.request.match_info["{{ ra.name}}"]
+            {{ ra.name }} = self.request.match_info["{{ ra.name }}"]
             {% else %}
-            {{ ra.name }} = self.request.query["{{ ra.name }}"]
+              {% if ra.type == "array" %}
+                {% if ra.collectionFormat == "multi" %}
+            {{ ra.name }} = self.request.query.getall("{{ ra.name }}", None)
+                {% else %}
+            {{ ra.name }} = self.request.query.get("{{ ra.name }}", None)
+            if {{ ra.name }} is not None:
+                {{ ra|parse_array }}
+                {% endif %}
+                {% if ra["items"].type == "integer" %}
+                if {{ ra.name }}:
+                    {{ ra.name }} = [int(e) for e in {{ ra.name }}]
+                {% endif %}
+              {% endif %}
             {% endif %}
             {% if ra.type == "boolean" %}
             {{ ra.name }} = ({{ ra.name }}.lower() == "true")
-            {% endif %}
-            {% if ra.type == "integer" %}
+            {% elif ra.type == "integer" %}
             {{ ra.name }} = int({{ ra.name }})
-            {% if "minimum" in ra %}
-            if {{ ra.name }} < {{ ra.minimum }}:
-                raise ValidationError("{{ ra.name }} exceeds its minimum limit")
             {% endif %}
-            {% if "maximum" in ra %}
-            if {{ ra.maximum }} < {{ ra.name }}:
-                raise ValidationError("{{ ra.name }} exceeds its maximum limit")
-            {% endif %}
-            {% else %}
-            utils.validate({{ ra.name }}, {"type": "{{ ra.type }}"})
-            {% endif %}
+            schema = {{ ra|clean_schema }}
+            utils.validate({{ ra.name }}, schema)
             {% endfor %}
             optional_args = {}
             {% for oa in info.optional_args if oa.in == "query" %}
@@ -93,19 +96,9 @@ class {{ class_name }}(View, CorsViewMixin):
             {% if oa.collectionFormat == "multi" %}
             {{ oa.name }} = self.request.query.getall("{{ oa.name }}", None)
             {% else %}
-            {{oa.name}} = self.request.query.get("{{ oa.name }}", None)
+            {{ oa.name }} = self.request.query.get("{{ oa.name }}", None)
             if {{oa.name}} is not None:
-            {% if oa.collectionFormat == "pipes" %}
-                {{oa.name}} = {{oa.name}}.split("|")
-            {% elif oa.collectionFormat == "tsv" %}
-                {{oa.name}} = {{oa.name}}.split("\t")
-            {% elif oa.collectionFormat == "ssv" %}
-                {{oa.name}} = {{oa.name}}.split(" ")
-            {% elif oa.collectionFormat == "csv" %}
-                {{oa.name}} = {{oa.name}}.split(",")
-            {% else %}
-                {{oa.name}} = {{oa.name}}.split(",")
-            {% endif %}
+                {{ oa|parse_array }}
             {% if oa["items"].type == "integer" %}
             if {{ oa.name }}:
                 {{ oa.name }} = [int(e) for e in {{ oa.name }}]
@@ -117,28 +110,11 @@ class {{ class_name }}(View, CorsViewMixin):
             if {{ oa.name }} is not None:
                 {% if oa.type == "boolean" %}
                 {{ oa.name }} = ({{ oa.name }}.lower() == "true")
-                {% endif %}
-                {% if oa.type == "integer" %}
+                {% elif oa.type == "integer" %}
                 {{ oa.name }} = int({{ oa.name }})
-                {% if "minimum" in oa %}
-                if {{ oa.name }} < {{ oa.minimum }}:
-                    raise ValidationError("{{ oa.name }} exceeds its minimum limit")
                 {% endif %}
-                {% if "maximum" in oa %}
-                if {{ oa.maximum }} < {{ oa.name }}:
-                    raise ValidationError("{{ oa.name }} exceeds its maximum limit")
-                {% endif %}
-                {% elif oa.type == "array" %}
-                schema = {{ oa }}
-                # Remove Swagger fields that clash with JSONSchema names at this level
-                for field in ["name", "in", "required", "collectionFormat"]:
-                    if field in schema:
-                        del schema[field]
-
+                schema = {{ oa|clean_schema }}
                 utils.validate({{ oa.name }}, schema)
-                {% else %}
-                utils.validate({{ oa.name }}, {"type": "{{ oa.type }}"})
-                {% endif %}
                 optional_args["{{ oa.name }}"] = {{ oa.name }}
             {% endfor %}
         except ValidationError as ve:

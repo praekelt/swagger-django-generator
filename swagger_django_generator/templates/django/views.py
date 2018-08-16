@@ -91,17 +91,6 @@ class {{ class_name }}(View):
             {{ ra.name }} = request.GET.get("{{ ra.name }}", None)
             if {{ ra.name }} is not None:
                 {{ ra|parse_array }}
-          {% if ra.collectionFormat == "pipes" %}
-                {{ ra.name }} = {{ ra.name }}.split("|")
-          {% elif ra.collectionFormat == "tsv" %}
-                {{ ra.name }} = {{ ra.name }}.split("\t")
-          {% elif ra.collectionFormat == "ssv" %}
-                {{ ra.name }} = {{ ra.name }}.split(" ")
-          {% elif ra.collectionFormat == "csv" %}
-                {{ ra.name }} = {{ ra.name }}.split(",")
-          {% else %}
-                {{ ra.name }} = {{ ra.name }}.split(",")
-          {% endif %}
           {% if ra["items"].type == "integer" %}
                 if {{ ra.name }}:
                     {{ ra.name }} = [int(e) for e in {{ ra.name }}]
@@ -129,17 +118,7 @@ class {{ class_name }}(View):
         {% else %}
             {{ oa.name }} = request.GET.get("{{ oa.name }}", None)
             if {{ oa.name }} is not None:
-          {% if oa.collectionFormat == "pipes" %}
-                {{ oa.name }} = {{ oa.name }}.split("|")
-          {% elif oa.collectionFormat == "tsv" %}
-                {{ oa.name }} = {{ oa.name }}.split("\t")
-          {% elif oa.collectionFormat == "ssv" %}
-                {{ oa.name }} = {{ oa.name }}.split(" ")
-          {% elif oa.collectionFormat == "csv" %}
-                {{ oa.name }} = {{ oa.name }}.split(",")
-          {% else %}
-                {{ oa.name }} = {{ oa.name }}.split(",")
-          {% endif %}
+                {{ oa|parse_array }}
           {% if oa["items"].type == "integer" %}
                 if {{ oa.name }}:
                     {{ oa.name }} = [int(e) for e in {{ oa.name }}]
