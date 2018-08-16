@@ -1,0 +1,1336 @@
+swagger: '2.0'
+
+schemes:
+  - https
+  - http
+
+info:
+  title: Authentication Service API
+  description: >
+    This is the API that will be exposed by the Authentication Service.
+
+    The Authentication Service facilitates user registration and login via web-based flows as defined for the
+    OpenID Connect specification.
+  version: '1.0'
+
+securityDefinitions:
+  APIKeyHeader:
+    type: apiKey
+    in: header
+    name: X-API-Key
+
+#  OAuth2:
+#    type: oauth2
+#    flow: accessCode
+#    authorizationUrl: 'http://localhost:8000/openid/authorize'
+#    tokenUrl: 'http:///localhost:8000/openid/token'
+#    scopes:
+#      roles: Grants access to user roles
+#      site: Grants access to site-specific data
+
+#  client_secret:
+#    description: Session management by confidential clients.
+#    type: oauth2
+#    flow: password
+#    tokenUrl: 'http://localhost:8000/openid/token'
+#    scopes:
+#      clients: Enable client management
+
+#  client_registration_token:
+#    description: Client management via registration token.
+#    type: apiKey
+#    name: Authorization
+#    in: header
+
+#  user_jwt:
+#    description: Session management by Authentiq ID.
+#    type: oauth2
+#    flow: application
+#    tokenUrl: 'http://localhost:8000/openid/token'
+#    scopes:
+#      session: Enable session management
+
+#  oauth_code:
+#    description: End-user authentication.
+#    type: oauth2
+#    flow: accessCode
+#    authorizationUrl: 'http://locahost:8000/authorize'
+#    tokenUrl: 'http://locahost:8000/token'
+#    scopes:
+#      oidc: Enable OIDC flow
+#      email: The user's email address
+#      phone: The user's phone number
+#      address: The user's postal address
+#      'ge:roles': The user's roles
+#      'ge:site': The user's site-specific data
+
+#  oauth_implicit:
+#    description: End-user authentication.
+#    type: oauth2
+#    flow: implicit
+#    authorizationUrl: 'http://localhost:8000/authorize'
+#    scopes:
+#      oidc: Enable OIDC flow
+#      email: The user's email address
+#      phone: The user's phone number
+#      address: The user's postal address
+#      roles: The user's roles
+#      site: The user's site-specific data
+
+security:
+  - APIKeyHeader: []
+
+host: 'localhost:8000'
+
+basePath: /api/v1
+
+definitions:
+  country:
+    type: object
+    properties:
+      code:
+        type: string
+        minLength: 2
+        maxLength: 2
+      name:
+        type: string
+        maxLength: 100
+    required:
+      - code
+      - name
+
+  client:
+    type: object
+    properties:
+      id:
+        description: ''
+        type: integer
+      _post_logout_redirect_uris:
+        description: New-line delimited list of post-logout redirect URIs
+        type: string
+      _redirect_uris:
+        description: New-line delimited list of redirect URIs
+        type: string
+      client_id:
+        description: ''
+        type: string
+      contact_email:
+        description: ''
+        type: string
+      logo:
+        description: ''
+        type: string
+        format: uri
+      name:
+        description: ''
+        type: string
+      require_consent:
+        description: 'If disabled, the Server will NEVER ask the user for consent.'
+        type: boolean
+      response_type:
+        description: ''
+        type: string
+      reuse_consent:
+        description: >-
+          If enabled, the Server will save the user consent given to a
+          specific client, so that user won't be prompted for the same
+          authorization multiple times.
+        type: boolean
+      terms_url:
+        description: External reference to the privacy policy of the client.
+        type: string
+      website_url:
+        description: ''
+        type: string
+    required:
+      - id
+      - client_id
+      - response_type
+
+  organisation:
+    type: object
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      description:
+        type: string
+      created_at:
+        type: string
+        format: date-time
+        readOnly: true
+      updated_at:
+        type: string
+        format: date-time
+        readOnly: true
+    required:
+      - id
+      - name
+      - description
+      - created_at
+      - updated_at
+
+  organisation_create:
+    type: object
+    properties:
+      name:
+        type: string
+      description:
+        type: string
+    required:
+      - name
+
+  organisation_update:
+    type: object
+    properties:
+      name:
+        type: string
+      description:
+        type: string
+    minProperties: 1
+
+  user:
+    type: object
+    properties:
+      id:
+        description: A UUID identifying the user
+        type: string
+        format: uuid
+        readOnly: true
+      username:
+        description: >-
+          Required. 150 characters or fewer. Letters, digits and
+          @/./+/-/_ only.
+        type: string
+        readOnly: true
+      first_name:
+        description: ''
+        type: string
+      last_name:
+        description: ''
+        type: string
+      email:
+        description: ''
+        type: string
+        format: email
+      is_active:
+        description: >-
+          Designates whether this user should be treated as active.
+          Deselect this instead of deleting accounts.
+        type: boolean
+      date_joined:
+        description: ''
+        type: string
+        format: date
+        readOnly: true
+      last_login:
+        description: ''
+        type: string
+        format: 'date-time'
+        readOnly: true
+      email_verified:
+        type: boolean
+      msisdn_verified:
+        type: boolean
+      msisdn:
+        type: string
+        maxLength: 15
+      gender:
+        type: string
+      birth_date:
+        type: string
+        format: date
+      avatar:
+        type: string
+        format: uri
+      country_code:
+        type: string
+        minLength: 2
+        maxLength: 2
+      organisation_id:
+        type: integer
+        readOnly: true
+      created_at:
+        type: string
+        format: date-time
+        readOnly: true
+      updated_at:
+        type: string
+        format: date-time
+        readOnly: true
+    required:
+      - id
+      - username
+      - is_active
+      - date_joined
+      - created_at
+      - updated_at
+
+  user_update:
+    type: object
+    properties:
+      first_name:
+        description: ''
+        type: string
+      last_name:
+        description: ''
+        type: string
+      email:
+        description: ''
+        type: string
+        format: email
+      is_active:
+        description: >-
+          Designates whether this user should be treated as active.
+          Deselect this instead of deleting accounts.
+        type: boolean
+      email_verified:
+        type: boolean
+      msisdn_verified:
+        type: boolean
+      msisdn:
+        type: string
+        maxLength: 15
+      gender:
+        type: string
+      birth_date:
+        type: string
+        format: date
+      avatar:
+        type: string
+        format: uri
+      country_code:
+        type: string
+        minLength: 2
+        maxLength: 2
+    minProperties: 1
+
+  user_site:
+    type: object
+    properties:
+      id:
+        type: integer
+      user_id:
+        type: string
+        format: uuid
+      site_id:
+        type: integer
+      consented_at:
+        type: string
+        format: 'date-time'
+      created_at:
+        type: string
+        format: date-time
+        readOnly: true
+      updated_at:
+        type: string
+        format: date-time
+        readOnly: true
+    required:
+      - id
+      - user_id
+      - site_id
+      - consented_at
+      - created_at
+      - updated_at
+  request_user_deletion:
+    type: object
+    properties:
+      user_id:
+        type: string
+        format: uuid
+      deleter_id:
+        type: string
+        format: uuid
+      reason:
+        type: string
+    required:
+      - user_id
+      - deleter_id
+      - reason
+
+#  Token:
+#    description: |
+#      Successful token response
+#    required:
+#      - token_type
+#    properties:
+#      token_type:
+#        type: string
+#      access_token:
+#        description: The access token issued by the authorization server.
+#        type: string
+#      id_token:
+#        description: ID Token value associated with the authenticated session.
+#        type: string
+#      refresh_token:
+#        description: 'The refresh token issued to the client, if any.'
+#        type: string
+#      expires_in:
+#        description: The lifetime in seconds of the access token.
+#        type: integer
+#        format: int32
+#      expires_at:
+#        description: The time the access token will expire in seconds since epoch.
+#        type: integer
+#        format: int64
+#      scope:
+#        description: The scope of the granted tokens.
+#        type: string
+
+#  OAuth2Error:
+#    description: |
+#      Error Response defined as in Section 5.2 of OAuth 2.0 [RFC6749].
+#    required:
+#      - error
+#    properties:
+#      error:
+#        type: string
+#      error_description:
+#        type: string
+
+#  ProblemDetail:
+#    description: |
+#      HTTP Problem Detail
+#    required:
+#      - type
+#      - status
+#    properties:
+#      type:
+#        type: string
+#        default: 'about:blank'
+#      title:
+#        type: string
+#        description: |
+#          Human-readable summary of the problem type.
+#      status:
+#        type: integer
+#        description: |
+#          The HTTP status code for this occurrence of the problem.
+#      detail:
+#        type: string
+#        description: >
+#          Human-readable explanation specific to this occurrence of the
+#          problem.
+
+#  Session:
+#    description: Session object
+#    properties:
+#      version:
+#        type: integer
+#      sub:
+#        type: string
+#      session_id:
+#        type: string
+#      session_state:
+#        type: string
+#      session_uri:
+#        type: string
+#      client_id:
+#        type: string
+#      scopes:
+#        type: array
+#        items:
+#          type: string
+#      scopes_optional:
+#        type: array
+#        items:
+#          type: string
+#      scopes_required:
+#        type: array
+#        items:
+#          type: string
+#      scopes_signed:
+#        type: array
+#        items:
+#          type: string
+#      tokens_seen:
+#        type: array
+#        items:
+#          type: string
+#      scopes_seen:
+#        type: array
+#        items:
+#          type: string
+#      redirect_uri:
+#        type: string
+#      response_type:
+#        type: string
+#      response_mode:
+#        type: string
+#      nonce:
+#        type: string
+#      created_at:
+#        type: string
+#      connected_at:
+#        type: string
+#        format: date-time
+#      authenticated_at:
+#        type: string
+#        format: date-time
+#      concluded_at:
+#        type: string
+#        format: date-time
+#      deleted_at:
+#        type: string
+#        format: date-time
+#      client_name:
+#        type: string
+#      client_uri:
+#        type: string
+#      logo_uri:
+#        type: string
+#      policy_uri:
+#        type: string
+#      tos_uri:
+#        type: string
+#      contacts:
+#        type: array
+#        items:
+#          type: string
+
+#  UserInfo:
+#    description: OIDC UserInfo structure
+#    required:
+#      - sub
+#    properties:
+#      sub:
+#        type: string
+#      name:
+#        type: string
+#      given_name:
+#        type: string
+#      family_name:
+#        type: string
+#      email:
+#        type: string
+#      email_verified:
+#        type: boolean
+#      phone_number:
+#        type: string
+#      phone_number_verified:
+#        type: boolean
+#      address:
+#        $ref: '#/definitions/Address'
+
+#  Address:
+#    description: OIDC Address structure
+#    properties:
+#      street_address:
+#        type: string
+#      locality:
+#        type: string
+#      region:
+#        type: string
+#      postal_code:
+#        type: string
+#      country:
+#        type: string
+
+#  Client:
+#    description: Client object
+#    required:
+#      - client_name
+#      - client_uri
+#    properties:
+#      client_id:
+#        type: string
+#      redirect_uris:
+#        type: array
+#        items:
+#          type: string
+#      response_types:
+#        type: array
+#        items:
+#          type: string
+#      grant_types:
+#        type: array
+#        items:
+#          type: string
+#      application_type:
+#        type: string
+#      contacts:
+#        type: array
+#        items:
+#          type: string
+#      client_name:
+#        type: string
+#      logo_uri:
+#        type: string
+#      client_uri:
+#        type: string
+#      policy_uri:
+#        type: string
+#      tos_uri:
+#        type: string
+#      default_max_age:
+#        type: integer
+#        format: int64
+#      default_scopes:
+#        type: array
+#        items:
+#          type: string
+
+parameters:
+  optional_limit:
+    description: An optional query parameter to limit the number of results returned.
+    in: query
+    name: limit
+    required: false
+    type: integer
+    minimum: 1
+    maximum: 100
+    default: 20
+  optional_offset:
+    description: >-
+      An optional query parameter specifying the offset in the result set to
+      start from.
+    in: query
+    name: offset
+    required: false
+    type: integer
+    default: 0
+    minimum: 0
+  optional_cutoff_date:
+    description: An optional cutoff date to purge invites before this date
+    in: query
+    name: cutoff_date
+    required: false
+    type: string
+    format: date
+  client_id:
+    description: A string value identifying the client
+    in: path
+    name: client_id
+    required: true
+    type: string
+  country_code:
+    description: A string value identifying the country
+    in: path
+    name: country_code
+    required: true
+    type: string
+    minLength: 2
+    maxLength: 2
+  organisation_id:
+    description: An integer identifying an organisation a user belongs to
+    in: path
+    name: organisation_id
+    required: true
+    type: integer
+  user_id:
+    description: A UUID value identifying the user.
+    in: path
+    name: user_id
+    required: true
+    type: string
+    format: uuid
+
+paths:
+  /clients:
+    get:
+      operationId: client_list
+      parameters:
+        - $ref: '#/parameters/optional_offset'
+        - $ref: '#/parameters/optional_limit'
+        - name: client_ids
+          description: An optional list of client ids
+          in: query
+          type: array
+          items:
+            type: integer
+          required: false
+          minItems: 1
+          collectionFormat: csv
+          uniqueItems: true
+        - description: An optional client id to filter on. This is not the primary key.
+          in: query
+          name: client_token_id
+          required: false
+          type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: ''
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/client'
+          headers:
+            X-Total-Count:
+              type: integer
+              description: The total number of results matching the query
+      tags:
+        - authentication
+
+  /clients/{client_id}:
+    parameters:
+      - $ref: '#/parameters/client_id'
+    get:
+      operationId: client_read
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/client'
+      tags:
+        - authentication
+
+  /countries:
+    get:
+      operationId: country_list
+      parameters:
+        - $ref: '#/parameters/optional_offset'
+        - $ref: '#/parameters/optional_limit'
+        - name: country_codes
+          description: An optional list of country codes
+          in: query
+          type: array
+          items:
+            type: string
+            minLength: 2
+            maxLength: 2
+          required: false
+          minItems: 1
+          collectionFormat: csv
+          uniqueItems: true
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: ''
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/country'
+          headers:
+            X-Total-Count:
+              type: integer
+              description: The total number of results matching the query
+
+      tags:
+        - authentication
+
+  /countries/{country_code}:
+    parameters:
+      - $ref: '#/parameters/country_code'
+    get:
+      operationId: country_read
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/country'
+      tags:
+        - authentication
+
+  /invitations/{invitation_id}/send:
+    parameters:
+      - name: invitation_id
+        type: string
+        format: uuid
+        in: path
+        required: true
+      - name: language
+        type: string
+        in: query
+        required: false
+        default: "en"
+    get:
+      operationId: invitation_send
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: 'An invitation email was successfully queued for sending.'
+      tags:
+        - authentication
+
+  /organisations:
+    get:
+      operationId: organisation_list
+      parameters:
+        - $ref: '#/parameters/optional_offset'
+        - $ref: '#/parameters/optional_limit'
+        - name: organisation_ids
+          description: An optional list of organisation ids
+          in: query
+          type: array
+          items:
+            type: integer
+          required: false
+          minItems: 1
+          collectionFormat: csv
+          uniqueItems: true
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: ''
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/organisation'
+          headers:
+            X-Total-Count:
+              type: integer
+              description: The total number of results matching the query
+      tags:
+        - authentication
+    post:
+      consumes:
+        - application/json
+      operationId: organisation_create
+      parameters:
+        - in: body
+          name: data
+          schema:
+            $ref: '#/definitions/organisation_create'
+      produces:
+        - application/json
+      responses:
+        '201':
+          description: ''
+          schema:
+            $ref: '#/definitions/organisation'
+      tags:
+        - authentication
+
+  /organisations/{organisation_id}:
+    parameters:
+      - $ref: '#/parameters/organisation_id'
+    delete:
+      operationId: organisation_delete
+      responses:
+        '204':
+          description: ''
+      tags:
+        - authentication
+    get:
+      operationId: organisation_read
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/organisation'
+      tags:
+        - authentication
+    put:
+      consumes:
+        - application/json
+      operationId: organisation_update
+      parameters:
+        - in: body
+          name: data
+          schema:
+            $ref: '#/definitions/organisation_update'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/organisation'
+      tags:
+        - authentication
+
+  /users:
+    get:
+      operationId: user_list
+      parameters:
+        - $ref: '#/parameters/optional_offset'
+        - $ref: '#/parameters/optional_limit'
+        - name: birth_date
+          description: An optional birth_date range filter
+          in: query
+          required: false
+          type: string
+        - name: country
+          description: An optional country filter
+          in: query
+          required: false
+          type: string
+          minLength: 2
+          maxLength: 2
+        - name: date_joined
+          description: An optional date joined range filter
+          in: query
+          required: false
+          type: string
+        - name: email
+          description: An optional case insensitive email inner match filter
+          in: query
+          required: false
+          type: string
+          minLength: 3
+        - name: email_verified
+          description: An optional email verified filter
+          in: query
+          required: false
+          type: boolean
+        - name: first_name
+          description: An optional case insensitive first name inner match filter
+          in: query
+          required: false
+          type: string
+          minLength: 3
+        - name: gender
+          description: An optional gender filter
+          in: query
+          required: false
+          type: string
+        - name: is_active
+          description: An optional is_active filter
+          in: query
+          required: false
+          type: boolean
+        - name: last_login
+          description: An optional last login range filter
+          in: query
+          required: false
+          type: string
+        - name: last_name
+          description: An optional case insensitive last name inner match filter
+          in: query
+          required: false
+          type: string
+          minLength: 3
+        - name: msisdn
+          description: An optional case insensitive MSISDN inner match filter
+          in: query
+          required: false
+          type: string
+          minLength: 3
+        - name: msisdn_verified
+          description: An optional MSISDN verified filter
+          in: query
+          required: false
+          type: boolean
+        - name: nickname
+          description: An optional case insensitive nickname inner match filter
+          in: query
+          required: false
+          type: string
+          minLength: 3
+        - name: organisation_id
+          description: An optional filter on the organisation id
+          in: query
+          required: false
+          type: integer
+        - name: updated_at
+          description: An optional updated_at range filter
+          in: query
+          required: false
+          type: string
+        - name: username
+          description: An optional case insensitive username inner match filter
+          in: query
+          required: false
+          type: string
+          minLength: 3
+        - name: q
+          description: An optional case insensitive inner match filter across all searchable text fields
+          in: query
+          required: false
+          type: string
+          minLength: 3
+        - name: tfa_enabled
+          description: An optional filter based on whether a user has 2FA enabled or not
+          in: query
+          required: false
+          type: boolean
+        - name: has_organisation
+          description: An optional filter based on whether a user belongs to an organisation or not
+          in: query
+          required: false
+          type: boolean
+        - name: order_by
+          description: Fields and directions to order by, e.g. "-created_at,username". Add "-" in front
+            of a field name to indicate descending order.
+          in: query
+          required: false
+          type: array
+          collectionFormat: csv
+          items:
+            type: string
+          uniqueItems: true
+        - name: user_ids
+          description: An optional list of user ids
+          in: query
+          type: array
+          items:
+            type: string
+            format: uuid
+          required: false
+          minItems: 1
+          collectionFormat: csv
+          uniqueItems: true
+        - name: site_ids
+          description: An optional list of site ids
+          in: query
+          type: array
+          items:
+            type: integer
+          required: false
+          minItems: 1
+          collectionFormat: csv
+          uniqueItems: true
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: ''
+          headers:
+            X-Total-Count:
+              type: integer
+              description: The total number of results matching the query
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/user'
+      tags:
+        - authentication
+
+  /users/{user_id}:
+    parameters:
+      - $ref: '#/parameters/user_id'
+    delete:
+      operationId: user_delete
+      responses:
+        '204':
+          description: ''
+      tags:
+        - authentication
+    get:
+      operationId: user_read
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/user'
+      tags:
+        - authentication
+
+    put:
+      consumes:
+        - application/json
+      operationId: user_update
+      parameters:
+        - in: body
+          name: data
+          schema:
+            $ref: '#/definitions/user_update'
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: ''
+          schema:
+            $ref: '#/definitions/user'
+      tags:
+        - authentication
+
+  /invitations/purge_expired:
+    get:
+      operationId: purge_expired_invitations
+      parameters:
+        - $ref: '#/parameters/optional_cutoff_date'
+      responses:
+        200:
+          description: 'Began task to purge invitations.'
+        403:
+          description: 'Forbidden'
+      tags:
+        - authentication
+
+  /request_user_deletion:
+    post:
+      operationId: request_user_deletion
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: data
+          schema:
+            $ref: '#/definitions/request_user_deletion'
+          required: true
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: ''
+      tags:
+        - authentication
+
+#  /openid/authorize/:
+#
+#  /openid/token/:
+#
+#  /openid/userinfo/:
+#
+#  /openid/end-session/:
+#
+#  /openid/jwks/:
+#
+#  /openid/.well-known/openid-configuration:
+
+#  /openid/authorize:
+#    get:
+#      summary: Authenticate a user
+#      description: >
+#        Example:
+#        ```
+#        GET https://localhost:8000/authorize?client_id=<your-client-id>&response_type=code+id_token&scope=openid+email&redirect_uri=<your-redirect-uri>&state=0123456789
+#        ```
+#        This endpoint is compatible with OpenID Connect and also supports the
+#        POST method, in which case the parameters are passed as a form post.
+
+#        See also:
+#          - [OAuth 2.0 Authorization Endpoint](http://tools.ietf.org/html/rfc6749#section-3.1)
+#          - [OIDC Authentication request](http://openid.net/specs/openid-connect-core-1_0.html#AuthRequest)
+#          - [OIDC Successful Authentication response](http://openid.net/specs/openid-connect-core-1_0.html#AuthResponse)
+#          - [OIDC Error Authentication response](http://openid.net/specs/openid-connect-core-1_0.html#AuthError)
+#      tags:
+#        - experimental
+#        - Authentication
+#      operationId: authorize
+#      parameters:
+#        - name: client_id
+#          in: query
+#          description: >
+#            A client ID obtained from the [Dashboard](https://localhost:8000/admin/).
+#          required: true
+#          type: string
+#        - name: response_type
+#          in: query
+#          description: >
+#            The OIDC response type to use for this authentication flow. Valid
+#            choices are `code`, `id_token`, `token`, `token id_token`, `code
+#            id_token` `code token` and `code token id_token`, but a client can
+#            be configured with a more restricted set.
+#          required: true
+#          type: string
+#        - name: scope
+#          in: query
+#          description: >
+#            The space-separated identity claims to request from the end-user.
+#            Always include `openid` as a scope for compatibility with OIDC.
+#          required: true
+#          type: string
+#        - name: redirect_uri
+#          in: query
+#          description: >
+#            The location to redirect to after (un)successful authentication. See
+#            OIDC for the parameters passed in the query string
+#            (`response_mode=query`) or as fragments (`response_mode=fragment`).
+#            This must be one of the registered redirect URLs.
+#          required: true
+#          type: string
+#        - name: state
+#          in: query
+#          description: >
+#            An opaque string that will be passed back to the redirect URL and
+#            therefore can be used to communicate client side state and prevent
+#            CSRF attacks.
+#          required: true
+#          type: string
+#        - name: response_mode
+#          in: query
+#          description: >
+#            Whether to append parameters to the redirect URL in the query string
+#            (`query`) or as fragments (`fragment`). This option usually has a
+#            sensible default for each of the response types.
+#          required: false
+#          type: string
+#        - name: nonce
+#          in: query
+#          description: >
+#            An nonce provided by the client that will be included in any ID Token generated for this session.
+#            Clients should use the nonce to mitigate replay attacks.
+#          required: false
+#          type: string
+#        - name: display
+#          in: query
+#          description: >
+#            The authentication display mode, which can be one of `page`, `popup` or `modal`. Defaults to `page`.
+#          required: false
+#          type: string
+#          default: page
+#        - name: prompt
+#          in: query
+#          description: >
+#            Space-delimited, case sensitive list of ASCII string values that
+#            specifies whether the Authorization Server prompts the End-User for
+#            re-authentication and consent. The supported values are: `none`,
+#            `login`, `consent`. If `consent` the end-user is asked to
+#            (re)confirm what claims they share. Use `none` to check for an
+#            active session.
+#          required: false
+#          type: string
+#          default: login
+#        - name: max_age
+#          in: query
+#          description: >
+#            Specifies the allowable elapsed time in seconds since the last time
+#            the end-user was actively authenticated.
+#          required: false
+#          type: integer
+#          default: 0
+#        - name: ui_locales
+#          in: query
+#          description: >
+#            Specifies the preferred language to use on the authorization page,
+#            as a space-separated list of BCP47 language tags. Ignored at the
+#            moment.
+#          required: false
+#          type: string
+#      responses:
+#        '302':
+#          description: |
+#            A successful or erroneous authentication response.
+#        '303':
+#          description: |
+#            Sign in with page, popup or modal.
+#      externalDocs:
+#        description: OpenID Authorization Endpoint
+#        url: >-
+#          http://openid.net/specs/openid-connect-core-1_0.html#AuthorizationEndpoint
+#  /openid/token:
+#    post:
+#      summary: Obtain an ID Token
+#      description: >
+#        Exchange an authorization code for an ID Token or Access Token.
+
+#        This endpoint supports both `client_secret_post` and
+#        `client_secret_basic` authentication methods, as specified by the
+#        client's `token_endpoint_auth_method`.
+
+#        See also:
+#          - [OIDC Token Endpoint](http://openid.net/specs/openid-connect-core-1_0.html#TokenRequest)
+#          - [OIDC Successful Token response](http://openid.net/specs/openid-connect-core-1_0.html#TokenResponse)
+#          - [OIDC Token Error response](http://openid.net/specs/openid-connect-core-1_0.html#TokenError)
+#      tags:
+#        - experimental
+#        - Authentication
+#      operationId: token
+#      parameters:
+#        - name: Authorization
+#          in: header
+#          description: |
+#            HTTP Basic authorization header.
+#          required: false
+#          type: string
+#        - name: content
+#          in: body
+#          schema:
+#            type: object
+#            properties:
+#              client_id:
+#                description: |
+#                  The registered client ID.
+#                type: string
+#              client_secret:
+#                description: |
+#                  The registered client ID secret.
+#                type: string
+#                format: password
+#              grant_type:
+#                description: |
+#                  The authorization grant type, must be `authorization_code`.
+#                type: string
+#              code:
+#                description: >
+#                  The authorization code previously obtained from the
+#                  Authentication endpoint.
+#                type: string
+#              redirect_uri:
+#                description: >
+#                  The redirect URL that was used previously with the
+#                  Authentication endpoint.
+#                type: string
+#            required:
+#              - client_id
+#      produces:
+#        - application/json
+#      responses:
+#        '200':
+#          $ref: '#/responses/Token'
+#        '400':
+#          $ref: '#/responses/OAuth2Error'
+#        '401':
+#          $ref: '#/responses/OAuth2Error'
+#      externalDocs:
+#        description: OpenID Token Endpoint
+#        url: 'http://openid.net/specs/openid-connect-core-1_0.html#TokenEndpoint'
+
+#  /openid/userinfo:
+#    get:
+#      summary: Retrieve their user profile
+#      tags:
+#        - experimental
+#        - Authentication
+#      description: >
+#        Use this endpoint to retrieve a user's profile in case you've not
+#        already obtained enough details from the ID Token via the Token
+#        Endpoint.
+#         See also:
+#         - [OIDC UserInfo endpoint](http://openid.net/specs/openid-connect-core-1_0.html#UserInfo)
+#      operationId: userInfo
+#      produces:
+#        - application/json
+#      responses:
+#        '200':
+#          $ref: '#/responses/UserInfo'
+#        '401':
+#          $ref: '#/responses/OAuth2Error'
+#        default:
+#          $ref: '#/responses/OAuth2Error'
+#      security:
+#        - oauth_code:
+#            - oidc
+#            - email
+#            - phone
+#            - address
+#            - 'ge:roles'
+#            - 'ge:site'
+#        - oauth_implicit:
+#            - oidc
+#            - email
+#            - phone
+#            - address
+#            - 'ge:roles'
+#            - 'ge:site'
+
+externalDocs:
+  description: Girl Effect Developer Docs
+  url: 'https://girleffect.github.io/core-access-control/'
+
+#responses:
+#  Token:
+#    description: Token response
+#    schema:
+#      $ref: '#/definitions/Token'
+#  UserInfo:
+#    description: UserInfo response
+#    schema:
+#      $ref: '#/definitions/UserInfo'
+#  OAuth2Error:
+#    description: OAuth 2.0 error response
+#    schema:
+#      $ref: '#/definitions/OAuth2Error'
+#  ProblemDetail:
+#    description: Problem Detail error response
+#    schema:
+#      $ref: '#/definitions/ProblemDetail'
+
+

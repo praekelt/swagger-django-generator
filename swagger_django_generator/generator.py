@@ -73,6 +73,31 @@ if major > 3 or major == 3 and minor >= 5:
 # * Paths map to class based views.
 # * (path, http_verb) combinations map to operations.
 
+# Swagger fields used in parameter definition, but which are unknown to jsonschema.
+_SWAGGER_FIELDS = frozenset(["name", "in", "required", "collectionFormat", "description"])
+
+
+def clean_schema(schema):
+    # type: (Dict) -> Dict
+    """Transform a Swagger parameter definition to a valid JSONSchema"""
+    return {k: v for k, v in schema.items() if k not in _SWAGGER_FIELDS}
+
+
+SEPARATORS = {
+    "pipes": "|",
+    "tsv": "\t",
+    "ssv": " ",
+    "csv": ","
+}
+
+
+def parse_array(schema):
+    # type: (Dict) -> string
+    return '{name} = {name}.split("{separator}")'.format(
+        name=schema["name"],
+        separator=SEPARATORS[schema.get("collectionFormat", ",")]
+    )
+
 
 def render_to_string(backend, filename, context):
     # type: (str, str, Dict) -> str
@@ -91,11 +116,15 @@ def render_to_string(backend, filename, context):
     except ImportError:
         pass
 
-    return jinja2.Environment(
+    environment = jinja2.Environment(
         loader=jinja2.ChoiceLoader(loaders),
         trim_blocks=True,
-        lstrip_blocks=True
-    ).get_template(filename).render(context)
+        lstrip_blocks=True,
+    )
+    environment.filters["clean_schema"] = clean_schema
+    environment.filters["parse_array"] = parse_array
+
+    return environment.get_template(filename).render(context)
 
 
 def path_to_class_name(path):

@@ -67,24 +67,30 @@ class Pet(View):
         if not body:
             return HttpResponseBadRequest("Body required")
 
-        result = Stubs.addPet(request, body, )
+        try:
 
-        if type(result) is tuple:
-            result, headers = result
-        else:
-            headers = {}
+            result = Stubs.addPet(request, body, )
 
-        # The result may contain fields with date or datetime values that will not
-        # pass JSON validation. We first create the response, and then maybe validate
-        # the response content against the schema.
-        response = JsonResponse(result, safe=False)
+            if type(result) is tuple:
+                result, headers = result
+            else:
+                headers = {}
 
-        maybe_validate_result(response.content, self.POST_RESPONSE_SCHEMA)
+            # The result may contain fields with date or datetime values that will not
+            # pass JSON validation. We first create the response, and then maybe validate
+            # the response content against the schema.
+            response = JsonResponse(result, safe=False)
 
-        for key, val in headers.items():
-            response[key] = val
+            maybe_validate_result(response.content, self.POST_RESPONSE_SCHEMA)
 
-        return response
+            for key, val in headers.items():
+                response[key] = val
+
+            return response
+        except ValidationError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve.message))
+        except ValueError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve))
 
     def put(self, request, *args, **kwargs):
         """
@@ -95,24 +101,30 @@ class Pet(View):
         if not body:
             return HttpResponseBadRequest("Body required")
 
-        result = Stubs.updatePet(request, body, )
+        try:
 
-        if type(result) is tuple:
-            result, headers = result
-        else:
-            headers = {}
+            result = Stubs.updatePet(request, body, )
 
-        # The result may contain fields with date or datetime values that will not
-        # pass JSON validation. We first create the response, and then maybe validate
-        # the response content against the schema.
-        response = JsonResponse(result, safe=False)
+            if type(result) is tuple:
+                result, headers = result
+            else:
+                headers = {}
 
-        maybe_validate_result(response.content, self.PUT_RESPONSE_SCHEMA)
+            # The result may contain fields with date or datetime values that will not
+            # pass JSON validation. We first create the response, and then maybe validate
+            # the response content against the schema.
+            response = JsonResponse(result, safe=False)
 
-        for key, val in headers.items():
-            response[key] = val
+            maybe_validate_result(response.content, self.PUT_RESPONSE_SCHEMA)
 
-        return response
+            for key, val in headers.items():
+                response[key] = val
+
+            return response
+        except ValidationError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve.message))
+        except ValueError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve))
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -212,26 +224,35 @@ class PetFindByStatus(View):
         :param self: A PetFindByStatus instance
         :param request: An HttpRequest
         """
-        # status (optional): array Status values that need to be considered for filter
-        status = request.GET.getlist("status", None)
-        result = Stubs.findPetsByStatus(request, status, )
+        try:
 
-        if type(result) is tuple:
-            result, headers = result
-        else:
-            headers = {}
+            # status (optional): array Status values that need to be considered for filter
+            status = request.GET.getlist("status", None)
+            if status is not None:
+                schema = {'type': 'array', 'items': {'type': 'string', 'enum': ['available', 'pending', 'sold']}, 'default': 'available'}
+                utils.validate(status, schema)
+            result = Stubs.findPetsByStatus(request, status, )
 
-        # The result may contain fields with date or datetime values that will not
-        # pass JSON validation. We first create the response, and then maybe validate
-        # the response content against the schema.
-        response = JsonResponse(result, safe=False)
+            if type(result) is tuple:
+                result, headers = result
+            else:
+                headers = {}
 
-        maybe_validate_result(response.content, self.GET_RESPONSE_SCHEMA)
+            # The result may contain fields with date or datetime values that will not
+            # pass JSON validation. We first create the response, and then maybe validate
+            # the response content against the schema.
+            response = JsonResponse(result, safe=False)
 
-        for key, val in headers.items():
-            response[key] = val
+            maybe_validate_result(response.content, self.GET_RESPONSE_SCHEMA)
 
-        return response
+            for key, val in headers.items():
+                response[key] = val
+
+            return response
+        except ValidationError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve.message))
+        except ValueError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve))
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -331,26 +352,35 @@ class PetFindByTags(View):
         :param self: A PetFindByTags instance
         :param request: An HttpRequest
         """
-        # tags (optional): array Tags to filter by
-        tags = request.GET.getlist("tags", None)
-        result = Stubs.findPetsByTags(request, tags, )
+        try:
 
-        if type(result) is tuple:
-            result, headers = result
-        else:
-            headers = {}
+            # tags (optional): array Tags to filter by
+            tags = request.GET.getlist("tags", None)
+            if tags is not None:
+                schema = {'type': 'array', 'items': {'type': 'string'}}
+                utils.validate(tags, schema)
+            result = Stubs.findPetsByTags(request, tags, )
 
-        # The result may contain fields with date or datetime values that will not
-        # pass JSON validation. We first create the response, and then maybe validate
-        # the response content against the schema.
-        response = JsonResponse(result, safe=False)
+            if type(result) is tuple:
+                result, headers = result
+            else:
+                headers = {}
 
-        maybe_validate_result(response.content, self.GET_RESPONSE_SCHEMA)
+            # The result may contain fields with date or datetime values that will not
+            # pass JSON validation. We first create the response, and then maybe validate
+            # the response content against the schema.
+            response = JsonResponse(result, safe=False)
 
-        for key, val in headers.items():
-            response[key] = val
+            maybe_validate_result(response.content, self.GET_RESPONSE_SCHEMA)
 
-        return response
+            for key, val in headers.items():
+                response[key] = val
+
+            return response
+        except ValidationError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve.message))
+        except ValueError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve))
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -369,24 +399,30 @@ class PetPetId(View):
         :param request: An HttpRequest
         :param petId: integer Pet id to delete
         """
-        result = Stubs.deletePet(request, petId, )
+        try:
 
-        if type(result) is tuple:
-            result, headers = result
-        else:
-            headers = {}
+            result = Stubs.deletePet(request, petId, )
 
-        # The result may contain fields with date or datetime values that will not
-        # pass JSON validation. We first create the response, and then maybe validate
-        # the response content against the schema.
-        response = JsonResponse(result, safe=False)
+            if type(result) is tuple:
+                result, headers = result
+            else:
+                headers = {}
 
-        maybe_validate_result(response.content, self.DELETE_RESPONSE_SCHEMA)
+            # The result may contain fields with date or datetime values that will not
+            # pass JSON validation. We first create the response, and then maybe validate
+            # the response content against the schema.
+            response = JsonResponse(result, safe=False)
 
-        for key, val in headers.items():
-            response[key] = val
+            maybe_validate_result(response.content, self.DELETE_RESPONSE_SCHEMA)
 
-        return response
+            for key, val in headers.items():
+                response[key] = val
+
+            return response
+        except ValidationError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve.message))
+        except ValueError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve))
 
     def get(self, request, petId, *args, **kwargs):
         """
@@ -394,24 +430,30 @@ class PetPetId(View):
         :param request: An HttpRequest
         :param petId: integer ID of pet that needs to be fetched
         """
-        result = Stubs.getPetById(request, petId, )
+        try:
 
-        if type(result) is tuple:
-            result, headers = result
-        else:
-            headers = {}
+            result = Stubs.getPetById(request, petId, )
 
-        # The result may contain fields with date or datetime values that will not
-        # pass JSON validation. We first create the response, and then maybe validate
-        # the response content against the schema.
-        response = JsonResponse(result, safe=False)
+            if type(result) is tuple:
+                result, headers = result
+            else:
+                headers = {}
 
-        maybe_validate_result(response.content, self.GET_RESPONSE_SCHEMA)
+            # The result may contain fields with date or datetime values that will not
+            # pass JSON validation. We first create the response, and then maybe validate
+            # the response content against the schema.
+            response = JsonResponse(result, safe=False)
 
-        for key, val in headers.items():
-            response[key] = val
+            maybe_validate_result(response.content, self.GET_RESPONSE_SCHEMA)
 
-        return response
+            for key, val in headers.items():
+                response[key] = val
+
+            return response
+        except ValidationError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve.message))
+        except ValueError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve))
 
     def post(self, request, petId, *args, **kwargs):
         """
@@ -419,31 +461,37 @@ class PetPetId(View):
         :param request: An HttpRequest
         :param petId: string ID of pet that needs to be updated
         """
-        form_data = {}
-        name = request.POST.get("name", None)
-        form_data["name"] = name
+        try:
 
-        status = request.POST.get("status", None)
-        form_data["status"] = status
+            form_data = {}
+            name = request.POST.get("name", None)
+            form_data["name"] = name
 
-        result = Stubs.updatePetWithForm(request, form_data, petId, )
+            status = request.POST.get("status", None)
+            form_data["status"] = status
 
-        if type(result) is tuple:
-            result, headers = result
-        else:
-            headers = {}
+            result = Stubs.updatePetWithForm(request, form_data, petId, )
 
-        # The result may contain fields with date or datetime values that will not
-        # pass JSON validation. We first create the response, and then maybe validate
-        # the response content against the schema.
-        response = JsonResponse(result, safe=False)
+            if type(result) is tuple:
+                result, headers = result
+            else:
+                headers = {}
 
-        maybe_validate_result(response.content, self.POST_RESPONSE_SCHEMA)
+            # The result may contain fields with date or datetime values that will not
+            # pass JSON validation. We first create the response, and then maybe validate
+            # the response content against the schema.
+            response = JsonResponse(result, safe=False)
 
-        for key, val in headers.items():
-            response[key] = val
+            maybe_validate_result(response.content, self.POST_RESPONSE_SCHEMA)
 
-        return response
+            for key, val in headers.items():
+                response[key] = val
+
+            return response
+        except ValidationError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve.message))
+        except ValueError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve))
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -458,31 +506,37 @@ class PetPetIdUploadImage(View):
         :param request: An HttpRequest
         :param petId: integer ID of pet to update
         """
-        form_data = {}
-        additionalMetadata = request.POST.get("additionalMetadata", None)
-        form_data["additionalMetadata"] = additionalMetadata
+        try:
 
-        file = request.FILES.get("file", None)
-        form_data["file"] = file
+            form_data = {}
+            additionalMetadata = request.POST.get("additionalMetadata", None)
+            form_data["additionalMetadata"] = additionalMetadata
 
-        result = Stubs.uploadFile(request, form_data, petId, )
+            file = request.FILES.get("file", None)
+            form_data["file"] = file
 
-        if type(result) is tuple:
-            result, headers = result
-        else:
-            headers = {}
+            result = Stubs.uploadFile(request, form_data, petId, )
 
-        # The result may contain fields with date or datetime values that will not
-        # pass JSON validation. We first create the response, and then maybe validate
-        # the response content against the schema.
-        response = JsonResponse(result, safe=False)
+            if type(result) is tuple:
+                result, headers = result
+            else:
+                headers = {}
 
-        maybe_validate_result(response.content, self.POST_RESPONSE_SCHEMA)
+            # The result may contain fields with date or datetime values that will not
+            # pass JSON validation. We first create the response, and then maybe validate
+            # the response content against the schema.
+            response = JsonResponse(result, safe=False)
 
-        for key, val in headers.items():
-            response[key] = val
+            maybe_validate_result(response.content, self.POST_RESPONSE_SCHEMA)
 
-        return response
+            for key, val in headers.items():
+                response[key] = val
+
+            return response
+        except ValidationError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve.message))
+        except ValueError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve))
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -502,24 +556,30 @@ class StoreInventory(View):
         :param self: A StoreInventory instance
         :param request: An HttpRequest
         """
-        result = Stubs.getInventory(request, )
+        try:
 
-        if type(result) is tuple:
-            result, headers = result
-        else:
-            headers = {}
+            result = Stubs.getInventory(request, )
 
-        # The result may contain fields with date or datetime values that will not
-        # pass JSON validation. We first create the response, and then maybe validate
-        # the response content against the schema.
-        response = JsonResponse(result, safe=False)
+            if type(result) is tuple:
+                result, headers = result
+            else:
+                headers = {}
 
-        maybe_validate_result(response.content, self.GET_RESPONSE_SCHEMA)
+            # The result may contain fields with date or datetime values that will not
+            # pass JSON validation. We first create the response, and then maybe validate
+            # the response content against the schema.
+            response = JsonResponse(result, safe=False)
 
-        for key, val in headers.items():
-            response[key] = val
+            maybe_validate_result(response.content, self.GET_RESPONSE_SCHEMA)
 
-        return response
+            for key, val in headers.items():
+                response[key] = val
+
+            return response
+        except ValidationError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve.message))
+        except ValueError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve))
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -537,24 +597,30 @@ class StoreOrder(View):
         if not body:
             return HttpResponseBadRequest("Body required")
 
-        result = Stubs.placeOrder(request, body, )
+        try:
 
-        if type(result) is tuple:
-            result, headers = result
-        else:
-            headers = {}
+            result = Stubs.placeOrder(request, body, )
 
-        # The result may contain fields with date or datetime values that will not
-        # pass JSON validation. We first create the response, and then maybe validate
-        # the response content against the schema.
-        response = JsonResponse(result, safe=False)
+            if type(result) is tuple:
+                result, headers = result
+            else:
+                headers = {}
 
-        maybe_validate_result(response.content, self.POST_RESPONSE_SCHEMA)
+            # The result may contain fields with date or datetime values that will not
+            # pass JSON validation. We first create the response, and then maybe validate
+            # the response content against the schema.
+            response = JsonResponse(result, safe=False)
 
-        for key, val in headers.items():
-            response[key] = val
+            maybe_validate_result(response.content, self.POST_RESPONSE_SCHEMA)
 
-        return response
+            for key, val in headers.items():
+                response[key] = val
+
+            return response
+        except ValidationError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve.message))
+        except ValueError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve))
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -569,24 +635,30 @@ class StoreOrderOrderId(View):
         :param request: An HttpRequest
         :param orderId: string ID of the order that needs to be deleted
         """
-        result = Stubs.deleteOrder(request, orderId, )
+        try:
 
-        if type(result) is tuple:
-            result, headers = result
-        else:
-            headers = {}
+            result = Stubs.deleteOrder(request, orderId, )
 
-        # The result may contain fields with date or datetime values that will not
-        # pass JSON validation. We first create the response, and then maybe validate
-        # the response content against the schema.
-        response = JsonResponse(result, safe=False)
+            if type(result) is tuple:
+                result, headers = result
+            else:
+                headers = {}
 
-        maybe_validate_result(response.content, self.DELETE_RESPONSE_SCHEMA)
+            # The result may contain fields with date or datetime values that will not
+            # pass JSON validation. We first create the response, and then maybe validate
+            # the response content against the schema.
+            response = JsonResponse(result, safe=False)
 
-        for key, val in headers.items():
-            response[key] = val
+            maybe_validate_result(response.content, self.DELETE_RESPONSE_SCHEMA)
 
-        return response
+            for key, val in headers.items():
+                response[key] = val
+
+            return response
+        except ValidationError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve.message))
+        except ValueError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve))
 
     def get(self, request, orderId, *args, **kwargs):
         """
@@ -594,24 +666,30 @@ class StoreOrderOrderId(View):
         :param request: An HttpRequest
         :param orderId: string ID of pet that needs to be fetched
         """
-        result = Stubs.getOrderById(request, orderId, )
+        try:
 
-        if type(result) is tuple:
-            result, headers = result
-        else:
-            headers = {}
+            result = Stubs.getOrderById(request, orderId, )
 
-        # The result may contain fields with date or datetime values that will not
-        # pass JSON validation. We first create the response, and then maybe validate
-        # the response content against the schema.
-        response = JsonResponse(result, safe=False)
+            if type(result) is tuple:
+                result, headers = result
+            else:
+                headers = {}
 
-        maybe_validate_result(response.content, self.GET_RESPONSE_SCHEMA)
+            # The result may contain fields with date or datetime values that will not
+            # pass JSON validation. We first create the response, and then maybe validate
+            # the response content against the schema.
+            response = JsonResponse(result, safe=False)
 
-        for key, val in headers.items():
-            response[key] = val
+            maybe_validate_result(response.content, self.GET_RESPONSE_SCHEMA)
 
-        return response
+            for key, val in headers.items():
+                response[key] = val
+
+            return response
+        except ValidationError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve.message))
+        except ValueError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve))
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -629,24 +707,30 @@ class User(View):
         if not body:
             return HttpResponseBadRequest("Body required")
 
-        result = Stubs.createUser(request, body, )
+        try:
 
-        if type(result) is tuple:
-            result, headers = result
-        else:
-            headers = {}
+            result = Stubs.createUser(request, body, )
 
-        # The result may contain fields with date or datetime values that will not
-        # pass JSON validation. We first create the response, and then maybe validate
-        # the response content against the schema.
-        response = JsonResponse(result, safe=False)
+            if type(result) is tuple:
+                result, headers = result
+            else:
+                headers = {}
 
-        maybe_validate_result(response.content, self.POST_RESPONSE_SCHEMA)
+            # The result may contain fields with date or datetime values that will not
+            # pass JSON validation. We first create the response, and then maybe validate
+            # the response content against the schema.
+            response = JsonResponse(result, safe=False)
 
-        for key, val in headers.items():
-            response[key] = val
+            maybe_validate_result(response.content, self.POST_RESPONSE_SCHEMA)
 
-        return response
+            for key, val in headers.items():
+                response[key] = val
+
+            return response
+        except ValidationError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve.message))
+        except ValueError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve))
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -703,24 +787,30 @@ class UserCreateWithArray(View):
         if not body:
             return HttpResponseBadRequest("Body required")
 
-        result = Stubs.createUsersWithArrayInput(request, body, )
+        try:
 
-        if type(result) is tuple:
-            result, headers = result
-        else:
-            headers = {}
+            result = Stubs.createUsersWithArrayInput(request, body, )
 
-        # The result may contain fields with date or datetime values that will not
-        # pass JSON validation. We first create the response, and then maybe validate
-        # the response content against the schema.
-        response = JsonResponse(result, safe=False)
+            if type(result) is tuple:
+                result, headers = result
+            else:
+                headers = {}
 
-        maybe_validate_result(response.content, self.POST_RESPONSE_SCHEMA)
+            # The result may contain fields with date or datetime values that will not
+            # pass JSON validation. We first create the response, and then maybe validate
+            # the response content against the schema.
+            response = JsonResponse(result, safe=False)
 
-        for key, val in headers.items():
-            response[key] = val
+            maybe_validate_result(response.content, self.POST_RESPONSE_SCHEMA)
 
-        return response
+            for key, val in headers.items():
+                response[key] = val
+
+            return response
+        except ValidationError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve.message))
+        except ValueError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve))
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -777,24 +867,30 @@ class UserCreateWithList(View):
         if not body:
             return HttpResponseBadRequest("Body required")
 
-        result = Stubs.createUsersWithListInput(request, body, )
+        try:
 
-        if type(result) is tuple:
-            result, headers = result
-        else:
-            headers = {}
+            result = Stubs.createUsersWithListInput(request, body, )
 
-        # The result may contain fields with date or datetime values that will not
-        # pass JSON validation. We first create the response, and then maybe validate
-        # the response content against the schema.
-        response = JsonResponse(result, safe=False)
+            if type(result) is tuple:
+                result, headers = result
+            else:
+                headers = {}
 
-        maybe_validate_result(response.content, self.POST_RESPONSE_SCHEMA)
+            # The result may contain fields with date or datetime values that will not
+            # pass JSON validation. We first create the response, and then maybe validate
+            # the response content against the schema.
+            response = JsonResponse(result, safe=False)
 
-        for key, val in headers.items():
-            response[key] = val
+            maybe_validate_result(response.content, self.POST_RESPONSE_SCHEMA)
 
-        return response
+            for key, val in headers.items():
+                response[key] = val
+
+            return response
+        except ValidationError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve.message))
+        except ValueError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve))
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -809,28 +905,40 @@ class UserLogin(View):
         :param self: A UserLogin instance
         :param request: An HttpRequest
         """
-        # username (optional): string The user name for login
-        username = request.GET.get("username", None)
-        # password (optional): string The password for login in clear text
-        password = request.GET.get("password", None)
-        result = Stubs.loginUser(request, username, password, )
+        try:
 
-        if type(result) is tuple:
-            result, headers = result
-        else:
-            headers = {}
+            # username (optional): string The user name for login
+            username = request.GET.get("username", None)
+            if username is not None:
+                schema = {'type': 'string'}
+                utils.validate(username, schema)
+            # password (optional): string The password for login in clear text
+            password = request.GET.get("password", None)
+            if password is not None:
+                schema = {'type': 'string'}
+                utils.validate(password, schema)
+            result = Stubs.loginUser(request, username, password, )
 
-        # The result may contain fields with date or datetime values that will not
-        # pass JSON validation. We first create the response, and then maybe validate
-        # the response content against the schema.
-        response = JsonResponse(result, safe=False)
+            if type(result) is tuple:
+                result, headers = result
+            else:
+                headers = {}
 
-        maybe_validate_result(response.content, self.GET_RESPONSE_SCHEMA)
+            # The result may contain fields with date or datetime values that will not
+            # pass JSON validation. We first create the response, and then maybe validate
+            # the response content against the schema.
+            response = JsonResponse(result, safe=False)
 
-        for key, val in headers.items():
-            response[key] = val
+            maybe_validate_result(response.content, self.GET_RESPONSE_SCHEMA)
 
-        return response
+            for key, val in headers.items():
+                response[key] = val
+
+            return response
+        except ValidationError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve.message))
+        except ValueError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve))
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -843,24 +951,30 @@ class UserLogout(View):
         :param self: A UserLogout instance
         :param request: An HttpRequest
         """
-        result = Stubs.logoutUser(request, )
+        try:
 
-        if type(result) is tuple:
-            result, headers = result
-        else:
-            headers = {}
+            result = Stubs.logoutUser(request, )
 
-        # The result may contain fields with date or datetime values that will not
-        # pass JSON validation. We first create the response, and then maybe validate
-        # the response content against the schema.
-        response = JsonResponse(result, safe=False)
+            if type(result) is tuple:
+                result, headers = result
+            else:
+                headers = {}
 
-        maybe_validate_result(response.content, self.GET_RESPONSE_SCHEMA)
+            # The result may contain fields with date or datetime values that will not
+            # pass JSON validation. We first create the response, and then maybe validate
+            # the response content against the schema.
+            response = JsonResponse(result, safe=False)
 
-        for key, val in headers.items():
-            response[key] = val
+            maybe_validate_result(response.content, self.GET_RESPONSE_SCHEMA)
 
-        return response
+            for key, val in headers.items():
+                response[key] = val
+
+            return response
+        except ValidationError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve.message))
+        except ValueError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve))
 
 
 @method_decorator(csrf_exempt, name="dispatch")
@@ -877,24 +991,30 @@ class UserUsername(View):
         :param request: An HttpRequest
         :param username: string The name that needs to be deleted
         """
-        result = Stubs.deleteUser(request, username, )
+        try:
 
-        if type(result) is tuple:
-            result, headers = result
-        else:
-            headers = {}
+            result = Stubs.deleteUser(request, username, )
 
-        # The result may contain fields with date or datetime values that will not
-        # pass JSON validation. We first create the response, and then maybe validate
-        # the response content against the schema.
-        response = JsonResponse(result, safe=False)
+            if type(result) is tuple:
+                result, headers = result
+            else:
+                headers = {}
 
-        maybe_validate_result(response.content, self.DELETE_RESPONSE_SCHEMA)
+            # The result may contain fields with date or datetime values that will not
+            # pass JSON validation. We first create the response, and then maybe validate
+            # the response content against the schema.
+            response = JsonResponse(result, safe=False)
 
-        for key, val in headers.items():
-            response[key] = val
+            maybe_validate_result(response.content, self.DELETE_RESPONSE_SCHEMA)
 
-        return response
+            for key, val in headers.items():
+                response[key] = val
+
+            return response
+        except ValidationError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve.message))
+        except ValueError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve))
 
     def get(self, request, username, *args, **kwargs):
         """
@@ -902,24 +1022,30 @@ class UserUsername(View):
         :param request: An HttpRequest
         :param username: string The name that needs to be fetched. Use user1 for testing. 
         """
-        result = Stubs.getUserByName(request, username, )
+        try:
 
-        if type(result) is tuple:
-            result, headers = result
-        else:
-            headers = {}
+            result = Stubs.getUserByName(request, username, )
 
-        # The result may contain fields with date or datetime values that will not
-        # pass JSON validation. We first create the response, and then maybe validate
-        # the response content against the schema.
-        response = JsonResponse(result, safe=False)
+            if type(result) is tuple:
+                result, headers = result
+            else:
+                headers = {}
 
-        maybe_validate_result(response.content, self.GET_RESPONSE_SCHEMA)
+            # The result may contain fields with date or datetime values that will not
+            # pass JSON validation. We first create the response, and then maybe validate
+            # the response content against the schema.
+            response = JsonResponse(result, safe=False)
 
-        for key, val in headers.items():
-            response[key] = val
+            maybe_validate_result(response.content, self.GET_RESPONSE_SCHEMA)
 
-        return response
+            for key, val in headers.items():
+                response[key] = val
+
+            return response
+        except ValidationError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve.message))
+        except ValueError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve))
 
     def put(self, request, username, *args, **kwargs):
         """
@@ -931,24 +1057,30 @@ class UserUsername(View):
         if not body:
             return HttpResponseBadRequest("Body required")
 
-        result = Stubs.updateUser(request, body, username, )
+        try:
 
-        if type(result) is tuple:
-            result, headers = result
-        else:
-            headers = {}
+            result = Stubs.updateUser(request, body, username, )
 
-        # The result may contain fields with date or datetime values that will not
-        # pass JSON validation. We first create the response, and then maybe validate
-        # the response content against the schema.
-        response = JsonResponse(result, safe=False)
+            if type(result) is tuple:
+                result, headers = result
+            else:
+                headers = {}
 
-        maybe_validate_result(response.content, self.PUT_RESPONSE_SCHEMA)
+            # The result may contain fields with date or datetime values that will not
+            # pass JSON validation. We first create the response, and then maybe validate
+            # the response content against the schema.
+            response = JsonResponse(result, safe=False)
 
-        for key, val in headers.items():
-            response[key] = val
+            maybe_validate_result(response.content, self.PUT_RESPONSE_SCHEMA)
 
-        return response
+            for key, val in headers.items():
+                response[key] = val
+
+            return response
+        except ValidationError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve.message))
+        except ValueError as ve:
+            return HttpResponseBadRequest("Parameter validation failed: {}".format(ve))
 
 
 class __SWAGGER_SPEC__(View):
@@ -1143,7 +1275,7 @@ class __SWAGGER_SPEC__(View):
         },
         "description": "This is a sample server Petstore server.  You can find out more about Swagger at <a href=\\"http://swagger.io\\">http://swagger.io</a> or on irc.freenode.net, #swagger.  For this sample, you can use the api key \\"special-key\\" to test the authorization filters",
         "license": {
-            "name": "Apache 2.0",
+            "name": "Apache-2.0",
             "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
         },
         "termsOfService": "http://helloreverb.com/terms/",
@@ -1314,6 +1446,7 @@ class __SWAGGER_SPEC__(View):
         },
         "/pet/findByTags": {
             "get": {
+                "deprecated": true,
                 "description": "Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.",
                 "operationId": "findPetsByTags",
                 "parameters": [
