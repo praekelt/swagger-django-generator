@@ -50,21 +50,21 @@ def maybe_validate_result(result_string, schema):
 
 {% for class_name, verbs in classes|dictsort(true) %}
 @method_decorator(csrf_exempt, name="dispatch")
-{% for verb, info in verbs|dictsort(true) %}
-{% if info.secure %}
+  {% for verb, info in verbs|dictsort(true) %}
+    {% if info.secure %}
 @method_decorator(utils.login_required_no_redirect, name="{{ verb }}")
-{% endif %}
-{% endfor %}
+    {% endif %}
+  {% endfor %}
 class {{ class_name }}(View):
 
-    {% for verb, info in verbs|dictsort(true) %}
+{% for verb, info in verbs|dictsort(true) %}
     {{ verb|upper }}_RESPONSE_SCHEMA = {{ info.response_schema }}
-    {% endfor %}
-    {% for verb, info in verbs|dictsort(true) if info.body %}
+{% endfor %}
+{% for verb, info in verbs|dictsort(true) if info.body %}
     {{ verb|upper }}_BODY_SCHEMA = {{ info.body.schema }}
-    {% endfor %}
+{% endfor %}
 
-    {% for verb, info in verbs|dictsort(true) %}
+{% for verb, info in verbs|dictsort(true) %}
     def {{ verb }}(self, request, {% for ra in info.required_args if ra.in == "path" %}{{ ra.name }}, {% endfor %}*args, **kwargs):
         """
         :param self: A {{ class_name }} instance
@@ -73,70 +73,124 @@ class {{ class_name }}(View):
         :param {{ ra.name }}: {{ ra.type }} {{ ra.description }}
         {% endfor %}
         """
-        {% if info.body %}
+  {% if info.body %}
         body = utils.body_to_dict(request.body, self.{{ verb|upper}}_BODY_SCHEMA)
         if not body:
             return HttpResponseBadRequest("Body required")
 
-        {% endif %}
-        {% for ra in info.required_args if ra.in == "query" %}
+  {% endif %}
+    {% for ra in info.required_args if ra.in == "query" %}
         if "{{ ra.name }}" not in request.GET:
             return HttpResponseBadRequest("{{ ra.name }} required")
 
-        {% if ra.type == "array" %}
+      {% if ra.type == "array" %}
         {% if ra.collectionFormat == "multi" %}
         {{ ra.name }} = request.GET.getlist("{{ ra.name }}", None)
         {% else %}
         {{ ra.name }} = request.GET.get("{{ ra.name }}", None)
         if {{ ra.name }} is not None:
-        {% if ra.collectionFormat == "pipes" %}
+          {% if ra.collectionFormat == "pipes" %}
             {{ ra.name }} = {{ ra.name }}.split("|")
-        {% elif ra.collectionFormat == "tsv" %}
+          {% elif ra.collectionFormat == "tsv" %}
             {{ ra.name }} = {{ ra.name }}.split("\t")
-        {% elif ra.collectionFormat == "ssv" %}
+          {% elif ra.collectionFormat == "ssv" %}
             {{ ra.name }} = {{ ra.name }}.split(" ")
-        {% elif ra.collectionFormat == "csv" %}
+          {% elif ra.collectionFormat == "csv" %}
             {{ ra.name }} = {{ ra.name }}.split(",")
-        {% else %}
+          {% else %}
             {{ ra.name }} = {{ ra.name }}.split(",")
+          {% endif %}
         {% endif %}
-        {% endif %}
-        {% else %}
+      {% else %}
         {{ ra.name }} = request.GET.get("{{ ra.name }}")
+      {% endif %}
+
+      {% if ra.type == "boolean" %}
+        {{ ra.name }} = ({{ ra.name }}.lower() == "true")
+      {% endif %}
+      {% if ra.type == "integer" %}
+        {{ ra.name }} = int({{ ra.name }})
+        {% if "minimum" in ra %}
+        if {{ ra.name }} < {{ ra.minimum }}:
+            raise ValidationError("{{ ra.name }} exceeds its minimum limit")
         {% endif %}
+        {% if "maximum" in ra %}
+        if {{ ra.maximum }} < {{ ra.name }}:
+            raise ValidationError("{{ ra.name }} exceeds its maximum limit")
+        {% endif %}
+      {% elif ra.type == "string" %}
+        schema = {{ ra }}
+        # Remove Swagger fields that clash with JSONSchema names at this level
+        for field in ["name", "in", "required"]:
+            if field in schema:
+                del schema[field]
 
+        utils.validate({{ ra.name }}, schema)
+      {% else %}
         utils.validate({{ ra.name }}, {"type": "{{ ra.type }}"})
-        {% endfor %}
+      {% endif %}
+    {% endfor %}
 
-        {% for oa in info.optional_args if oa.in == "query" %}
+    {% for oa in info.optional_args if oa.in == "query" %}
         # {{ oa.name }} (optional): {{ oa.type }} {{ oa.description }}
-        {% if oa.type == "array" %}
+      {% if oa.type == "array" %}
         {% if oa.collectionFormat == "multi" %}
         {{ oa.name }} = request.GET.getlist("{{ oa.name }}", None)
         {% else %}
         {{ oa.name }} = request.GET.get("{{ oa.name }}", None)
         if {{ oa.name }} is not None:
-        {% if oa.collectionFormat == "pipes" %}
+          {% if oa.collectionFormat == "pipes" %}
             {{ oa.name }} = {{ oa.name }}.split("|")
-        {% elif oa.collectionFormat == "tsv" %}
+          {% elif oa.collectionFormat == "tsv" %}
             {{ oa.name }} = {{ oa.name }}.split("\t")
-        {% elif oa.collectionFormat == "ssv" %}
+          {% elif oa.collectionFormat == "ssv" %}
             {{ oa.name }} = {{ oa.name }}.split(" ")
-        {% elif oa.collectionFormat == "csv" %}
+          {% elif oa.collectionFormat == "csv" %}
             {{ oa.name }} = {{ oa.name }}.split(",")
-        {% else %}
+          {% else %}
             {{ oa.name }} = {{ oa.name }}.split(",")
+          {% endif %}
         {% endif %}
-        {% endif %}
-        {% else %}
+      {% else %}
         {{ oa.name }} = request.GET.get("{{ oa.name }}", None)
-        {% endif %}
+      {% endif %}
         if {{ oa.name }} is not None:
-            utils.validate({{ oa.name }}, {"type": "{{ oa.type }}", {% if oa.format %}"format": "{{ oa.format }}"{% endif %} })
-        {% endfor %}
-        {% if info.form_data %}
+      {% if oa.type == "boolean" %}
+            {{ oa.name }} = ({{ oa.name }}.lower() == "true")
+      {% endif %}
+      {% if oa.type == "integer" %}
+            {{ oa.name }} = int({{ oa.name }})
+        {% if "minimum" in oa %}
+            if {{ oa.name }} < {{ oa.minimum }}:
+                raise ValidationError("{{ oa.name }} exceeds its minimum limit")
+        {% endif %}
+        {% if "maximum" in oa %}
+            if {{ oa.maximum }} < {{ oa.name }}:
+                raise ValidationError("{{ oa.name }} exceeds its maximum limit")
+        {% endif %}
+      {% elif oa.type == "array" %}
+            schema = {{ oa }}
+            # Remove Swagger fields that clash with JSONSchema names at this level
+            for field in ["name", "in", "required", "collectionFormat"]:
+                if field in schema:
+                    del schema[field]
+
+            utils.validate({{ oa.name }}, schema)
+      {% elif oa.type == "string" %}
+            schema = {{ oa }}
+            # Remove Swagger fields that clash with JSONSchema names at this level
+            for field in ["name", "in", "required"]:
+                if field in schema:
+                    del schema[field]
+
+            utils.validate({{ oa.name }}, schema)
+      {% else %}
+            utils.validate({{ oa.name }}, {"type": "{{ oa.type }}"})
+      {% endif %}
+    {% endfor %}
+    {% if info.form_data %}
         form_data = {}
-        {% for data in info.form_data %}
+      {% for data in info.form_data %}
         {% if data.type == "file" %}
         {{ data.name }} = request.FILES.get("{{ data.name }}", None)
         {% else %}
@@ -148,8 +202,8 @@ class {{ class_name }}(View):
         {% endif %}
         form_data["{{ data.name }}"] = {{ data.name }}
 
-        {% endfor %}
-        {% endif %}
+      {% endfor %}
+    {% endif %}
         result = Stubs.{{ info.operation }}(request, {% if info.body %}body, {% endif %}{% if info.form_data %}form_data, {% endif %}
             {% for ra in info.required_args %}{{ ra.name }}, {% endfor %}
             {% for oa in info.optional_args if oa.in == "query" %}{{ oa.name }}, {% endfor %})
@@ -170,10 +224,10 @@ class {{ class_name }}(View):
             response[key] = val
 
         return response
-   {% if not loop.last %}
+    {% if not loop.last %}
 
-   {% endif %}
-   {% endfor %}
+    {% endif %}
+  {% endfor %}
 
 
 {% endfor %}
