@@ -79,6 +79,8 @@ class {{ class_name }}(View, CorsViewMixin):
                 if {{ ra.name }}:
                     {{ ra.name }} = [int(e) for e in {{ ra.name }}]
                 {% endif %}
+              {% else %}
+            {{ ra.name }} = self.request.query.get("{{ ra.name }}", None)
               {% endif %}
             {% endif %}
             {% if ra.type == "boolean" %}
