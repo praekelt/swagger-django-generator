@@ -32,7 +32,7 @@ In particular, the following files are currently generated:
 A virtual environment can be set up by running
 ```
 make virtualenv
-./ve/bin/python manage.py develop  # Installs package so that templates can be found
+./ve/bin/python setup.py develop  # Installs package so that templates can be found
 ```
 This utility is self-documenting. To get an idea of what is supported, simply
 run the utility with the `--help` flag:
